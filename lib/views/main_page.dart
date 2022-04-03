@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
-import 'package:webadmin_onboarding/responsive.dart';
-import 'package:webadmin_onboarding/views/main/component/header.dart';
+import 'package:webadmin_onboarding/utils/responsive.dart';
+import 'package:webadmin_onboarding/views/main/header.dart';
 import 'package:webadmin_onboarding/views/dashboard/dashboard_page.dart';
-import 'package:webadmin_onboarding/views/main/component/side_menu.dart';
+import 'package:webadmin_onboarding/views/main/side_menu.dart';
 import 'package:provider/provider.dart';
+
+import 'dart:convert' show json, base64, ascii;
 
 class MainPage extends StatelessWidget {
   const MainPage({Key? key}) : super(key: key);

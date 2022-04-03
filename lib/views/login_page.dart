@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -10,8 +12,8 @@ class LoginPage extends StatelessWidget {
         backgroundColor: BROWN_GARUDA,
         body: ListView(
           padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.2,
-              ),
+            horizontal: MediaQuery.of(context).size.width * 0.2,
+          ),
           children: [
             // Menu(),
             // MediaQuery.of(context).size.width >= 980
@@ -23,9 +25,150 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class Body extends StatelessWidget {
+class Body extends StatefulWidget {
+  @override
+  State<Body> createState() => _BodyState();
+}
+
+class _BodyState extends State<Body> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = context.watch<AuthProvider>();
+
+    void _login(String email, String password) {
+      authProvider.isLoginButtonDisabled = true;
+      authProvider.auth(email, password).catchError((onError) {
+        return showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("Auth Error"),
+                content: Text("$onError"),
+                actions: [
+                  TextButton(
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      child: Text("okay"))
+                ],
+              );
+            });
+      });
+    }
+
+    Widget _formLogin() {
+      return Card(
+        elevation: 5,
+        child: Container(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Login Administrator",
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 70),
+              TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Email",
+                  )),
+              Visibility(
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "* Email harus diisi",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+                visible: authProvider.isEmailFieldEmpty,
+              ),
+              SizedBox(height: 30),
+              TextFormField(
+                  obscureText: authProvider.isPasswordHidden,
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Password",
+                      suffix: InkWell(
+                          onTap: () => authProvider.changePasswordHidden(),
+                          child: Icon(authProvider.isPasswordHidden
+                              ? Icons.visibility_off
+                              : Icons.visibility)))),
+              Visibility(
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "* Password harus diisi",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+                visible: authProvider.isPasswordFieldEmpty,
+              ),
+              SizedBox(height: 30),
+              Container(
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                      onTap: () {},
+                      child: Text("Forgot Password?",
+                          style: TextStyle(fontWeight: FontWeight.w600)))),
+              SizedBox(height: 60),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    primary: authProvider.isLoginButtonDisabled
+                        ? Colors.blue[300]
+                        : Colors.blue),
+                child: Container(
+                    width: 60,
+                    height: 45,
+                    child: Center(
+                      child: authProvider.isLoginButtonDisabled
+                          ? Text(
+                              "Wait",
+                              style: TextStyle(fontSize: 18),
+                            )
+                          : Text(
+                              "Login",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                    )),
+                onPressed: authProvider.isLoginButtonDisabled
+                    ? () {}
+                    : () {
+                        if (_emailController.text.isNotEmpty &&
+                            _passwordController.text.isNotEmpty) {
+                          authProvider.isEmailFieldEmpty =
+                              _emailController.text.isEmpty;
+                          authProvider.isPasswordFieldEmpty =
+                              _passwordController.text.isEmpty;
+                          _login(
+                              _emailController.text, _passwordController.text);
+                        } else {
+                          authProvider.isEmailFieldEmpty =
+                              _emailController.text.isEmpty;
+                          authProvider.isPasswordFieldEmpty =
+                              _passwordController.text.isEmpty;
+                        }
+                      },
+              ),
+
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     _loginWithButton(image: 'images/google.png'),
+              //     _loginWithButton(image: 'images/github.png', isActive: true),
+              //     _loginWithButton(image: 'images/facebook.png'),
+              //   ],
+              // ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(
         // horizontal: 100,
@@ -34,99 +177,4 @@ class Body extends StatelessWidget {
       child: _formLogin(),
     );
   }
-
-  Widget _formLogin() {
-    return Card(
-      elevation: 5,
-      child: Container(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Login Administrator",
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 70),
-            TextFormField(
-                decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Password",
-            )),
-            SizedBox(height: 30),
-            TextFormField(
-                decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Password",
-            )),
-            SizedBox(height: 30),
-            Container(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
-                    onTap: () {},
-                    child: Text("Forgot Password?",
-                        style: TextStyle(fontWeight: FontWeight.w600)))),
-            SizedBox(height: 60),
-            ElevatedButton(
-              child: Container(
-                  width: 60, height: 45, child: Center(child: Text("Login", style: TextStyle(fontSize: 18),))),
-              onPressed: () {},
-            ),
-
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     _loginWithButton(image: 'images/google.png'),
-            //     _loginWithButton(image: 'images/github.png', isActive: true),
-            //     _loginWithButton(image: 'images/facebook.png'),
-            //   ],
-            // ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Widget _loginWithButton({String image, bool isActive = false}) {
-  //   return Container(
-  //     width: 90,
-  //     height: 70,
-  //     decoration: isActive
-  //         ? BoxDecoration(
-  //             color: Colors.white,
-  //             boxShadow: [
-  //               BoxShadow(
-  //                 color: Colors.grey[300],
-  //                 spreadRadius: 10,
-  //                 blurRadius: 30,
-  //               )
-  //             ],
-  //             borderRadius: BorderRadius.circular(15),
-  //           )
-  //         : BoxDecoration(
-  //             borderRadius: BorderRadius.circular(15),
-  //             border: Border.all(color: Colors.grey[400]),
-  //           ),
-  //     child: Center(
-  //         child: Container(
-  //       decoration: isActive
-  //           ? BoxDecoration(
-  //               color: Colors.white,
-  //               borderRadius: BorderRadius.circular(35),
-  //               boxShadow: [
-  //                 BoxShadow(
-  //                   color: Colors.grey[400],
-  //                   spreadRadius: 2,
-  //                   blurRadius: 15,
-  //                 )
-  //               ],
-  //             )
-  //           : BoxDecoration(),
-  //       child: Image.asset(
-  //         '$image',
-  //         width: 35,
-  //       ),
-  //     )),
-  //   );
-  // }
 }

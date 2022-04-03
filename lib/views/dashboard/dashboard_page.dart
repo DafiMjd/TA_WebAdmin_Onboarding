@@ -1,14 +1,55 @@
-import 'package:webadmin_onboarding/responsive.dart';
+import 'package:provider/provider.dart';
+import 'package:webadmin_onboarding/providers/menu_provider.dart';
+import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/dashboard/components/table.dart';
-import 'package:webadmin_onboarding/views/table/component/table2.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/user/add_user_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/table.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    MenuProvider menuProv = context.watch<MenuProvider>();
+
+    Row topActionButton() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton.icon(
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(
+                horizontal: DEFAULT_PADDING * 1.5,
+                vertical:
+                    DEFAULT_PADDING / (Responsive.isMobile(context) ? 2 : 1),
+              ),
+            ),
+            onPressed: () {
+              menuProv.getAction("add");
+            },
+            icon: Icon(Icons.add),
+            label: Text("Add New"),
+          ),
+        ],
+      );
+    }
+
+    Widget dashboardContent() {
+      if (menuProv.isTableShown) {
+        if (menuProv.isFetchingData) {
+          return CircularProgressIndicator();
+        }
+        return MyTable(datas: menuProv.data, colnames: menuProv.colnames);
+      } else if (menuProv.isFormShown) {
+        if (menuProv.isFetchingData) {
+          return CircularProgressIndicator();
+        }
+        return AddUserForm();
+      }
+      return Container();
+    }
+
     return SafeArea(
       child: Scrollbar(
         isAlwaysShown: true,
@@ -31,14 +72,22 @@ class DashboardPage extends StatelessWidget {
                           child: Container(
                             margin: EdgeInsets.only(left: 15),
                             child: Text(
-                              "Selamat Datang",
+                              menuProv.menuName,
                               style: Theme.of(context).textTheme.headline5,
                             ),
                           ),
                         ),
+
                         SizedBox(height: DEFAULT_PADDING),
-                        MyTable(),
-                        SizedBox(height: DEFAULT_PADDING,),
+                        (menuProv.isTableShown)
+                            ? topActionButton()
+                            : Container(),
+
+                        dashboardContent(),
+
+                        SizedBox(
+                          height: DEFAULT_PADDING,
+                        ),
                         if (Responsive.isMobile(context))
                           SizedBox(height: DEFAULT_PADDING),
                         // if (Responsive.isMobile(context)) StarageDetails(),

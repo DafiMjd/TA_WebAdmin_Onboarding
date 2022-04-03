@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
-import 'package:webadmin_onboarding/responsive.dart';
+import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 
@@ -12,6 +13,8 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = context.watch<AuthProvider>();
+
     return Container(
       decoration: BoxDecoration(
           color: BROWN_GARUDA,
@@ -33,8 +36,13 @@ class Header extends StatelessWidget {
                           (Responsive.isMobile(context) ? 2 : 1),
                     ),
                   ),
-                  onPressed: () {},
-                  child: Text("Sign Out", style: TextStyle(fontSize: 16),),
+                  onPressed: () {
+                    authProvider.logout();
+                  },
+                  child: Text(
+                    "Sign Out",
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
             )
@@ -57,33 +65,28 @@ class Header extends StatelessWidget {
                   child: Container(
                     alignment: Alignment.centerRight,
                     margin: EdgeInsets.only(right: 15),
-                    child: Text(
-                      "Sign Out",
-                      style: TextStyle(color: Colors.white),
+                    child: ElevatedButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: BROWN_GARUDA,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: DEFAULT_PADDING * 1.5,
+                          vertical: DEFAULT_PADDING /
+                              (Responsive.isMobile(context) ? 2 : 1),
+                        ),
+                      ),
+                      onPressed: () {
+                        authProvider.logout();
+                      },
+                      child: Text(
+                        "Sign Out",
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
     );
-    // return Row(
-    //   children: [
-    //     if (!Responsive.isDesktop(context))
-    //       IconButton(
-    //         icon: Icon(Icons.menu),
-    //         onPressed: context.read<MenuProvider>().controlMenu,
-    //       ),
-    //     if (!Responsive.isMobile(context))
-    //       Text(
-    //         "Dashboard",
-    //         style: Theme.of(context).textTheme.headline6,
-    //       ),
-    //     if (!Responsive.isMobile(context))
-    //       Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-    //     // Expanded(child: SearchField()),
-    //     Container(alignment: Alignment.centerRight, child: Text("Signout"))
-    //   ],
-    // );
   }
 }
 
