@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
+import 'package:webadmin_onboarding/providers/form/add_admin_form_provider.dart';
+import 'package:webadmin_onboarding/providers/form/add_user_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
 import 'package:webadmin_onboarding/views/login_page.dart';
 
 void main() {
@@ -34,6 +37,9 @@ class MyApp extends StatelessWidget {
               }
               return DataProvider();
             }),
+        
+        ChangeNotifierProvider(create: (context) => AddUserFormProvider()),
+        ChangeNotifierProvider(create: (context) => AddAdminFormProvider()),
       ],
       builder: (context, child) => Consumer<AuthProvider>(
           builder: (context, auth, child) => MaterialApp(

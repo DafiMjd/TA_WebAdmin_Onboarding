@@ -3,7 +3,8 @@ import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/user/add_user_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/table.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -35,17 +36,26 @@ class DashboardPage extends StatelessWidget {
       );
     }
 
+    Widget _getForm(id) {
+      if (id == "user_list") {
+        return AddUserForm();
+      } else if (id == "admin_list") {
+        return AddAdminForm();
+      }
+      return Container();
+    }
+
     Widget dashboardContent() {
       if (menuProv.isTableShown) {
         if (menuProv.isFetchingData) {
           return CircularProgressIndicator();
         }
-        return MyTable(datas: menuProv.data, colnames: menuProv.colnames);
+        return MyTable(datas: menuProv.data, colnames: menuProv.colnames, menuId: menuProv.menuId);
       } else if (menuProv.isFormShown) {
         if (menuProv.isFetchingData) {
           return CircularProgressIndicator();
         }
-        return AddUserForm();
+        return _getForm(menuProv.menuId);
       }
       return Container();
     }

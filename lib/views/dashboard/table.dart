@@ -1,28 +1,40 @@
-import 'dart:math';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/models/menu.dart';
+import 'package:webadmin_onboarding/providers/data_provider.dart';
+import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/column_name_parse.dart';
-import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 
 class MyTable extends StatelessWidget {
-  const MyTable({Key? key, required this.datas, required this.colnames})
+  const MyTable(
+      {Key? key,
+      required this.datas,
+      required this.colnames,
+      required this.menuId})
       : super(key: key);
 
   final List<dynamic> datas;
   final List<String> colnames;
+  final String menuId;
 
   @override
   Widget build(BuildContext context) {
-    List<String> myList = ["dafi", "majid", "fadhlih"];
+    DataProvider dataProv = context.watch<DataProvider>();
+    MenuProvider menuProv = context.watch<MenuProvider>();
 
-    final DataTableSource _dataTable = MyData(datas: datas, colnames: colnames);
+    final DataTableSource _dataTable = MyData(
+        datas: datas,
+        colnames: colnames,
+        menuId: menuId,
+        dataProv: dataProv,
+        menuProv: menuProv,
+        context: context);
 
     return Column(
       children: [
-
         SizedBox(height: DEFAULT_PADDING),
         paginatedDataTable(_dataTable),
       ],
@@ -54,8 +66,18 @@ class MyTable extends StatelessWidget {
 class MyData extends DataTableSource {
   final List<dynamic> datas;
   final List<String> colnames;
+  final String menuId;
+  final DataProvider dataProv;
+  final MenuProvider menuProv;
+  final BuildContext context;
 
-  MyData({required this.datas, required this.colnames});
+  MyData(
+      {required this.datas,
+      required this.colnames,
+      required this.menuId,
+      required this.dataProv,
+      required this.menuProv,
+      required this.context});
 
   @override
   bool get isRowCountApproximate => false;
@@ -65,10 +87,6 @@ class MyData extends DataTableSource {
   int get selectedRowCount => 0;
   @override
   DataRow getRow(int index) {
-    var identifier = colnames[index];
-    print("dafi1: " + identifier);
-    print("dafi2: " + datas[index].getData(identifier).toString());
-
     return DataRow(
         color: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
@@ -99,16 +117,42 @@ class MyData extends DataTableSource {
               ),
               Tooltip(
                   message: "Delete",
-                  child:
-                      IconButton(onPressed: (() {}), icon: Icon(Icons.delete))),
+                  child: IconButton(
+                      onPressed: (() {
+                        action(index);
+                      }),
+                      icon: Icon(Icons.delete))),
             ],
           )),
-
           for (int i = 0; i < colnames.length; i++)
-            DataCell(
-              Text(datas[index].getData(colnames[i]).toString()),
-            ),
-
+            DataCell(Text(datas[index].getData(colnames[i]).toString())),
         ]);
   }
+
+  void action(int index) async {
+    try {
+      menuProv.isFetchingData = true;
+      var data = await dataProv.action(menuProv.menuId, "delete",
+          datas[index].getData(colnames[0]).toString());
+      menuProv.isFetchingData = false;
+
+      menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+    } catch (e) {
+      return showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("HTTP Error"),
+                content: Text("$e"),
+                actions: [
+                  TextButton(
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      child: Text("okay"))
+                ],
+              );
+            });
+    }
+  }
+
 }

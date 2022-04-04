@@ -40,10 +40,8 @@ class SideMenu extends StatelessWidget {
       menuProv.isFetchingData = false;
       List<String> colnames = dataProv.colnames;
 
-      print("dafi data: " + data.toString());
-      print("dafi col: " + colnames.toString());
 
-      menuProv.showTable(data, colnames, menu);
+      menuProv.showTable(data, colnames, menu.title, menu.id);
     }
 
     Widget drawSubMenuItem(Menu menu) {

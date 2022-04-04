@@ -70,7 +70,6 @@ class MenuProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   String _menuName = "Selamat Datang";
   get menuName => _menuName;
   set menuName(val) {
@@ -84,9 +83,9 @@ class MenuProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void showTable(data, colnames, Menu menu) {
-    menuName = menu.title;
-    menuId = menu.id;
+  void showTable(data, colnames, menuTitle, menuId) {
+    menuName = menuTitle;
+    this.menuId = menuId;
     this.data = data;
     this.colnames = colnames;
     isTableShown = true;
