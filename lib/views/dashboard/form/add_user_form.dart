@@ -37,10 +37,10 @@ class _AddUserFormState extends State<AddUserForm> {
     super.initState();
     dataProv = Provider.of<DataProvider>(context, listen: false);
     formProv = Provider.of<AddUserFormProvider>(context, listen: false);
-    _loadDrowDownData();
+    _loadDropDownData();
   }
 
-  void _loadDrowDownData() async {
+  void _loadDropDownData() async {
     formProv.isFetchingData = true;
     roles = await dataProv.fetchRoles();
     jobtitles = await dataProv.fetchJobtitles();
