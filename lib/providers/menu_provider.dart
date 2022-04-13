@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/models/admin.dart';
+import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/menu.dart';
+import 'package:webadmin_onboarding/models/role.dart';
+import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/utils/column_name_parse.dart';
 
 class MenuProvider extends ChangeNotifier {
@@ -41,6 +45,45 @@ class MenuProvider extends ChangeNotifier {
 
   void receiveJWT(jwt) {
     _jwt = jwt;
+    notifyListeners();
+  }
+
+  late List<User> _users;
+  late List<Admin> _admins;
+  late List<Role> _roles;
+  late List<Role> _rolesMobile;
+  late List<Role> _rolesWebsite;
+  late List<Jobtitle> _jobtitles;
+
+  get users => _users;
+  get admins => _admins;
+  get roles => _roles;
+  get rolesMobile => _rolesMobile;
+  get rolesWebsite => _rolesWebsite;
+  get jobtitles => _jobtitles;
+
+  set users(val){
+    _users = val;
+    notifyListeners();
+  }
+  set admins(val){
+    _admins = val;
+    notifyListeners();
+  }
+  set roles(val){
+    _roles = val;
+    notifyListeners();
+  }
+  set rolesWebsite(val){
+    _rolesWebsite = val;
+    notifyListeners();
+  }
+  set rolesMobile(val){
+    _rolesMobile = val;
+    notifyListeners();
+  }
+  set jobtitles(val){
+    _jobtitles = val;
     notifyListeners();
   }
 
@@ -116,5 +159,11 @@ class MenuProvider extends ChangeNotifier {
       isTableShown = false;
       isFormShown = true;
     }
+  }
+  
+  void init() {
+    menuName = "Selamat Datang";
+    isFormShown = false;
+    isTableShown = false;
   }
 }

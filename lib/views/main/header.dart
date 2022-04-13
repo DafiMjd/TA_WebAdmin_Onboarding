@@ -14,6 +14,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = context.watch<AuthProvider>();
+    MenuProvider menuProv = context.watch<MenuProvider>();
 
     return Container(
       decoration: BoxDecoration(
@@ -37,6 +38,7 @@ class Header extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
+                    menuProv.init();
                     authProvider.logout();
                   },
                   child: Text(

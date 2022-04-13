@@ -21,9 +21,9 @@ class User {
       required this.jobtitle,});
 
   factory User.fromJson(Map<String, dynamic> json) {
-    final DateFormat formatter = DateFormat('yyyy-MM-dd');
-    final DateTime birtDate = DateTime.parse(json['birthdate']);
-    final String dateFormatted = formatter.format(birtDate);
+    // final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    // final DateTime birtDate = DateTime.parse(json['birthdate']);
+    // final String dateFormatted = formatter.format(birtDate);
 
     return User(
         email: json['email'],
@@ -33,7 +33,7 @@ class User {
         progress: json['progress'],
         role: Role.fromJson(json['role_']),
         jobtitle: Jobtitle.fromJson(json['jobtitle_']),
-        birtdate: dateFormatted);
+        birtdate: json['birthdate']);
   }
 
   dynamic getData(String identifier) {

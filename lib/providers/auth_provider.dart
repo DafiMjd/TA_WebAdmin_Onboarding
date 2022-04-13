@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:webadmin_onboarding/main%20copy.dart';
-import 'package:webadmin_onboarding/main.dart';
-import 'package:webadmin_onboarding/utils/auth_secure_storage.dart';
 import 'dart:convert';
 
 import 'package:webadmin_onboarding/utils/constants.dart';
@@ -21,10 +18,11 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void logout() {
+  void logout() async {
     window.localStorage.remove("csrf");
     notifyListeners();
   }
+
 
   Widget authenticated() {
     var jwt = window.localStorage["csrf"];
@@ -132,4 +130,5 @@ class AuthProvider with ChangeNotifier {
   }
   // ==========================
 
+  
 }

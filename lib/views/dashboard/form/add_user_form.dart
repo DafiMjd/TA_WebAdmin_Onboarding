@@ -42,11 +42,34 @@ class _AddUserFormState extends State<AddUserForm> {
 
   void _loadDropDownData() async {
     formProv.isFetchingData = true;
-    roles = await dataProv.fetchRoles();
+
+    try {
+      roles = await dataProv.fetchRolesByPlatform("Mobile");
     jobtitles = await dataProv.fetchJobtitles();
 
+    } catch(onError) {
+      return showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("HTTP Error"),
+                content: Text("$onError"),
+                actions: [
+                  TextButton(
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      child: Text("okay"))
+                ],
+              );
+            });
+
+    }
+
     formProv.isFetchingData = false;
+
   }
+
+  
 
   @override
   Widget build(BuildContext context) {

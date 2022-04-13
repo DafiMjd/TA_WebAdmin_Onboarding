@@ -15,8 +15,6 @@ void main() async {
   }
   final key = await secureStorage.read(key: 'key');
   final encryptionKey = base64Url.decode(key!);
-  print('Encryption key: $encryptionKey');
   final encryptedBox= await Hive.openBox('vaultBox', encryptionCipher: HiveAesCipher(encryptionKey));
   encryptedBox.put('secret', 'Hive is cool');
-  print(encryptedBox.get('secret'));
 }

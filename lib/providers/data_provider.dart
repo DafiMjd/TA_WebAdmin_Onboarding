@@ -27,10 +27,10 @@ class DataProvider extends ChangeNotifier {
   late List<dynamic> _data;
   get data => _data;
 
-  late List<String> _colenames;
-  get colnames => _colenames;
+  late List<String> _colnames;
+  get colnames => _colnames;
   set colnames(val) {
-    _colenames = val;
+    _colnames = val;
   }
 
   Future<List<dynamic>> getDatatable(id) async {
@@ -61,17 +61,15 @@ class DataProvider extends ChangeNotifier {
 
   // method to do update and delete
   Future<List<dynamic>> _userAction(method, dataid) async {
-    if (method == 'delete')
-      return deleteUser(dataid);
+    if (method == 'delete') return deleteUser(dataid);
     return fetchUsers();
   }
 
   Future<List<dynamic>> _adminAction(method, dataid) async {
-    if (method == 'delete')
-      return deleteAdmin(dataid);
+    if (method == 'delete') return deleteAdmin(dataid);
     return fetchAdmins();
   }
-  
+
   Future<List<dynamic>> action(id, method, dataid) async {
     switch (id) {
       case 'user_list':
@@ -90,7 +88,7 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
-  List<String> _getRoleColumnNames(Map<String, dynamic> data) {
+  List<String> getColumnNames(Map<String, dynamic> data) {
     return data.keys.toList();
   }
 
@@ -154,9 +152,34 @@ class DataProvider extends ChangeNotifier {
   List<Role> parseRoles(String responseBody) {
     List<Map<String, dynamic>> parsed =
         jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    colnames = _getRoleColumnNames(parsed[0]);
+    colnames = getColumnNames(parsed[0]);
 
     return parsed.map<Role>((json) => Role.fromJson(json)).toList();
+  }
+
+  Future<List<Role>> fetchRolesByPlatform(String platform) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Roles/$platform";
+
+    try {
+      var roleResult = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseRoles, roleResult.body);
+    } catch (e) {
+      throw (e);
+    }
   }
   // =================
 
@@ -210,7 +233,6 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-      print("body : " + roleResult.body.toString());
 
       return compute(parseJobtitles, roleResult.body);
     } catch (e) {
@@ -221,8 +243,7 @@ class DataProvider extends ChangeNotifier {
   List<Jobtitle> parseJobtitles(String responseBody) {
     List<Map<String, dynamic>> parsed =
         jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    colnames = _getRoleColumnNames(parsed[0]);
-    print("parsed" + parsed.toString());
+    colnames = getColumnNames(parsed[0]);
 
     return parsed.map<Jobtitle>((json) => Jobtitle.fromJson(json)).toList();
   }
@@ -262,7 +283,6 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<User>> fetchUsers() async {
     var token = jwt['token'];
-    print("token: " + token);
 
     String url = "$BASE_URL/api/User";
 
@@ -289,7 +309,7 @@ class DataProvider extends ChangeNotifier {
   List<User> parseUsers(String responseBody) {
     List<Map<String, dynamic>> parsed =
         jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    colnames = _getRoleColumnNames(parsed[0]);
+    colnames = getColumnNames(parsed[0]);
 
     return parsed.map<User>((json) => User.fromJson(json)).toList();
   }
@@ -297,7 +317,6 @@ class DataProvider extends ChangeNotifier {
   Future<List<User>> registerUser(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
     var token = jwt['token'];
-    print("token: " + token);
     String apiURL = "$BASE_URL/api/Auth/register-user";
 
     try {
@@ -319,7 +338,8 @@ class DataProvider extends ChangeNotifier {
             "phone_number": phone,
             "role_id": role_id,
             "jobtitle_id": jobtitle_id,
-            "progress": 0
+            "progress": 0,
+            "birthdate": "2000-12-05"
           }));
 
       if (apiResult.statusCode == 400) {
@@ -352,7 +372,6 @@ class DataProvider extends ChangeNotifier {
         },
       );
 
-
       return compute(parseUsers, result.body);
     } catch (e) {
       throw (e);
@@ -362,7 +381,6 @@ class DataProvider extends ChangeNotifier {
   Future<List<User>> editUser(String email, String password, String name,
       String phone, String gender, int role_id, double progres) async {
     var token = jwt['token'];
-    print("token: " + token);
 
     String url = "$BASE_URL/api/Admin";
 
@@ -429,7 +447,6 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Admin>> fetchAdmins() async {
     var token = jwt['token'];
-    print("token: " + token);
 
     String url = "$BASE_URL/api/Admin";
 
@@ -456,8 +473,7 @@ class DataProvider extends ChangeNotifier {
   List<Admin> parseAdmins(String responseBody) {
     List<Map<String, dynamic>> parsed =
         jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    colnames = _getRoleColumnNames(parsed[0]);
-
+    colnames = getColumnNames(parsed[0]);
 
     var role = parsed[0]['role_'];
 
@@ -467,7 +483,6 @@ class DataProvider extends ChangeNotifier {
   Future<List<Admin>> registerAdmin(
       String email, String password, String name, int role_id) async {
     var token = jwt['token'];
-    print("token: " + token);
     String apiURL = "$BASE_URL/api/Auth/register-admin";
 
     try {
@@ -488,14 +503,12 @@ class DataProvider extends ChangeNotifier {
             "role_id": role_id,
           }));
 
-      
       if (apiResult.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(apiResult.body);
         throw responseData['errorMessage'];
       }
 
       return compute(parseAdmins, apiResult.body);
-
     } catch (e) {
       throw e;
     }
@@ -520,7 +533,6 @@ class DataProvider extends ChangeNotifier {
         },
       );
 
-
       return compute(parseAdmins, result.body);
     } catch (e) {
       throw (e);
@@ -530,7 +542,6 @@ class DataProvider extends ChangeNotifier {
   Future<List<Admin>> editAdmin(
       String email, String password, String name, int role_id) async {
     var token = jwt['token'];
-    print("token: " + token);
 
     String url = "$BASE_URL/api/Admin";
 
