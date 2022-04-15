@@ -17,7 +17,7 @@ class Header extends StatelessWidget {
     MenuProvider menuProv = context.watch<MenuProvider>();
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           color: BROWN_GARUDA,
           border: Border(left: BorderSide(color: Colors.black12))),
       height: 50,
@@ -27,7 +27,7 @@ class Header extends StatelessWidget {
               onTap: () {},
               child: Container(
                 alignment: Alignment.centerRight,
-                margin: EdgeInsets.only(right: 15),
+                margin: const EdgeInsets.only(right: 15),
                 child: ElevatedButton(
                   style: TextButton.styleFrom(
                     backgroundColor: BROWN_GARUDA,
@@ -41,7 +41,7 @@ class Header extends StatelessWidget {
                     menuProv.init();
                     authProvider.logout();
                   },
-                  child: Text(
+                  child: const Text(
                     "Sign Out",
                     style: TextStyle(fontSize: 16),
                   ),
@@ -52,13 +52,13 @@ class Header extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.menu,
                     color: Colors.white,
                   ),
                   onPressed: context.read<MenuProvider>().controlMenu,
                 ),
-                Text(
+                const Text(
                   "Onboarding",
                   style: TextStyle(color: Colors.white),
                 ),
@@ -66,7 +66,7 @@ class Header extends StatelessWidget {
                   onTap: () {},
                   child: Container(
                     alignment: Alignment.centerRight,
-                    margin: EdgeInsets.only(right: 15),
+                    margin: const EdgeInsets.only(right: 15),
                     child: ElevatedButton(
                       style: TextButton.styleFrom(
                         backgroundColor: BROWN_GARUDA,
@@ -79,7 +79,7 @@ class Header extends StatelessWidget {
                       onPressed: () {
                         authProvider.logout();
                       },
-                      child: Text(
+                      child: const Text(
                         "Sign Out",
                         style: TextStyle(fontSize: 16),
                       ),
@@ -100,8 +100,8 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: DEFAULT_PADDING),
-      padding: EdgeInsets.symmetric(
+      margin: const EdgeInsets.only(left: DEFAULT_PADDING),
+      padding: const EdgeInsets.symmetric(
         horizontal: DEFAULT_PADDING,
         vertical: DEFAULT_PADDING / 2,
       ),
@@ -117,12 +117,12 @@ class ProfileCard extends StatelessWidget {
             height: 38,
           ),
           if (!Responsive.isMobile(context))
-            Padding(
+            const Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: DEFAULT_PADDING / 2),
+                  EdgeInsets.symmetric(horizontal: DEFAULT_PADDING / 2),
               child: Text("Angelina Jolie"),
             ),
-          Icon(Icons.keyboard_arrow_down),
+          const Icon(Icons.keyboard_arrow_down),
         ],
       ),
     );
@@ -141,20 +141,20 @@ class SearchField extends StatelessWidget {
         hintText: "Search",
         fillColor: BROWN_GARUDA,
         filled: true,
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderSide: BorderSide.none,
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         suffixIcon: InkWell(
           onTap: () {},
           child: Container(
-            padding: EdgeInsets.all(DEFAULT_PADDING * 0.75),
-            margin: EdgeInsets.symmetric(horizontal: DEFAULT_PADDING / 2),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.all(DEFAULT_PADDING * 0.75),
+            margin: const EdgeInsets.symmetric(horizontal: DEFAULT_PADDING / 2),
+            decoration: const BoxDecoration(
               color: ORANGE_GARUDA,
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
-            child: Icon(Icons.search),
+            child: const Icon(Icons.search),
           ),
         ),
       ),

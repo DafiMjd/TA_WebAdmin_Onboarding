@@ -14,7 +14,7 @@ class LoginPage extends StatelessWidget {
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.2,
           ),
-          children: [
+          children: const [
             // Menu(),
             // MediaQuery.of(context).size.width >= 980
             //     ? Menu()
@@ -26,6 +26,8 @@ class LoginPage extends StatelessWidget {
 }
 
 class Body extends StatefulWidget {
+  const Body({Key? key}) : super(key: key);
+
   @override
   State<Body> createState() => _BodyState();
 }
@@ -44,13 +46,13 @@ class _BodyState extends State<Body> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("Auth Error"),
+                title: const Text("Auth Error"),
                 content: Text("$onError"),
                 actions: [
                   TextButton(
                       onPressed: () =>
                           Navigator.of(context, rootNavigator: true).pop(),
-                      child: Text("okay"))
+                      child: const Text("okay"))
                 ],
               );
             });
@@ -61,37 +63,37 @@ class _BodyState extends State<Body> {
       return Card(
         elevation: 5,
         child: Container(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 "Login Administrator",
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
               ),
-              SizedBox(height: 70),
+              const SizedBox(height: 70),
               TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Email",
                   )),
               Visibility(
                 child: Container(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: const Text(
                     "* Email harus diisi",
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
                 visible: authProvider.isEmailFieldEmpty,
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               TextFormField(
                   obscureText: authProvider.isPasswordHidden,
                   controller: _passwordController,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       labelText: "Password",
                       suffix: InkWell(
                           onTap: () => authProvider.changePasswordHidden(),
@@ -101,36 +103,36 @@ class _BodyState extends State<Body> {
               Visibility(
                 child: Container(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: const Text(
                     "* Password harus diisi",
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
                 visible: authProvider.isPasswordFieldEmpty,
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Container(
                   alignment: Alignment.centerLeft,
                   child: InkWell(
                       onTap: () {},
-                      child: Text("Forgot Password?",
+                      child: const Text("Forgot Password?",
                           style: TextStyle(fontWeight: FontWeight.w600)))),
-              SizedBox(height: 60),
+              const SizedBox(height: 60),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     primary: authProvider.isLoginButtonDisabled
                         ? Colors.blue[300]
                         : Colors.blue),
-                child: Container(
+                child: SizedBox(
                     width: 60,
                     height: 45,
                     child: Center(
                       child: authProvider.isLoginButtonDisabled
-                          ? Text(
+                          ? const Text(
                               "Wait",
                               style: TextStyle(fontSize: 18),
                             )
-                          : Text(
+                          : const Text(
                               "Login",
                               style: TextStyle(fontSize: 18),
                             ),

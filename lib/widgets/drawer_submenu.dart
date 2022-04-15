@@ -17,7 +17,7 @@ class DrawerSubmenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 30),
+      margin: const EdgeInsets.only(left: 30),
       child: ListTile(
         selectedColor: ORANGE_GARUDA,
         selected: true,
@@ -29,7 +29,7 @@ class DrawerSubmenu extends StatelessWidget {
         ),
         title: Text(
           title,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
         ),
       ),
     );

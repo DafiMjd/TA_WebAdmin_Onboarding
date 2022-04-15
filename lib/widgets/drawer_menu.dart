@@ -27,9 +27,9 @@ class DrawerMenu extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
+        style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
       ),
-      trailing: Icon(Icons.keyboard_arrow_down_sharp, size: 24, color: Colors.white,),
+      trailing: const Icon(Icons.keyboard_arrow_down_sharp, size: 24, color: Colors.white,),
     );
   }
 }

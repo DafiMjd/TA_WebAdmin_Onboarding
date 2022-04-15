@@ -1,4 +1,5 @@
-import 'package:intl/intl.dart';
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 
@@ -37,23 +38,24 @@ class User {
   }
 
   dynamic getData(String identifier) {
-    if (identifier == 'email')
+    if (identifier == 'email') {
       return email;
-    else if (identifier == 'name')
+    } else if (identifier == 'name') {
       return name;
-    else if (identifier == 'gender')
+    } else if (identifier == 'gender') {
       return gender;
-    else if (identifier == 'phone_number')
+    } else if (identifier == 'phone_number') {
       return phone_number;
-    else if (identifier == 'progress')
+    } else if (identifier == 'progress') {
       return progress;
-    else if (identifier == 'birthdate')
+    } else if (identifier == 'birthdate') {
       return birtdate;
-    else if (identifier == 'role_')
+    } else if (identifier == 'role_') {
       return role.role_name;
-    else if (identifier == 'jobtitle_')
+    } else if (identifier == 'jobtitle_') {
       return jobtitle.jobtitle_name;
-    else
+    } else {
       return "not found";
+    }
   }
 }

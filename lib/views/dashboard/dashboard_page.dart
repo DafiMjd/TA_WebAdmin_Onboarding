@@ -1,14 +1,11 @@
 import 'package:provider/provider.dart';
-import 'package:webadmin_onboarding/models/admin.dart';
-import 'package:webadmin_onboarding/models/jobtitle.dart';
-import 'package:webadmin_onboarding/models/role.dart';
-import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/table.dart';
 
@@ -30,44 +27,42 @@ class _DashboardPageState extends State<DashboardPage> {
   late MenuProvider menuProvInit;
   late DataProvider dataProvInit;
 
-  void fetchDatas() async {
-    menuProvInit.isFetchingData = true;
-
-    try {
-      menuProvInit.admins = await dataProvInit.fetchAdmins();
-      menuProvInit.users = await dataProvInit.fetchUsers();
-      menuProvInit.roles = await dataProvInit.fetchRoles();
-      menuProvInit.rolesMobile =
-          await dataProvInit.fetchRolesByPlatform("Mobile");
-      menuProvInit.rolesWebsite =
-          await dataProvInit.fetchRolesByPlatform("Website");
-      menuProvInit.jobtitles = await dataProvInit.fetchJobtitles();
-    } catch (e) {
-      return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("HTTP Error"),
-              content: Text("$e"),
-              actions: [
-                TextButton(
-                    onPressed: () =>
-                        Navigator.of(context, rootNavigator: true).pop(),
-                    child: Text("okay"))
-              ],
-            );
-          });
-    }
-
-    menuProvInit.isFetchingData = false;
-  }
+  // void fetchDatas() async {
+  //   menuProvInit.isFetchingData = true;
+  //   try {
+  //     menuProvInit.admins = await dataProvInit.fetchAdmins();
+  //     menuProvInit.users = await dataProvInit.fetchUsers();
+  //     menuProvInit.roles = await dataProvInit.fetchRoles();
+  //     menuProvInit.rolesMobile =
+  //         await dataProvInit.fetchRolesByPlatform("Mobile");
+  //     menuProvInit.rolesWebsite =
+  //         await dataProvInit.fetchRolesByPlatform("Website");
+  //     menuProvInit.jobtitles = await dataProvInit.fetchJobtitles();
+  //   } catch (e) {
+  //     return showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return AlertDialog(
+  //             title: const Text("HTTP Error"),
+  //             content: Text("$e"),
+  //             actions: [
+  //               TextButton(
+  //                   onPressed: () =>
+  //                       Navigator.of(context, rootNavigator: true).pop(),
+  //                   child: const Text("okay"))
+  //             ],
+  //           );
+  //         });
+  //   }
+  //   menuProvInit.isFetchingData = false;
+  // }
 
   @override
   void initState() {
     super.initState();
     menuProvInit = Provider.of<MenuProvider>(context, listen: false);
     dataProvInit = Provider.of<DataProvider>(context, listen: false);
-    fetchDatas();
+    // fetchDatas();
   }
 
   @override
@@ -87,28 +82,19 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             onPressed: () {
-              menuProv.getAction("add");
+              menuProv.showForm();
             },
-            icon: Icon(Icons.add),
-            label: Text("Add New"),
+            icon: const Icon(Icons.add),
+            label: const Text("Add New"),
           ),
         ],
       );
     }
 
-    Widget _getForm(id) {
-      if (id == "user_list") {
-        return AddUserForm();
-      } else if (id == "admin_list") {
-        return AddAdminForm();
-      }
-      return Container();
-    }
-
     Widget dashboardContent() {
       if (menuProv.isTableShown) {
         if (menuProv.isFetchingData) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
         return MyTable(
             datas: menuProv.data,
@@ -116,9 +102,9 @@ class _DashboardPageState extends State<DashboardPage> {
             menuId: menuProv.menuId);
       } else if (menuProv.isFormShown) {
         if (menuProv.isFetchingData) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
-        return _getForm(menuProv.menuId);
+        return menuProv.getForm(menuProv.menuId, "add", null);
       }
       return Container();
     }
@@ -127,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Scrollbar(
         isAlwaysShown: true,
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(DEFAULT_PADDING),
+          padding: const EdgeInsets.all(DEFAULT_PADDING),
           child: Column(
             children: [
               Row(
@@ -143,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           width: MediaQuery.of(context).size.width,
                           color: Colors.white,
                           child: Container(
-                            margin: EdgeInsets.only(left: 15),
+                            margin: const EdgeInsets.only(left: 15),
                             child: Text(
                               menuProv.menuName,
                               style: Theme.of(context).textTheme.headline5,
@@ -151,24 +137,24 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
 
-                        SizedBox(height: DEFAULT_PADDING),
+                        const SizedBox(height: DEFAULT_PADDING),
                         (menuProv.isTableShown)
                             ? topActionButton()
                             : Container(),
 
                         dashboardContent(),
 
-                        SizedBox(
+                        const SizedBox(
                           height: DEFAULT_PADDING,
                         ),
                         if (Responsive.isMobile(context))
-                          SizedBox(height: DEFAULT_PADDING),
+                          const SizedBox(height: DEFAULT_PADDING),
                         // if (Responsive.isMobile(context)) StarageDetails(),
                       ],
                     ),
                   ),
                   if (!Responsive.isMobile(context))
-                    SizedBox(width: DEFAULT_PADDING),
+                    const SizedBox(width: DEFAULT_PADDING),
                   // On Mobile means if the screen is less than 850 we dont want to show it
                   // if (!Responsive.isMobile(context))
                   //   Expanded(

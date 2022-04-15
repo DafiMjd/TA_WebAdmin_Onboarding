@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:webadmin_onboarding/models/role.dart';
 
 class Admin {
@@ -15,13 +17,14 @@ class Admin {
   }
 
   dynamic getData(String identifier) {
-    if (identifier == 'email')
+    if (identifier == 'email') {
       return email;
-    else if (identifier == 'admin_name')
+    } else if (identifier == 'admin_name') {
       return admin_name;
-    else if (identifier == 'role_')
+    } else if (identifier == 'role_') {
       return role.role_name;
-    else
+    } else {
       return "not found";
+    }
   }
 }

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+
+
+// ignore_for_file: non_constant_identifier_names
 
 class Role {
   final int id;
@@ -20,15 +22,16 @@ class Role {
   }
 
   dynamic getData(String identifier) {
-    if (identifier == 'id')
+    if (identifier == 'id') {
       return id;
-    else if (identifier == 'role_name')
+    } else if (identifier == 'role_name') {
       return role_name;
-    else if (identifier == 'role_description')
+    } else if (identifier == 'role_description') {
       return role_description;
-    else if (identifier == 'role_platform')
+    } else if (identifier == 'role_platform') {
       return role_platform;
-    else
+    } else {
       return "not found";
+    }
   }
 }

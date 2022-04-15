@@ -1,6 +1,5 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/column_name_parse.dart';
@@ -35,14 +34,14 @@ class MyTable extends StatelessWidget {
 
     return Column(
       children: [
-        SizedBox(height: DEFAULT_PADDING),
+        const SizedBox(height: DEFAULT_PADDING),
         paginatedDataTable(_dataTable),
       ],
     );
   }
 
   List<DataColumn> getDataColumns() {
-    List<DataColumn> columns = [DataColumn(label: Text("Action"))];
+    List<DataColumn> columns = [const DataColumn(label: Text("Action"))];
     for (int i = 0; i < colnames.length; i++) {
       columns.add(
           DataColumn(label: Text(ColumnNameParse.parseColName(colnames[i]))));
@@ -102,26 +101,28 @@ class MyData extends DataTableSource {
               Tooltip(
                   message: "Detail",
                   child: IconButton(
-                      onPressed: (() {}), icon: Icon(Icons.details))),
-              SizedBox(
+                      onPressed: (() {}), icon: const Icon(Icons.details))),
+              const SizedBox(
                 width: 5,
               ),
               Tooltip(
                   message: "Edit",
                   child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                        _action(index, "edit");
+                        },
+                    icon: const Icon(Icons.edit),
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 5,
               ),
               Tooltip(
                   message: "Delete",
                   child: IconButton(
                       onPressed: (() {
-                        action(index);
+                        _action(index, "delete");
                       }),
-                      icon: Icon(Icons.delete))),
+                      icon: const Icon(Icons.delete))),
             ],
           )),
           for (int i = 0; i < colnames.length; i++)
@@ -129,30 +130,39 @@ class MyData extends DataTableSource {
         ]);
   }
 
-  void action(int index) async {
-    try {
-      menuProv.isFetchingData = true;
-      var data = await dataProv.action(menuProv.menuId, "delete",
-          datas[index].getData(colnames[0]).toString());
-      menuProv.isFetchingData = false;
+  void _action(int index, action) async {
+    if (action == "delete") {
+      try {
+        menuProv.isFetchingData = true;
+        var data = await dataProv.action(menuProv.menuId, "delete",
+            datas[index].getData(colnames[0]).toString());
+        menuProv.isFetchingData = false;
 
-      menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
-    } catch (e) {
-      return showDialog(
+        menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+      } catch (e) {
+        return showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("HTTP Error"),
+                title: const Text("HTTP Error"),
                 content: Text("$e"),
                 actions: [
                   TextButton(
                       onPressed: () =>
                           Navigator.of(context, rootNavigator: true).pop(),
-                      child: Text("okay"))
+                      child: const Text("okay"))
                 ],
               );
             });
+      }
+    }
+    else if (action == "edit") {
+      // try {
+      //   menuProv.isFetchingData = true;
+      //   var data = await dataProv.action(menuProv.menuId, "delete",
+      //       datas[index].getData(colnames[0]).toString());
+      //   menuProv.isFetchingData = false;
+      // }
     }
   }
-
 }

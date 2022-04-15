@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
+import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
-import 'package:webadmin_onboarding/utils/column_name_parse.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/table.dart';
 
 class MenuProvider extends ChangeNotifier {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -62,27 +66,32 @@ class MenuProvider extends ChangeNotifier {
   get rolesWebsite => _rolesWebsite;
   get jobtitles => _jobtitles;
 
-  set users(val){
+  set users(val) {
     _users = val;
     notifyListeners();
   }
-  set admins(val){
+
+  set admins(val) {
     _admins = val;
     notifyListeners();
   }
-  set roles(val){
+
+  set roles(val) {
     _roles = val;
     notifyListeners();
   }
-  set rolesWebsite(val){
+
+  set rolesWebsite(val) {
     _rolesWebsite = val;
     notifyListeners();
   }
-  set rolesMobile(val){
+
+  set rolesMobile(val) {
     _rolesMobile = val;
     notifyListeners();
   }
-  set jobtitles(val){
+
+  set jobtitles(val) {
     _jobtitles = val;
     notifyListeners();
   }
@@ -127,6 +136,7 @@ class MenuProvider extends ChangeNotifier {
   }
 
   void showTable(data, colnames, menuTitle, menuId) {
+    isFormShown = false;
     menuName = menuTitle;
     this.menuId = menuId;
     this.data = data;
@@ -142,16 +152,29 @@ class MenuProvider extends ChangeNotifier {
     _menuId = val;
   }
 
-  void showForm(actionId) {
+  void showForm() {
     isTableShown = false;
     isFormShown = true;
-
   }
 
   void closeForm() {
     isTableShown = true;
     isFormShown = false;
+  }
 
+  Widget dashboardContent(type, dataTable, colnamesTable, menuTitle, menuId) {
+    if (isTableShown) {
+      if (isFetchingData) {
+        return const CircularProgressIndicator();
+      }
+      return MyTable(datas: data, colnames: colnames, menuId: menuId);
+    } else if (isFormShown) {
+      if (isFetchingData) {
+        return const CircularProgressIndicator();
+      }
+      return getForm(menuId, "add", null);
+    }
+    return Container();
   }
 
   void getAction(id) {
@@ -160,10 +183,33 @@ class MenuProvider extends ChangeNotifier {
       isFormShown = true;
     }
   }
-  
+
   void init() {
     menuName = "Selamat Datang";
     isFormShown = false;
     isTableShown = false;
+  }
+
+  Widget getForm(id, action, dynamic data) {
+    if (action == "add") {
+      if (id == "user_list") {
+        return const AddUserForm();
+      } else if (id == "admin_list") {
+        return const AddAdminForm();
+      } else if (id == "category_list") {
+        return const AddCategoryForm();
+      }
+      return Container();
+    } else if (action == "edit") {
+      if (id == "user_list") {
+        return const AddUserForm();
+      } else if (id == "admin_list") {
+        return const AddAdminForm();
+      } else if (id == "category_list") {
+        return AddCategoryForm(category: data);
+      }
+      return Container();
+    }
+    return Container();
   }
 }

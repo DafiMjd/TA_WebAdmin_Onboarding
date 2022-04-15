@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
@@ -52,13 +54,13 @@ class _AddUserFormState extends State<AddUserForm> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("HTTP Error"),
+                title: const Text("HTTP Error"),
                 content: Text("$onError"),
                 actions: [
                   TextButton(
                       onPressed: () =>
                           Navigator.of(context, rootNavigator: true).pop(),
-                      child: Text("okay"))
+                      child: const Text("okay"))
                 ],
               );
             });
@@ -93,13 +95,13 @@ class _AddUserFormState extends State<AddUserForm> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("HTTP Error"),
+                title: const Text("HTTP Error"),
                 content: Text("$onError"),
                 actions: [
                   TextButton(
                       onPressed: () =>
                           Navigator.of(context, rootNavigator: true).pop(),
-                      child: Text("okay"))
+                      child: const Text("okay"))
                 ],
               );
             });
@@ -111,69 +113,69 @@ class _AddUserFormState extends State<AddUserForm> {
     return Card(
       elevation: 5,
       child: Container(
-          padding: EdgeInsets.fromLTRB(DEFAULT_PADDING * 8, DEFAULT_PADDING * 3,
+          padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8, DEFAULT_PADDING * 3,
               DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
           width: MediaQuery.of(context).size.width * 0.6,
           child: Column(
             children: [
-              Text(
+              const Text(
                 "Add User",
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
               ),
-              SizedBox(
+              const SizedBox(
                 height: DEFAULT_PADDING * 2,
               ),
               // email
               titleField("Email", formProv.isEmailFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
                   controller: _emailCtrl,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              SizedBox(height: DEFAULT_PADDING),
+              const SizedBox(height: DEFAULT_PADDING),
 
               // password
               titleField("Password", formProv.isPwFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
                   controller: _pwCtrl,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              SizedBox(height: DEFAULT_PADDING),
+              const SizedBox(height: DEFAULT_PADDING),
 
               // name
               titleField("Name", formProv.isNameFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
                   controller: _nameCtrl,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              SizedBox(height: DEFAULT_PADDING),
+              const SizedBox(height: DEFAULT_PADDING),
 
               // phone number
               titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
               TextFormField(
                   onChanged: (value) => formProv.isPhoneNumFieldEmpty =
                       _phoneNumCtrl.text.isEmpty,
                   controller: _phoneNumCtrl,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              SizedBox(height: DEFAULT_PADDING),
+              const SizedBox(height: DEFAULT_PADDING),
 
               // Gender
               titleField("Gender", formProv.isGenderFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
 
               DropdownButtonFormField(
                 dropdownColor: Colors.white,
@@ -191,17 +193,17 @@ class _AddUserFormState extends State<AddUserForm> {
                     _selectedGenderVal = value.toString();
                   });
                 },
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
               ),
 
-              SizedBox(height: DEFAULT_PADDING),
+              const SizedBox(height: DEFAULT_PADDING),
               // Role
               titleField("Role", formProv.isRoleFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
               (formProv.isFetchingData)
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : DropdownButtonFormField(
                       dropdownColor: Colors.white,
                       items: roles.map((val) {
@@ -215,21 +217,20 @@ class _AddUserFormState extends State<AddUserForm> {
                       onChanged: (value) {
                         setState(() {
                           formProv.isRoleFieldEmpty = false;
-                          ;
                           _selectedRoleVal = value.toString();
                         });
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       ),
                     ),
 
-              SizedBox(height: DEFAULT_PADDING),
+              const SizedBox(height: DEFAULT_PADDING),
               // Jobtitle
               titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
-              SizedBox(height: DEFAULT_PADDING / 2),
+              const SizedBox(height: DEFAULT_PADDING / 2),
               (formProv.isFetchingData)
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : DropdownButtonFormField(
                       dropdownColor: Colors.white,
                       items: jobtitles.map((val) {
@@ -243,16 +244,15 @@ class _AddUserFormState extends State<AddUserForm> {
                       onChanged: (value) {
                         setState(() {
                           formProv.isJobtitleFieldEmpty = false;
-                          ;
                           _selectedJobtitleVal = value.toString();
                         });
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       ),
                     ),
 
-              SizedBox(
+              const SizedBox(
                 height: DEFAULT_PADDING * 2,
               ),
 
@@ -279,10 +279,10 @@ class _AddUserFormState extends State<AddUserForm> {
                         }
                       },
                 child: formProv.isSaveButtonDisabled
-                    ? Text(
+                    ? const Text(
                         "Wait",
                       )
-                    : Text(
+                    : const Text(
                         "Save",
                       ),
               )
@@ -294,7 +294,7 @@ class _AddUserFormState extends State<AddUserForm> {
   TextFormField textField(controller) {
     return TextFormField(
         controller: controller,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           border: OutlineInputBorder(),
         ));
   }
@@ -304,10 +304,10 @@ class _AddUserFormState extends State<AddUserForm> {
       child: (isEmpty)
           ? Text(
               title + "*",
-              style: TextStyle(fontWeight: FontWeight.w600, color: Colors.red),
+              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.red),
             )
           : Text(
               title,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ));
 }

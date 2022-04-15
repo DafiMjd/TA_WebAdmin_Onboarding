@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 class Jobtitle {
   final int id;
   final String jobtitle_name, jobtitle_description;
@@ -15,13 +17,14 @@ class Jobtitle {
   }
 
   dynamic getData(String identifier) {
-    if (identifier == 'id')
+    if (identifier == 'id') {
       return id;
-    else if (identifier == 'jobtitle_name')
+    } else if (identifier == 'jobtitle_name') {
       return jobtitle_name;
-    else if (identifier == 'jobtitle_description')
+    } else if (identifier == 'jobtitle_description') {
       return jobtitle_description;
-    else
+    } else {
       return "not found";
+    }
   }
 }

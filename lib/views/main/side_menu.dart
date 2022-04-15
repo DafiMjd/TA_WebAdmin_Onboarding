@@ -26,13 +26,13 @@ class SideMenu extends StatelessWidget {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("HTTP Error"),
+                title: const Text("HTTP Error"),
                 content: Text("$e"),
                 actions: [
                   TextButton(
                       onPressed: () =>
                           Navigator.of(context, rootNavigator: true).pop(),
-                      child: Text("okay"))
+                      child: const Text("okay"))
                 ],
               );
             });
@@ -64,7 +64,7 @@ class SideMenu extends StatelessWidget {
           drawMenuItem(listMenu[index]),
           ListView.builder(
             itemCount: listMenu[index].submenu!.length,
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (context, index2) =>
                 drawSubMenuItem(listMenu[index].submenu![index2]),
@@ -76,7 +76,7 @@ class SideMenu extends StatelessWidget {
     ListView drawMenu(List<Menu> listMenu) {
       return ListView.builder(
           itemCount: listMenu.length,
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: ((context, index) {
             return (!listMenu[index].hasSubMenu())
@@ -92,13 +92,13 @@ class SideMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Onboarding",
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               Text(
                 role,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ],
           ),

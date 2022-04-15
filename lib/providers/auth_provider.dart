@@ -28,14 +28,14 @@ class AuthProvider with ChangeNotifier {
     var jwt = window.localStorage["csrf"];
     jwtDecoded = jsonDecode(jwt!);
 
-    return MainPage();
+    return const MainPage();
   }
 
   bool getIsAuth() {
     var csrfTokenOrEmpty = window.localStorage.containsKey("csrf")
         ? window.localStorage["csrf"]
         : "";
-    ;
+    
     if (csrfTokenOrEmpty != "") {
       var str = csrfTokenOrEmpty;
       var token = str!.split(".");
@@ -89,7 +89,7 @@ class AuthProvider with ChangeNotifier {
       isLoginButtonDisabled = false;
     } catch (e) {
       isLoginButtonDisabled = false;
-      throw e;
+      rethrow;
     }
   }
 

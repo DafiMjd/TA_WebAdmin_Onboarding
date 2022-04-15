@@ -1,5 +1,8 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/foundation.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
+import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
@@ -51,6 +54,10 @@ class DataProvider extends ChangeNotifier {
         {
           return fetchJobtitles();
         }
+      case 'category_list':
+        {
+          return fetchActivityCategories();
+        }
 
       default:
         {
@@ -70,6 +77,16 @@ class DataProvider extends ChangeNotifier {
     return fetchAdmins();
   }
 
+  Future<List<dynamic>> _jobtitleAction(method, dataid) async {
+    if (method == 'delete') return deleteJobtitle(int.parse(dataid));
+    return fetchJobtitles();
+  }
+
+  Future<List<dynamic>> _categoryAction(method, dataid) async {
+    if (method == 'delete') return deleteActivityCategory(int.parse(dataid));
+    return fetchJobtitles();
+  }
+
   Future<List<dynamic>> action(id, method, dataid) async {
     switch (id) {
       case 'user_list':
@@ -79,6 +96,14 @@ class DataProvider extends ChangeNotifier {
       case 'admin_list':
         {
           return _adminAction(method, dataid);
+        }
+      case 'jobtitle_list':
+        {
+          return _jobtitleAction(method, dataid);
+        }
+      case 'category_list':
+        {
+          return _categoryAction(method, dataid);
         }
 
       default:
@@ -114,7 +139,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseRole, roleResult.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -145,7 +170,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseRoles, roleResult.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -178,7 +203,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseRoles, roleResult.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
   // =================
@@ -205,7 +230,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseJobtitle, jobtitleResult.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -236,7 +261,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseJobtitles, roleResult.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -247,6 +272,32 @@ class DataProvider extends ChangeNotifier {
 
     return parsed.map<Jobtitle>((json) => Jobtitle.fromJson(json)).toList();
   }
+  
+  Future<List<User>> deleteJobtitle(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/User/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseUsers, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // =================
 
   // Users request
@@ -271,7 +322,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseUser, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -302,7 +353,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseUsers, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -349,7 +400,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseUsers, apiResult.body);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -374,7 +425,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseUsers, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -407,7 +458,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseUsers, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -435,7 +486,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseAdmin, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -466,7 +517,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseAdmins, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -474,8 +525,6 @@ class DataProvider extends ChangeNotifier {
     List<Map<String, dynamic>> parsed =
         jsonDecode(responseBody).cast<Map<String, dynamic>>();
     colnames = getColumnNames(parsed[0]);
-
-    var role = parsed[0]['role_'];
 
     return parsed.map<Admin>((json) => Admin.fromJson(json)).toList();
   }
@@ -510,7 +559,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseAdmins, apiResult.body);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -535,7 +584,7 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseAdmins, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
     }
   }
 
@@ -565,7 +614,164 @@ class DataProvider extends ChangeNotifier {
 
       return compute(parseAdmins, result.body);
     } catch (e) {
-      throw (e);
+      rethrow;
+    }
+  }
+
+  // =================
+
+  // ActivityCategory request
+  Future<ActivityCategory> fetchActivityCategoryById(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityCategory/$id";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseActivityCategory, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  ActivityCategory parseActivityCategory(String responseBody) {
+    final parsed = jsonDecode(responseBody);
+
+    return ActivityCategory.fromJson(parsed);
+  }
+
+  Future<List<ActivityCategory>> fetchActivityCategories() async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityCategory";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseActivityCategories, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  List<ActivityCategory> parseActivityCategories(String responseBody) {
+    List<Map<String, dynamic>> parsed =
+        jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    colnames = getColumnNames(parsed[0]);
+
+    return parsed
+        .map<ActivityCategory>((json) => ActivityCategory.fromJson(json))
+        .toList();
+  }
+
+  Future<List<ActivityCategory>> createActivityCategory(
+      String category_name, String category_description, int duration) async {
+    var token = jwt['token'];
+    String apiURL = "$BASE_URL/api/ActivityCategory";
+
+    try {
+      var apiResult = await http.post(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "category_name": category_name,
+            "category_description": category_description,
+            "duration": duration,
+          }));
+
+      if (apiResult.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(apiResult.body);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivityCategories, apiResult.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<ActivityCategory>> deleteActivityCategory(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityCategory/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseActivityCategories, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<ActivityCategory>> editActivityCategory(int id,
+      String category_name, String category_description, int duration) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityCategory";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "id": id,
+            "category_name": category_name,
+            "category_description": category_description,
+            "duration": duration,
+          }));
+
+      return compute(parseActivityCategories, result.body);
+    } catch (e) {
+      rethrow;
     }
   }
 
