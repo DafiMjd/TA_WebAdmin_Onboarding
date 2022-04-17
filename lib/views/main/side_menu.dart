@@ -3,6 +3,7 @@ import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/drawer_menu.dart';
 import 'package:webadmin_onboarding/widgets/drawer_submenu.dart';
 
@@ -20,28 +21,19 @@ class SideMenu extends StatelessWidget {
       List<dynamic> data;
       try {
         data = await dataProv.getDatatable(menu.id);
-      }
-      catch(e) {
+        menuProv.isFetchingData = false;
+        List<String> colnames = dataProv.colnames;
+
+        menuProv.setDashboardContent(
+            "table", data, colnames, menu.title, menu.id, null, null);
+      } catch (e) {
+        menuProv.isFetchingData = false;
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$e"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              return ErrorAlertDialog(error: e);
             });
       }
-      menuProv.isFetchingData = false;
-      List<String> colnames = dataProv.colnames;
-
-
-      menuProv.showTable(data, colnames, menu.title, menu.id);
     }
 
     Widget drawSubMenuItem(Menu menu) {

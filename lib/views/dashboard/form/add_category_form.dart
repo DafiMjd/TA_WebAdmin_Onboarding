@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,10 @@ import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_category_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
+import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/double_space.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
+
 
 class AddCategoryForm extends StatefulWidget {
   const AddCategoryForm({Key? key, this.category}) : super(key: key);
@@ -38,6 +43,11 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       _catNameCtrl = TextEditingController();
       _catDescCtrl = TextEditingController();
       _durationCtrl = TextEditingController();
+
+
+      formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
+      formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
+      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
     } else {
       // means editing
       _catNameCtrl =
@@ -68,25 +78,19 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
         var data = await dataProv.createActivityCategory(
             category_name, category_description, duration);
         List<String> colnames = dataProv.colnames;
-        menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+
+        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+            menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = true;
       } catch (onError) {
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$onError"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              return ErrorAlertDialog(error: onError);
             });
       }
+
       _catDescCtrl.text = "";
       _catNameCtrl.text = "";
       _durationCtrl.text = "";
@@ -105,23 +109,17 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
         var data = await dataProv.editActivityCategory(
             id, category_name, category_description, duration);
         List<String> colnames = dataProv.colnames;
-        menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+
+        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+            menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = true;
       } catch (onError) {
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$onError"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              
+              return ErrorAlertDialog(error: onError);
             });
       }
       _catDescCtrl.text = "";
@@ -146,12 +144,10 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                 "Add Activity Category",
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
               ),
-              const SizedBox(
-                height: DEFAULT_PADDING * 2,
-              ),
+              const DoubleSpace(),
               // Category Name
               titleField("Category Name", formProv.isCategoryNameEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const DoubleSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
@@ -159,11 +155,11 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // Catgeory Description
               titleField("Catgeory Description", formProv.isCategoryDescEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const DoubleSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
@@ -171,11 +167,11 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // Duration
               titleField("Duration in Days", formProv.isDurationEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const DoubleSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isDurationEmpty = _durationCtrl.text.isEmpty,
@@ -187,7 +183,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // save button
               ElevatedButton(
@@ -211,9 +207,9 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                             // means editing
                             _editCategory(
                                 widget.category!.id,
-                                widget.category!.category_name,
-                                widget.category!.category_description,
-                                widget.category!.duration);
+                              _catNameCtrl.text,
+                              _catDescCtrl.text,
+                              int.parse(_durationCtrl.text),);
                           }
                         }
                       },
@@ -251,3 +247,6 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ));
 }
+
+
+

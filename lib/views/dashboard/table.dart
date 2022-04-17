@@ -6,6 +6,9 @@ import 'package:webadmin_onboarding/utils/column_name_parse.dart';
 import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
+import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
+
 
 class MyTable extends StatelessWidget {
   const MyTable(
@@ -34,7 +37,7 @@ class MyTable extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: DEFAULT_PADDING),
+        const Space(),
         paginatedDataTable(_dataTable),
       ],
     );
@@ -109,8 +112,8 @@ class MyData extends DataTableSource {
                   message: "Edit",
                   child: IconButton(
                     onPressed: () {
-                        _action(index, "edit");
-                        },
+                      _action(index, "edit");
+                    },
                     icon: const Icon(Icons.edit),
                   )),
               const SizedBox(
@@ -138,31 +141,19 @@ class MyData extends DataTableSource {
             datas[index].getData(colnames[0]).toString());
         menuProv.isFetchingData = false;
 
-        menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+            menuProv.menuId, null, null);
       } catch (e) {
+        menuProv.isFetchingData = false;
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$e"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              return ErrorAlertDialog(error: e);
             });
       }
-    }
-    else if (action == "edit") {
-      // try {
-      //   menuProv.isFetchingData = true;
-      //   var data = await dataProv.action(menuProv.menuId, "delete",
-      //       datas[index].getData(colnames[0]).toString());
-      //   menuProv.isFetchingData = false;
-      // }
+    } else if (action == "edit") {
+      menuProv.setDashboardContent(
+          "form", null, null, null, menuProv.menuId, action, datas[index]);
     }
   }
 }

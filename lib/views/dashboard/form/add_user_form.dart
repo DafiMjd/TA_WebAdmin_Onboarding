@@ -8,6 +8,10 @@ import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_user_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
+import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/double_space.dart';
+import 'package:webadmin_onboarding/widgets/half_space.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddUserForm extends StatefulWidget {
   const AddUserForm({Key? key}) : super(key: key);
@@ -53,16 +57,8 @@ class _AddUserFormState extends State<AddUserForm> {
       return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$onError"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              
+              return ErrorAlertDialog(error: onError);
             });
 
     }
@@ -87,23 +83,16 @@ class _AddUserFormState extends State<AddUserForm> {
         var data = await dataProv.registerUser(
             email, password, name, phone, gender, role_id, jobtitle_id);
         List<String> colnames = dataProv.colnames;
-        menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+
+        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName, menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = true;
       } catch (onError) {
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$onError"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              
+              return ErrorAlertDialog(error: onError);
             });
       }
 
@@ -122,12 +111,10 @@ class _AddUserFormState extends State<AddUserForm> {
                 "Add User",
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
               ),
-              const SizedBox(
-                height: DEFAULT_PADDING * 2,
-              ),
+              const DoubleSpace(),
               // email
               titleField("Email", formProv.isEmailFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
@@ -135,11 +122,11 @@ class _AddUserFormState extends State<AddUserForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // password
               titleField("Password", formProv.isPwFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
@@ -147,11 +134,11 @@ class _AddUserFormState extends State<AddUserForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // name
               titleField("Name", formProv.isNameFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
@@ -159,11 +146,11 @@ class _AddUserFormState extends State<AddUserForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // phone number
               titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
                   onChanged: (value) => formProv.isPhoneNumFieldEmpty =
                       _phoneNumCtrl.text.isEmpty,
@@ -171,11 +158,11 @@ class _AddUserFormState extends State<AddUserForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // Gender
               titleField("Gender", formProv.isGenderFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
 
               DropdownButtonFormField(
                 dropdownColor: Colors.white,
@@ -198,10 +185,10 @@ class _AddUserFormState extends State<AddUserForm> {
                 ),
               ),
 
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
               // Role
               titleField("Role", formProv.isRoleFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               (formProv.isFetchingData)
                   ? const CircularProgressIndicator()
                   : DropdownButtonFormField(
@@ -225,10 +212,10 @@ class _AddUserFormState extends State<AddUserForm> {
                       ),
                     ),
 
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
               // Jobtitle
               titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               (formProv.isFetchingData)
                   ? const CircularProgressIndicator()
                   : DropdownButtonFormField(
@@ -252,9 +239,7 @@ class _AddUserFormState extends State<AddUserForm> {
                       ),
                     ),
 
-              const SizedBox(
-                height: DEFAULT_PADDING * 2,
-              ),
+              const DoubleSpace(),
 
               // save button
               ElevatedButton(

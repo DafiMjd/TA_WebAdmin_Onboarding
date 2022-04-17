@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:provider/provider.dart';
+import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -45,16 +46,7 @@ class _BodyState extends State<Body> {
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("Auth Error"),
-                content: Text("$onError"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              return ErrorAlertDialog(error: onError);
             });
       });
     }

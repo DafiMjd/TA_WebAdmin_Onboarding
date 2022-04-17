@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_activity_form.dart';
 import 'package:webadmin_onboarding/views/main/header.dart';
 import 'package:webadmin_onboarding/views/dashboard/dashboard_page.dart';
 import 'package:webadmin_onboarding/views/main/side_menu.dart';
@@ -31,7 +32,8 @@ class MainPage extends StatelessWidget {
               child: Column(
                 children: const [
                   Header(),
-                  Expanded(child: DashboardPage()),
+                  // Expanded(child: DashboardPage()),
+                  Expanded(child: AddActivityForm(),)
                 ],
               ),
             ),

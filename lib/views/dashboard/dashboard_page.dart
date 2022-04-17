@@ -4,10 +4,7 @@ import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
-import 'package:webadmin_onboarding/views/dashboard/table.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -82,31 +79,14 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             onPressed: () {
-              menuProv.showForm();
+              menuProv.setDashboardContent(
+                  "form", null, null, null, menuProv.menuId, "add", null);
             },
             icon: const Icon(Icons.add),
             label: const Text("Add New"),
           ),
         ],
       );
-    }
-
-    Widget dashboardContent() {
-      if (menuProv.isTableShown) {
-        if (menuProv.isFetchingData) {
-          return const CircularProgressIndicator();
-        }
-        return MyTable(
-            datas: menuProv.data,
-            colnames: menuProv.colnames,
-            menuId: menuProv.menuId);
-      } else if (menuProv.isFormShown) {
-        if (menuProv.isFetchingData) {
-          return const CircularProgressIndicator();
-        }
-        return menuProv.getForm(menuProv.menuId, "add", null);
-      }
-      return Container();
     }
 
     return SafeArea(
@@ -137,24 +117,23 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
 
-                        const SizedBox(height: DEFAULT_PADDING),
+                        const Space(),
                         (menuProv.isTableShown)
                             ? topActionButton()
                             : Container(),
 
-                        dashboardContent(),
+                        // dashboardContent(),
+                        menuProv.dashboardContent,
 
-                        const SizedBox(
-                          height: DEFAULT_PADDING,
-                        ),
+                        const Space(),
                         if (Responsive.isMobile(context))
-                          const SizedBox(height: DEFAULT_PADDING),
+                          const Space(),
                         // if (Responsive.isMobile(context)) StarageDetails(),
                       ],
                     ),
                   ),
                   if (!Responsive.isMobile(context))
-                    const SizedBox(width: DEFAULT_PADDING),
+                    const Space()
                   // On Mobile means if the screen is less than 850 we dont want to show it
                   // if (!Responsive.isMobile(context))
                   //   Expanded(

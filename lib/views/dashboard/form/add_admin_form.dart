@@ -1,15 +1,23 @@
 // ignore_for_file: non_constant_identifier_names
 
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_admin_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
+import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/double_space.dart';
+import 'package:webadmin_onboarding/widgets/half_space.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddAdminForm extends StatefulWidget {
-  const AddAdminForm({Key? key}) : super(key: key);
+  const AddAdminForm({Key? key, this.admin}) : super(key: key);
+
+  final Admin? admin;
 
   @override
   State<AddAdminForm> createState() => _AddAdminFormState();
@@ -23,15 +31,39 @@ class _AddAdminFormState extends State<AddAdminForm> {
   late String _selectedRoleVal;
   late List<Role> roles;
 
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _pwCtrl = TextEditingController();
-  final TextEditingController _nameCtrl = TextEditingController();
+  late final TextEditingController _emailCtrl;
+  late final TextEditingController _pwCtrl;
+  late final TextEditingController _nameCtrl;
+
+  late bool isEditing;
 
   @override
   void initState() {
     super.initState();
     dataProv = Provider.of<DataProvider>(context, listen: false);
     formProv = Provider.of<AddAdminFormProvider>(context, listen: false);
+
+    if (widget.admin == null) {
+      // means adding
+      _emailCtrl = TextEditingController();
+      _pwCtrl = TextEditingController();
+      _nameCtrl = TextEditingController();
+
+      formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty;
+      formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty;
+      formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty;
+
+      isEditing = false;
+    } else {
+      // means editing
+      _emailCtrl = TextEditingController(text: widget.admin!.email);
+      _pwCtrl = TextEditingController();
+      _nameCtrl = TextEditingController(text: widget.admin!.admin_name);
+      _selectedRoleVal = widget.admin!.role.role_name;
+
+      isEditing = true;
+    }
+
     _loadDropDownData();
   }
 
@@ -43,16 +75,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              title: const Text("HTTP Error"),
-              content: Text("$onError"),
-              actions: [
-                TextButton(
-                    onPressed: () =>
-                        Navigator.of(context, rootNavigator: true).pop(),
-                    child: const Text("okay"))
-              ],
-            );
+            return ErrorAlertDialog(error: onError);
           });
     }
 
@@ -72,7 +95,9 @@ class _AddAdminFormState extends State<AddAdminForm> {
       try {
         var data = await dataProv.registerAdmin(email, password, name, role_id);
         List<String> colnames = dataProv.colnames;
-        menuProv.showTable(data, colnames, menuProv.menuName, menuProv.menuId);
+
+        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+            menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = false;
       } catch (onError) {
@@ -80,16 +105,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("HTTP Error"),
-                content: Text("$onError"),
-                actions: [
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pop(),
-                      child: const Text("okay"))
-                ],
-              );
+              return ErrorAlertDialog(error: onError);
             });
       }
 
@@ -108,12 +124,10 @@ class _AddAdminFormState extends State<AddAdminForm> {
                 "Add Admin",
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
               ),
-              const SizedBox(
-                height: DEFAULT_PADDING * 2,
-              ),
+              const DoubleSpace(),
               // email
               titleField("Email", formProv.isEmailFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
@@ -121,23 +135,24 @@ class _AddAdminFormState extends State<AddAdminForm> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // password
               titleField("Password", formProv.isPwFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
+                  readOnly: isEditing,
                   onChanged: (value) =>
                       formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
                   controller: _pwCtrl,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   )),
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
 
               // name
               titleField("Name", formProv.isNameFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               TextFormField(
                   onChanged: (value) =>
                       formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
@@ -146,10 +161,10 @@ class _AddAdminFormState extends State<AddAdminForm> {
                     border: OutlineInputBorder(),
                   )),
 
-              const SizedBox(height: DEFAULT_PADDING),
+              const Space(),
               // Role
               titleField("Role", formProv.isRoleFieldEmpty),
-              const SizedBox(height: DEFAULT_PADDING / 2),
+              const HalfSpace(),
               (formProv.isFetchingData)
                   ? const CircularProgressIndicator()
                   : DropdownButtonFormField(
@@ -165,7 +180,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
                       onChanged: (value) {
                         setState(() {
                           formProv.isRoleFieldEmpty = false;
-                          
+
                           _selectedRoleVal = value.toString();
                         });
                       },
@@ -174,9 +189,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
                       ),
                     ),
 
-              const SizedBox(
-                height: DEFAULT_PADDING * 2,
-              ),
+              const DoubleSpace(),
 
               // save button
               ElevatedButton(

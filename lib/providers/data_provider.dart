@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/foundation.dart';
+import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
@@ -53,6 +54,10 @@ class DataProvider extends ChangeNotifier {
       case 'jobtitle_list':
         {
           return fetchJobtitles();
+        }
+      case 'activity_list':
+        {
+          return fetchActivities();
         }
       case 'category_list':
         {
@@ -272,11 +277,11 @@ class DataProvider extends ChangeNotifier {
 
     return parsed.map<Jobtitle>((json) => Jobtitle.fromJson(json)).toList();
   }
-  
-  Future<List<User>> deleteJobtitle(int id) async {
+
+  Future<List<Jobtitle>> deleteJobtitle(int id) async {
     var token = jwt['token'];
 
-    String url = "$BASE_URL/api/User/$id";
+    String url = "$BASE_URL/api/Jobtitle/$id";
 
     try {
       var result = await http.delete(
@@ -292,7 +297,68 @@ class DataProvider extends ChangeNotifier {
         },
       );
 
-      return compute(parseUsers, result.body);
+      return compute(parseJobtitles, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Jobtitle>> createJobtitle(
+      String jobtitle_name, String jobtitle_description) async {
+    var token = jwt['token'];
+    String apiURL = "$BASE_URL/api/Jobtitle";
+
+    try {
+      var apiResult = await http.post(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "jobtitle_name": jobtitle_name,
+            "jobtitle_description": jobtitle_description,
+          }));
+
+      if (apiResult.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(apiResult.body);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseJobtitles, apiResult.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Jobtitle>> editJobtitle(int id,
+      String jobtitle_name, String jobtitle_description) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Jobtitle";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "id": id,
+            "jobtitle_name": jobtitle_name,
+            "jobtitle_description": jobtitle_description,
+          }));
+
+      return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
     }
@@ -776,5 +842,71 @@ class DataProvider extends ChangeNotifier {
   }
 
   // =================
+
+  // Activity request
+  Future<Activity> fetchActivityById(String id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Activities/$id";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseActivity, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Activity parseActivity(String responseBody) {
+    final parsed = jsonDecode(responseBody);
+
+    return Activity.fromJson(parsed);
+  }
+
+  Future<List<Activity>> fetchActivities() async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Activities";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  List<Activity> parseActivities(String responseBody) {
+    List<Map<String, dynamic>> parsed =
+        jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    colnames = getColumnNames(parsed[0]);
+
+    return parsed.map<Activity>((json) => Activity.fromJson(json)).toList();
+  }
+  //===========
 
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
-import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_activity_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/add_jobtitle_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/table.dart';
 
@@ -132,17 +133,11 @@ class MenuProvider extends ChangeNotifier {
   get isFetchingData => _isFetchingData;
   set isFetchingData(val) {
     _isFetchingData = val;
-    notifyListeners();
-  }
-
-  void showTable(data, colnames, menuTitle, menuId) {
-    isFormShown = false;
-    menuName = menuTitle;
-    this.menuId = menuId;
-    this.data = data;
-    this.colnames = colnames;
-    isTableShown = true;
-
+    if (isFetchingData) {
+      dashboardContent = const CircularProgressIndicator();
+    } else {
+      dashboardContent = Container();
+    }
     notifyListeners();
   }
 
@@ -162,19 +157,45 @@ class MenuProvider extends ChangeNotifier {
     isFormShown = false;
   }
 
-  Widget dashboardContent(type, dataTable, colnamesTable, menuTitle, menuId) {
-    if (isTableShown) {
+  Widget _dashboardContent = Container();
+  get dashboardContent => _dashboardContent;
+  set dashboardContent(val) {
+    _dashboardContent = val;
+    notifyListeners();
+  }
+
+  void setDashboardContent(
+      type, dataTable, colnamesTable, menuTitle, menuId, actionForm, dataForm) {
+    if (type == "table") {
+      isTableShown = true;
+      isFormShown = false;
+      menuName = menuTitle;
+      this.menuId = menuId;
+      data = dataTable;
+      colnames = colnamesTable;
       if (isFetchingData) {
-        return const CircularProgressIndicator();
+        dashboardContent = const CircularProgressIndicator();
+      } else {
+        dashboardContent =
+            MyTable(datas: dataTable, colnames: colnamesTable, menuId: menuId);
       }
-      return MyTable(datas: data, colnames: colnames, menuId: menuId);
-    } else if (isFormShown) {
+    } else if (type == "form") {
+      isTableShown = false;
+      isFormShown = true;
       if (isFetchingData) {
-        return const CircularProgressIndicator();
+        dashboardContent = const CircularProgressIndicator();
+      } else {
+        dashboardContent = getForm(menuId, actionForm, dataForm);
       }
-      return getForm(menuId, "add", null);
     }
-    return Container();
+    // if (isTableShown) {
+    // } else if (isFormShown) {
+    //   if (isFetchingData) {
+    //     return const CircularProgressIndicator();
+    //   }
+    //   return getForm(menuId, "add", null);
+    // }
+    // return Container();
   }
 
   void getAction(id) {
@@ -198,15 +219,21 @@ class MenuProvider extends ChangeNotifier {
         return const AddAdminForm();
       } else if (id == "category_list") {
         return const AddCategoryForm();
+      } else if (id == "jobtitle_list") {
+        return const AddJobtitleForm();
+      }else if (id == "activity_list") {
+        return const AddActivityForm();
       }
       return Container();
     } else if (action == "edit") {
       if (id == "user_list") {
         return const AddUserForm();
       } else if (id == "admin_list") {
-        return const AddAdminForm();
+        return AddAdminForm(admin: data);
       } else if (id == "category_list") {
         return AddCategoryForm(category: data);
+      }else if (id == "jobtitle_list") {
+        return AddJobtitleForm(jobtitle: data);
       }
       return Container();
     }
