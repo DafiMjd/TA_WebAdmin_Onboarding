@@ -1,3 +1,4 @@
+import 'package:advanced_datatable/advanced_datatable_source.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
@@ -7,11 +8,12 @@ import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/custom_advanced_paginated_datatable.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 
-class MyTable extends StatelessWidget {
-  const MyTable(
+class MyTable2 extends StatelessWidget {
+  const MyTable2(
       {Key? key,
       required this.datas,
       required this.colnames,
@@ -27,7 +29,7 @@ class MyTable extends StatelessWidget {
     DataProvider dataProv = context.watch<DataProvider>();
     MenuProvider menuProv = context.watch<MenuProvider>();
 
-    final DataTableSource _dataTable = MyData(
+    final AdvancedDataTableSource _dataTable = MyData(
         datas: datas,
         colnames: colnames,
         menuId: menuId,
@@ -52,20 +54,20 @@ class MyTable extends StatelessWidget {
     return columns;
   }
 
-  PaginatedDataTableCustom paginatedDataTable(DataTableSource _dataTable) {
-    return PaginatedDataTableCustom(
+  CustomAdvancedPaginatedDataTable paginatedDataTable(AdvancedDataTableSource _dataTable) {
+    return CustomAdvancedPaginatedDataTable(
       source: _dataTable,
       columns: getDataColumns(),
       columnSpacing: 50,
       horizontalMargin: 10,
-      rowsPerPage: (datas.length > 2) ? 2 : datas.length,
+      rowsPerPage: (datas.length > 8) ? 8 : datas.length,
       showCheckboxColumn: false,
     );
   }
 }
 
 // The "soruce" of the table
-class MyData extends DataTableSource {
+class MyData extends AdvancedDataTableSource {
   final List<dynamic> datas;
   final List<String> colnames;
   final String menuId;
@@ -155,5 +157,18 @@ class MyData extends DataTableSource {
       menuProv.setDashboardContent(
           "form", null, null, null, menuProv.menuId, action, datas[index]);
     }
+  }
+
+
+  @override
+  Future<RemoteDataSourceDetails> getNextPage(
+      NextPageRequest pageRequest) async {
+    return RemoteDataSourceDetails(
+      datas.length,
+      datas
+          .skip(pageRequest.offset)
+          .take(pageRequest.pageSize)
+          .toList(), //again in a real world example you would only get the right amount of rows
+    );
   }
 }

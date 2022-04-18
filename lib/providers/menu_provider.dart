@@ -10,6 +10,7 @@ import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart'
 import 'package:webadmin_onboarding/views/dashboard/form/add_jobtitle_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/table.dart';
+import 'package:webadmin_onboarding/views/dashboard/table2.dart';
 
 class MenuProvider extends ChangeNotifier {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -164,6 +165,7 @@ class MenuProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
   void setDashboardContent(
       type, dataTable, colnamesTable, menuTitle, menuId, actionForm, dataForm) {
     if (type == "table") {
@@ -177,7 +179,7 @@ class MenuProvider extends ChangeNotifier {
         dashboardContent = const CircularProgressIndicator();
       } else {
         dashboardContent =
-            MyTable(datas: dataTable, colnames: colnamesTable, menuId: menuId);
+            MyTable2(datas: dataTable, colnames: colnamesTable, menuId: menuId);
       }
     } else if (type == "form") {
       isTableShown = false;

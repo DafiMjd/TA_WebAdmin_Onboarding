@@ -18,7 +18,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void logout() async {
+  void logout() {
     window.localStorage.remove("csrf");
     notifyListeners();
   }
@@ -78,7 +78,7 @@ class AuthProvider with ChangeNotifier {
 
       if (apiResult.statusCode == 200) {
         window.localStorage["csrf"] = apiResult.body;
-        notifyListeners();
+        // notifyListeners();
       }
 
       if (apiResult.statusCode == 400) {

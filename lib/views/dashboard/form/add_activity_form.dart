@@ -328,7 +328,7 @@ class ToDoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 30, right: 30, bottom:10),
+      margin: EdgeInsets.only(left: 30, right: 30, bottom: 10),
       width: MediaQuery.of(context).size.width,
       child: Card(
         elevation: 5,
@@ -340,11 +340,11 @@ class ToDoCard extends StatelessWidget {
             children: [
               const Text(
                 "To Do",
-                style: TextStyle(
-                    fontWeight: FontWeight.w600, fontSize: 18),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
               ),
               const DoubleSpace(),
               Row(
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   Icon(
                     Icons.check_box_outlined,
@@ -353,8 +353,8 @@ class ToDoCard extends StatelessWidget {
                   const SizedBox(
                     width: DEFAULT_PADDING,
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.4,
+                  Expanded(
+                    // width: MediaQuery.of(context).size.width * 0.4,
                     child: TextFormField(
                         decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -362,6 +362,19 @@ class ToDoCard extends StatelessWidget {
                   ),
                 ],
               ),
+              const Space(),
+              Container(
+                  alignment: Alignment.centerRight,
+                  child: 
+              Tooltip(
+                  message: "Delete Card",
+                  child: IconButton(
+                      onPressed: (() {
+                      }),
+                      icon: const Icon(Icons.delete,
+                    size: 30,
+                    color: Colors.black54,))),
+                  ),
             ],
           ),
         ),
@@ -399,11 +412,15 @@ class TextCard extends StatelessWidget {
             const Space(),
             Container(
                 alignment: Alignment.centerRight,
-                child: Icon(
-                  Icons.delete,
-                  size: 30,
-                  color: Colors.black54,
-                ))
+                child: Tooltip(
+                  message: "Delete Card",
+                  child: IconButton(
+                      onPressed: (() {
+                      }),
+                      icon: const Icon(Icons.delete,
+                    size: 30,
+                    color: Colors.black54,))),
+                  ),
           ]),
         ),
       ),

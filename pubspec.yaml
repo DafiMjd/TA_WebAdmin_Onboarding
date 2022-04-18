@@ -36,16 +36,14 @@ dependencies:
   cupertino_icons: ^1.0.2
   provider: ^6.0.2
   http: ^0.13.4
-  horizontal_data_table: ^3.6.1+1
-  data_table_2: ^2.2.1
   intl: ^0.17.0
 
-  hive: ^2.1.0
-  flutter_secure_storage: ^5.0.2
+  # auth storage
 
   universal_html: ^2.0.8
 
-  path_provider: ^2.0.9
+  advanced_datatable: ^0.0.7+hotfix
+
 
 
 dev_dependencies:
