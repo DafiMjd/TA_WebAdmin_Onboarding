@@ -7,8 +7,9 @@ import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_jobtitle_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/double_space.dart';
+import 'package:webadmin_onboarding/widgets/half_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddJobtitleForm extends StatefulWidget {
@@ -45,7 +46,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
       // means editing
       _jobtitleNameCtrl =
           TextEditingController(text: widget.jobtitle!.jobtitle_name);
-      formProv.isJobtitleDescEmpty = _jobtitleNameCtrl.text.isEmpty;
+      formProv.isJobtitleNameEmpty = _jobtitleNameCtrl.text.isEmpty;
 
       _jobtitleDescCtrl =
           TextEditingController(text: widget.jobtitle!.jobtitle_description);
@@ -75,7 +76,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError);
             });
       }
 
@@ -104,89 +105,91 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError);
             });
       }
       _jobtitleDescCtrl.text = "";
       _jobtitleNameCtrl.text = "";
-      formProv.isJobtitleDescEmpty = _jobtitleNameCtrl.text.isEmpty;
+      formProv.isJobtitleNameEmpty = _jobtitleNameCtrl.text.isEmpty;
       formProv.isJobtitleDescEmpty = _jobtitleDescCtrl.text.isEmpty;
 
       formProv.isSaveButtonDisabled = false;
     }
 
-    return Card(
-      elevation: 5,
-      child: Container(
-          padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-              DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
-          width: MediaQuery.of(context).size.width * 0.6,
-          child: Column(
-            children: [
-              const Text(
-                "Add Jobtitle",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-              ),
-              const DoubleSpace(),
-              // Jobtitle Name
-              titleField("Jobtitle Name", formProv.isJobtitleDescEmpty),
-              const DoubleSpace(),
-              TextFormField(
-                  onChanged: (value) => formProv.isJobtitleDescEmpty =
-                      _jobtitleNameCtrl.text.isEmpty,
-                  controller: _jobtitleNameCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // Jobtitle Description
-              titleField("Jobtitle Description", formProv.isJobtitleDescEmpty),
-              const DoubleSpace(),
-              TextFormField(
-                  onChanged: (value) => formProv.isJobtitleDescEmpty =
-                      _jobtitleDescCtrl.text.isEmpty,
-                  controller: _jobtitleDescCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // save button
-              ElevatedButton(
-                onPressed: (formProv.isSaveButtonDisabled)
-                    ? () {}
-                    : () {
-                        if (_jobtitleNameCtrl.text.isNotEmpty &&
-                            _jobtitleDescCtrl.text.isNotEmpty &&
-                            !formProv.isJobtitleDescEmpty &&
-                            !formProv.isJobtitleDescEmpty) {
-                          if (widget.jobtitle == null) {
-                            // means adding
-                            _addJobtitle(
-                              _jobtitleNameCtrl.text,
-                              _jobtitleDescCtrl.text,
-                            );
-                          } else {
-                            // means editing
-                            _editJobtitle(
-                              widget.jobtitle!.id,
-                              _jobtitleNameCtrl.text,
-                              _jobtitleDescCtrl.text,
-                            );
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 5,
+        child: Container(
+            padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
+                DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+            width: MediaQuery.of(context).size.width * 0.6,
+            child: Column(
+              children: [
+                const Text(
+                  "Add Jobtitle",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                ),
+                const DoubleSpace(),
+                // Jobtitle Name
+                titleField("Jobtitle Name", formProv.isJobtitleNameEmpty),
+                const HalfSpace(),
+                TextFormField(
+                    onChanged: (value) => formProv.isJobtitleNameEmpty =
+                        _jobtitleNameCtrl.text.isEmpty,
+                    controller: _jobtitleNameCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // Jobtitle Description
+                titleField("Jobtitle Description", formProv.isJobtitleDescEmpty),
+                const HalfSpace(),
+                TextFormField(
+                    onChanged: (value) => formProv.isJobtitleDescEmpty =
+                        _jobtitleDescCtrl.text.isEmpty,
+                    controller: _jobtitleDescCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // save button
+                ElevatedButton(
+                  onPressed: (formProv.isSaveButtonDisabled)
+                      ? () {}
+                      : () {
+                          if (_jobtitleNameCtrl.text.isNotEmpty &&
+                              _jobtitleDescCtrl.text.isNotEmpty &&
+                              !formProv.isJobtitleDescEmpty &&
+                              !formProv.isJobtitleDescEmpty) {
+                            if (widget.jobtitle == null) {
+                              // means adding
+                              _addJobtitle(
+                                _jobtitleNameCtrl.text,
+                                _jobtitleDescCtrl.text,
+                              );
+                            } else {
+                              // means editing
+                              _editJobtitle(
+                                widget.jobtitle!.id,
+                                _jobtitleNameCtrl.text,
+                                _jobtitleDescCtrl.text,
+                              );
+                            }
                           }
-                        }
-                      },
-                child: formProv.isSaveButtonDisabled
-                    ? const Text(
-                        "Wait",
-                      )
-                    : const Text(
-                        "Save",
-                      ),
-              )
-            ],
-          )),
+                        },
+                  child: formProv.isSaveButtonDisabled
+                      ? const Text(
+                          "Wait",
+                        )
+                      : const Text(
+                          "Save",
+                        ),
+                )
+              ],
+            )),
+      ),
     );
   }
 

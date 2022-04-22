@@ -9,7 +9,7 @@ import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_category_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/double_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
@@ -87,7 +87,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError);
             });
       }
 
@@ -119,7 +119,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
             context: context,
             builder: (context) {
               
-              return ErrorAlertDialog(error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError);
             });
       }
       _catDescCtrl.text = "";
@@ -132,97 +132,99 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       formProv.isSaveButtonDisabled = false;
     }
 
-    return Card(
-      elevation: 5,
-      child: Container(
-          padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-              DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
-          width: MediaQuery.of(context).size.width * 0.6,
-          child: Column(
-            children: [
-              const Text(
-                "Add Activity Category",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-              ),
-              const DoubleSpace(),
-              // Category Name
-              titleField("Category Name", formProv.isCategoryNameEmpty),
-              const DoubleSpace(),
-              TextFormField(
-                  onChanged: (value) =>
-                      formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
-                  controller: _catNameCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // Catgeory Description
-              titleField("Catgeory Description", formProv.isCategoryDescEmpty),
-              const DoubleSpace(),
-              TextFormField(
-                  onChanged: (value) =>
-                      formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
-                  controller: _catDescCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // Duration
-              titleField("Duration in Days", formProv.isDurationEmpty),
-              const DoubleSpace(),
-              TextFormField(
-                  onChanged: (value) =>
-                      formProv.isDurationEmpty = _durationCtrl.text.isEmpty,
-                  controller: _durationCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  ],
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // save button
-              ElevatedButton(
-                onPressed: (formProv.isSaveButtonDisabled)
-                    ? () {}
-                    : () {
-                        if (_catNameCtrl.text.isNotEmpty &&
-                            _catDescCtrl.text.isNotEmpty &&
-                            _durationCtrl.text.isNotEmpty &&
-                            !formProv.isCategoryNameEmpty &&
-                            !formProv.isCategoryDescEmpty &&
-                            !formProv.isDurationEmpty) {
-                          if (widget.category == null) {
-                            // means adding
-                            _addCategory(
-                              _catNameCtrl.text,
-                              _catDescCtrl.text,
-                              int.parse(_durationCtrl.text),
-                            );
-                          } else {
-                            // means editing
-                            _editCategory(
-                                widget.category!.id,
-                              _catNameCtrl.text,
-                              _catDescCtrl.text,
-                              int.parse(_durationCtrl.text),);
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 5,
+        child: Container(
+            padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
+                DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+            width: MediaQuery.of(context).size.width * 0.6,
+            child: Column(
+              children: [
+                const Text(
+                  "Add Activity Category",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                ),
+                const DoubleSpace(),
+                // Category Name
+                titleField("Category Name", formProv.isCategoryNameEmpty),
+                const DoubleSpace(),
+                TextFormField(
+                    onChanged: (value) =>
+                        formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
+                    controller: _catNameCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // Catgeory Description
+                titleField("Catgeory Description", formProv.isCategoryDescEmpty),
+                const DoubleSpace(),
+                TextFormField(
+                    onChanged: (value) =>
+                        formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
+                    controller: _catDescCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // Duration
+                titleField("Duration in Days", formProv.isDurationEmpty),
+                const DoubleSpace(),
+                TextFormField(
+                    onChanged: (value) =>
+                        formProv.isDurationEmpty = _durationCtrl.text.isEmpty,
+                    controller: _durationCtrl,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // save button
+                ElevatedButton(
+                  onPressed: (formProv.isSaveButtonDisabled)
+                      ? () {}
+                      : () {
+                          if (_catNameCtrl.text.isNotEmpty &&
+                              _catDescCtrl.text.isNotEmpty &&
+                              _durationCtrl.text.isNotEmpty &&
+                              !formProv.isCategoryNameEmpty &&
+                              !formProv.isCategoryDescEmpty &&
+                              !formProv.isDurationEmpty) {
+                            if (widget.category == null) {
+                              // means adding
+                              _addCategory(
+                                _catNameCtrl.text,
+                                _catDescCtrl.text,
+                                int.parse(_durationCtrl.text),
+                              );
+                            } else {
+                              // means editing
+                              _editCategory(
+                                  widget.category!.id,
+                                _catNameCtrl.text,
+                                _catDescCtrl.text,
+                                int.parse(_durationCtrl.text),);
+                            }
                           }
-                        }
-                      },
-                child: formProv.isSaveButtonDisabled
-                    ? const Text(
-                        "Wait",
-                      )
-                    : const Text(
-                        "Save",
-                      ),
-              )
-            ],
-          )),
+                        },
+                  child: formProv.isSaveButtonDisabled
+                      ? const Text(
+                          "Wait",
+                        )
+                      : const Text(
+                          "Save",
+                        ),
+                )
+              ],
+            )),
+      ),
     );
   }
 

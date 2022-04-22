@@ -6,7 +6,7 @@ import 'package:webadmin_onboarding/utils/column_name_parse.dart';
 import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 
@@ -148,7 +148,7 @@ class MyData extends DataTableSource {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: e);
+              return ErrorAlertDialog(title: "HTTP Error", error: e);
             });
       }
     } else if (action == "edit") {

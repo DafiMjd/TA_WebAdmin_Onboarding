@@ -3,11 +3,11 @@
 import 'package:webadmin_onboarding/models/category.dart';
 
 class Activity {
-  final int id;
-  final String activity_name, activity_description;
-  final ActivityCategory category;
+  int? id;
+  String? activity_name, activity_description;
+  ActivityCategory? category;
 
-  Activity({required this.id, required this.activity_name, required this.activity_description, required this.category});
+  Activity({this.id, this.activity_name, this.activity_description, this.category});
 
   factory Activity.fromJson(Map<String, dynamic> json) {
     return Activity(
@@ -27,7 +27,7 @@ class Activity {
       return activity_description;
     }
     else if (identifier == 'category_') {
-      return category.category_name;
+      return category!.category_name;
     } else {
       return "not found";
     }

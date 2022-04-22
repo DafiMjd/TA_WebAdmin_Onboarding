@@ -3,7 +3,7 @@ import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/drawer_menu.dart';
 import 'package:webadmin_onboarding/widgets/drawer_submenu.dart';
 
@@ -31,7 +31,7 @@ class SideMenu extends StatelessWidget {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: e);
+              return ErrorAlertDialog(title: "HTTP Error", error: e);
             });
       }
     }

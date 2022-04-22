@@ -4,7 +4,7 @@ import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 
 class User {
-  int progress;
+  double progress;
 
   String email, name, gender, phone_number;
   String birtdate;

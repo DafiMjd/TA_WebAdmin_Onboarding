@@ -495,11 +495,11 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<User>> editUser(String email, String password, String name,
-      String phone, String gender, int role_id, double progres) async {
+  Future<List<User>> editUser(String email, String name,
+      String phone, String gender, int role_id, int jobtitle_id, double progres, String birthdate) async {
     var token = jwt['token'];
 
-    String url = "$BASE_URL/api/Admin";
+    String url = "$BASE_URL/api/User";
 
     try {
       var result = await http.put(Uri.parse(url),
@@ -514,13 +514,15 @@ class DataProvider extends ChangeNotifier {
           },
           body: jsonEncode({
             "email": email,
-            "password": password,
             "name": name,
             "gender": gender,
             "phone_number": phone,
             "role_id": role_id,
-            "progress": progres
+            "jobtitle_id": jobtitle_id,
+            "progress": progres,
+            "birthdate": birthdate,
           }));
+
 
       return compute(parseUsers, result.body);
     } catch (e) {

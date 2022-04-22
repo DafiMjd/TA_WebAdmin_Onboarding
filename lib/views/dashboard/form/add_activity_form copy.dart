@@ -12,7 +12,7 @@ import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.da
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 
 class AddActivityForm extends StatefulWidget {
   const AddActivityForm({Key? key, this.activity}) : super(key: key);
@@ -83,7 +83,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(error: onError);
+            return ErrorAlertDialog(title: "HTTP Error", error: onError);
           });
     }
 

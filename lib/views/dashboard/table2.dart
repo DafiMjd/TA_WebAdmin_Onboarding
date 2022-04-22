@@ -7,10 +7,9 @@ import 'package:webadmin_onboarding/utils/column_name_parse.dart';
 import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/custom_advanced_paginated_datatable.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
-
 
 class MyTable2 extends StatelessWidget {
   const MyTable2(
@@ -37,11 +36,13 @@ class MyTable2 extends StatelessWidget {
         menuProv: menuProv,
         context: context);
 
-    return Column(
-      children: [
-        const Space(),
-        paginatedDataTable(_dataTable),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const Space(),
+          paginatedDataTable(_dataTable),
+        ],
+      ),
     );
   }
 
@@ -54,7 +55,8 @@ class MyTable2 extends StatelessWidget {
     return columns;
   }
 
-  CustomAdvancedPaginatedDataTable paginatedDataTable(AdvancedDataTableSource _dataTable) {
+  CustomAdvancedPaginatedDataTable paginatedDataTable(
+      AdvancedDataTableSource _dataTable) {
     return CustomAdvancedPaginatedDataTable(
       source: _dataTable,
       columns: getDataColumns(),
@@ -125,7 +127,31 @@ class MyData extends AdvancedDataTableSource {
                   message: "Delete",
                   child: IconButton(
                       onPressed: (() {
-                        _action(index, "delete");
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("Are You Sure?"),
+                                content: Text("Press Okay To Delete"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+                                      },
+                                      child: const Text("cancel")),
+                                  TextButton(
+                                      onPressed: () {
+                                        _action(index, "delete");
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+                                      },
+                                      child: const Text("okay")),
+                                ],
+                              );
+                            });
                       }),
                       icon: const Icon(Icons.delete))),
             ],
@@ -150,7 +176,7 @@ class MyData extends AdvancedDataTableSource {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: e);
+              return ErrorAlertDialog(title: "HTTP Error", error: e);
             });
       }
     } else if (action == "edit") {
@@ -158,7 +184,6 @@ class MyData extends AdvancedDataTableSource {
           "form", null, null, null, menuProv.menuId, action, datas[index]);
     }
   }
-
 
   @override
   Future<RemoteDataSourceDetails> getNextPage(

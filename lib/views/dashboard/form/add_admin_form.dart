@@ -9,7 +9,7 @@ import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_admin_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/double_space.dart';
 import 'package:webadmin_onboarding/widgets/half_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
@@ -75,7 +75,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(error: onError);
+            return ErrorAlertDialog(title: "HTTP Error", error: onError);
           });
     }
 
@@ -105,7 +105,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError);
             });
       }
 
@@ -141,6 +141,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
               titleField("Password", formProv.isPwFieldEmpty),
               const HalfSpace(),
               TextFormField(
+                obscureText: true,
                   readOnly: isEditing,
                   onChanged: (value) =>
                       formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,

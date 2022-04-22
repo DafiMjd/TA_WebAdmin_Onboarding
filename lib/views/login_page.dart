@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:provider/provider.dart';
-import 'package:webadmin_onboarding/views/error_alert_dialog.dart';
+import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -46,7 +46,7 @@ class _BodyState extends State<Body> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError);
             });
       });
     }
@@ -65,6 +65,21 @@ class _BodyState extends State<Body> {
               ),
               const SizedBox(height: 70),
               TextFormField(
+                  onFieldSubmitted: (value) {
+                    if (_emailController.text.isNotEmpty &&
+                        _passwordController.text.isNotEmpty) {
+                      authProvider.isEmailFieldEmpty =
+                          _emailController.text.isEmpty;
+                      authProvider.isPasswordFieldEmpty =
+                          _passwordController.text.isEmpty;
+                      _login(_emailController.text, _passwordController.text);
+                    } else {
+                      authProvider.isEmailFieldEmpty =
+                          _emailController.text.isEmpty;
+                      authProvider.isPasswordFieldEmpty =
+                          _passwordController.text.isEmpty;
+                    }
+                  },
                   controller: _emailController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -82,6 +97,21 @@ class _BodyState extends State<Body> {
               ),
               const SizedBox(height: 30),
               TextFormField(
+                  onFieldSubmitted: (value) {
+                    if (_emailController.text.isNotEmpty &&
+                        _passwordController.text.isNotEmpty) {
+                      authProvider.isEmailFieldEmpty =
+                          _emailController.text.isEmpty;
+                      authProvider.isPasswordFieldEmpty =
+                          _passwordController.text.isEmpty;
+                      _login(_emailController.text, _passwordController.text);
+                    } else {
+                      authProvider.isEmailFieldEmpty =
+                          _emailController.text.isEmpty;
+                      authProvider.isPasswordFieldEmpty =
+                          _passwordController.text.isEmpty;
+                    }
+                  },
                   obscureText: authProvider.isPasswordHidden,
                   controller: _passwordController,
                   decoration: InputDecoration(

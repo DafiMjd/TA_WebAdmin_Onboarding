@@ -4,7 +4,7 @@ import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/add_activity_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/add_activity_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_jobtitle_form.dart';
@@ -135,7 +135,7 @@ class MenuProvider extends ChangeNotifier {
   set isFetchingData(val) {
     _isFetchingData = val;
     if (isFetchingData) {
-      dashboardContent = const CircularProgressIndicator();
+      dashboardContent = Container(width: 100, height: 100, child: const CircularProgressIndicator());
     } else {
       dashboardContent = Container();
     }
@@ -176,7 +176,7 @@ class MenuProvider extends ChangeNotifier {
       data = dataTable;
       colnames = colnamesTable;
       if (isFetchingData) {
-        dashboardContent = const CircularProgressIndicator();
+        dashboardContent = Container(width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
         dashboardContent =
             MyTable2(datas: dataTable, colnames: colnamesTable, menuId: menuId);
@@ -185,7 +185,7 @@ class MenuProvider extends ChangeNotifier {
       isTableShown = false;
       isFormShown = true;
       if (isFetchingData) {
-        dashboardContent = const CircularProgressIndicator();
+        dashboardContent = Container(width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
         dashboardContent = getForm(menuId, actionForm, dataForm);
       }
@@ -224,12 +224,12 @@ class MenuProvider extends ChangeNotifier {
       } else if (id == "jobtitle_list") {
         return const AddJobtitleForm();
       }else if (id == "activity_list") {
-        return const AddActivityForm();
+        return AddActivityForm();
       }
       return Container();
     } else if (action == "edit") {
       if (id == "user_list") {
-        return const AddUserForm();
+        return AddUserForm(user: data);
       } else if (id == "admin_list") {
         return AddAdminForm(admin: data);
       } else if (id == "category_list") {
