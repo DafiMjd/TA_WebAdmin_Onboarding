@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 class ErrorAlertDialog extends StatelessWidget {
-  const ErrorAlertDialog({
+  ErrorAlertDialog({
     Key? key,
     required this.error,
     required this.title
   }) : super(key: key);
 
-  final Object error;
+  String error;
   final String title;
 
   @override
   Widget build(BuildContext context) {
+    if (error.toString() == "XMLHttpRequest error.") {
+      error = "Could Not Make Request";
+    }
     return AlertDialog(
       title: Text(title),
       content: Text("$error"),

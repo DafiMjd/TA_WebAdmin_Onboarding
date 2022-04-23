@@ -83,7 +83,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError);
+            return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
           });
     }
 

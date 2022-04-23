@@ -4,18 +4,19 @@ import 'package:webadmin_onboarding/models/activity.dart';
 
 class ActivityDetail {
   int? id;
-  int? detail_urutan;
-  String? detail_name, detail_desc, detail_link, detail_type;
-  Activity? activity;
+  int detail_urutan;
+  String detail_name, detail_desc, detail_type;
+  String? detail_link;
+  Activity activity;
 
   ActivityDetail(
       {this.id,
-      this.detail_urutan,
-      this.detail_name,
-      this.detail_desc,
+      required this.detail_urutan,
+      required this.detail_name,
+      required this.detail_desc,
       this.detail_link,
-      this.detail_type,
-      this.activity});
+      required this.detail_type,
+      required this.activity});
 
   factory ActivityDetail.fromJson(Map<String, dynamic> json) {
     return ActivityDetail(
@@ -33,7 +34,7 @@ class ActivityDetail {
     if (identifier == 'id') {
       return id;
     } else if (identifier == 'activity_') {
-      return activity!.activity_name;
+      return activity.activity_name;
     } else if (identifier == 'detail_name') {
       return detail_name;
     } else if (identifier == 'detail_desc') {

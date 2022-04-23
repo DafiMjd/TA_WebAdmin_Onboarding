@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/models/activity.dart';
+import 'package:webadmin_onboarding/models/activity_detail.dart';
 
 class AddActivityFormProvider extends ChangeNotifier {
   bool _isFetchingData = false;
@@ -32,6 +34,15 @@ class AddActivityFormProvider extends ChangeNotifier {
     _isCategoryEmpty = val;
     notifyListeners();
   }
+
+  // form yang digunakan bergantian untuk setiap activity detail
+  bool _isActDetailEmpty = true;
+  bool get isActDetailEmpty => _isActDetailEmpty;
+  set isActDetailEmpty(bool val) {
+    _isActDetailEmpty = val;
+    notifyListeners();
+  }
+
   // ==========================
 
   // button disable after save
@@ -40,6 +51,23 @@ class AddActivityFormProvider extends ChangeNotifier {
   bool get isSaveButtonDisabled => _isSaveButtonDisabled;
   set isSaveButtonDisabled(bool val) {
     _isSaveButtonDisabled = val;
+    notifyListeners();
+  }
+  // ==========================
+
+  // Activity Details
+
+  late Activity _activity;
+  Activity get activity => _activity;
+  set activity(val) {
+    _activity = val;
+    notifyListeners();
+  }
+
+  late List<ActivityDetail> _actDetails;
+  List<ActivityDetail> get actDetails => _actDetails;
+  set actDetails(val) {
+    _actDetails = val;
     notifyListeners();
   }
   // ==========================

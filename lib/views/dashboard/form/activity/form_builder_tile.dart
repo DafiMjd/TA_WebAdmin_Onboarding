@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BuilderTile extends StatelessWidget {
-  const BuilderTile(
+class FormBuilderTile extends StatelessWidget {
+  const FormBuilderTile(
       {Key? key,
       required this.icon,
       required this.title,
@@ -23,13 +23,10 @@ class BuilderTile extends StatelessWidget {
             title: Text(title),
             // subtitle: Text(subtitle),
           )
-        : IconButton(
-            color: Colors.black45,
-            onPressed: () {},
-            icon: Icon(
-              icon,
-              size: 30,
-            ),
-          );
+        : Icon(
+          icon,
+          size: 30,
+          color: Colors.black45,
+        );
   }
 }

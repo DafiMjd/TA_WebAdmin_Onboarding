@@ -31,7 +31,7 @@ class SideMenu extends StatelessWidget {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: e);
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
             });
       }
     }

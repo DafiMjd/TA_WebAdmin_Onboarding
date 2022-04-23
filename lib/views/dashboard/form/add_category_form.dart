@@ -87,7 +87,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
 
@@ -119,7 +119,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
             context: context,
             builder: (context) {
               
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
       _catDescCtrl.text = "";

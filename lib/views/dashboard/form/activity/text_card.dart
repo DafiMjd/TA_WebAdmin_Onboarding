@@ -41,7 +41,7 @@ class _TextCardState extends State<TextCard> {
           padding: const EdgeInsets.all(DEFAULT_PADDING),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            titleField("Text", _ctrl.text.isEmpty, 18),
+            titleField("Text + " + widget.key.toString(), _ctrl.text.isEmpty, 18),
             const Space(),
             TextFormField(
                 maxLines: 2,

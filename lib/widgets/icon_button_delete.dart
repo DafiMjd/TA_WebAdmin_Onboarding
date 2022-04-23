@@ -10,7 +10,6 @@ class IconButtonDelete extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("dafi: " + size.toString());
     return Tooltip(
         message: message,
         child: IconButton(

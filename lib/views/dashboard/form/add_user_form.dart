@@ -96,7 +96,7 @@ class _AddUserFormState extends State<AddUserForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError);
+            return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
           });
     }
 
@@ -126,7 +126,7 @@ class _AddUserFormState extends State<AddUserForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
       _emailCtrl.text = "";
@@ -154,10 +154,8 @@ class _AddUserFormState extends State<AddUserForm> {
       formProv.isSaveButtonDisabled = true;
 
       try {
-        print("dafi1");
         var data = await dataProv.editUser(email, name, phone, gender, role_id,
             jobtitle_id, widget.user!.progress, widget.user!.birtdate);
-        print("dafi2");
         List<String> colnames = dataProv.colnames;
 
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
@@ -169,7 +167,7 @@ class _AddUserFormState extends State<AddUserForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
       _emailCtrl.text = "";
@@ -436,7 +434,6 @@ class _AddUserFormState extends State<AddUserForm> {
         );
       }).toList(),
       onChanged: (value) {
-        print("dafi: $value");
         setState(() {
           formProv.isRoleFieldEmpty = false;
           _selectedRoleId = value.toString();

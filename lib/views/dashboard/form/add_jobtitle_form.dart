@@ -34,6 +34,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
     super.initState();
     dataProv = Provider.of<DataProvider>(context, listen: false);
     formProv = Provider.of<AddJobtitleFormProvider>(context, listen: false);
+    formProv.isSaveButtonDisabled = false;
 
     if (widget.jobtitle == null) {
       // means adding
@@ -61,7 +62,6 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
     formProv = context.watch<AddJobtitleFormProvider>();
 
     void _addJobtitle(String jobtitle_name, String jobtitle_description) async {
-      formProv.isSaveButtonDisabled = true;
 
       try {
         var data =
@@ -71,12 +71,12 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
             menuProv.menuId, null, null);
 
-        formProv.isSaveButtonDisabled = true;
+        formProv.isSaveButtonDisabled = false;
       } catch (onError) {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
 
@@ -105,7 +105,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
       _jobtitleDescCtrl.text = "";

@@ -75,7 +75,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError);
+            return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
           });
     }
 
@@ -105,116 +105,118 @@ class _AddAdminFormState extends State<AddAdminForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       }
 
       formProv.isSaveButtonDisabled = false;
     }
 
-    return Card(
-      elevation: 5,
-      child: Container(
-          padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-              DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
-          width: MediaQuery.of(context).size.width * 0.6,
-          child: Column(
-            children: [
-              const Text(
-                "Add Admin",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-              ),
-              const DoubleSpace(),
-              // email
-              titleField("Email", formProv.isEmailFieldEmpty),
-              const HalfSpace(),
-              TextFormField(
-                  onChanged: (value) =>
-                      formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
-                  controller: _emailCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // password
-              titleField("Password", formProv.isPwFieldEmpty),
-              const HalfSpace(),
-              TextFormField(
-                obscureText: true,
-                  readOnly: isEditing,
-                  onChanged: (value) =>
-                      formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
-                  controller: _pwCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-              const Space(),
-
-              // name
-              titleField("Name", formProv.isNameFieldEmpty),
-              const HalfSpace(),
-              TextFormField(
-                  onChanged: (value) =>
-                      formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
-                  controller: _nameCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  )),
-
-              const Space(),
-              // Role
-              titleField("Role", formProv.isRoleFieldEmpty),
-              const HalfSpace(),
-              (formProv.isFetchingData)
-                  ? const CircularProgressIndicator()
-                  : DropdownButtonFormField(
-                      dropdownColor: Colors.white,
-                      items: roles.map((val) {
-                        return DropdownMenuItem(
-                          value: val.id,
-                          child: Text(
-                            val.role_name,
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          formProv.isRoleFieldEmpty = false;
-
-                          _selectedRoleVal = value.toString();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+    return SingleChildScrollView(
+      child: Card(
+        elevation: 5,
+        child: Container(
+            padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
+                DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+            width: MediaQuery.of(context).size.width * 0.6,
+            child: Column(
+              children: [
+                const Text(
+                  "Add Admin",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                ),
+                const DoubleSpace(),
+                // email
+                titleField("Email", formProv.isEmailFieldEmpty),
+                const HalfSpace(),
+                TextFormField(
+                    onChanged: (value) =>
+                        formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
+                    controller: _emailCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // password
+                titleField("Password", formProv.isPwFieldEmpty),
+                const HalfSpace(),
+                TextFormField(
+                  obscureText: true,
+                    readOnly: isEditing,
+                    onChanged: (value) =>
+                        formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
+                    controller: _pwCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+                const Space(),
+    
+                // name
+                titleField("Name", formProv.isNameFieldEmpty),
+                const HalfSpace(),
+                TextFormField(
+                    onChanged: (value) =>
+                        formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
+                    controller: _nameCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+    
+                const Space(),
+                // Role
+                titleField("Role", formProv.isRoleFieldEmpty),
+                const HalfSpace(),
+                (formProv.isFetchingData)
+                    ? const CircularProgressIndicator()
+                    : DropdownButtonFormField(
+                        dropdownColor: Colors.white,
+                        items: roles.map((val) {
+                          return DropdownMenuItem(
+                            value: val.id,
+                            child: Text(
+                              val.role_name,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            formProv.isRoleFieldEmpty = false;
+    
+                            _selectedRoleVal = value.toString();
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                    ),
-
-              const DoubleSpace(),
-
-              // save button
-              ElevatedButton(
-                onPressed: (formProv.isSaveButtonDisabled)
-                    ? () {}
-                    : () {
-                        if (_emailCtrl.text.isNotEmpty &&
-                            _nameCtrl.text.isNotEmpty &&
-                            _pwCtrl.text.isNotEmpty &&
-                            !formProv.isRoleFieldEmpty) {
-                          _addUser(_emailCtrl.text, _pwCtrl.text,
-                              _nameCtrl.text, int.parse(_selectedRoleVal));
-                        }
-                      },
-                child: formProv.isSaveButtonDisabled
-                    ? const Text(
-                        "Wait",
-                      )
-                    : const Text(
-                        "Save",
-                      ),
-              )
-            ],
-          )),
+    
+                const DoubleSpace(),
+    
+                // save button
+                ElevatedButton(
+                  onPressed: (formProv.isSaveButtonDisabled)
+                      ? () {}
+                      : () {
+                          if (_emailCtrl.text.isNotEmpty &&
+                              _nameCtrl.text.isNotEmpty &&
+                              _pwCtrl.text.isNotEmpty &&
+                              !formProv.isRoleFieldEmpty) {
+                            _addUser(_emailCtrl.text, _pwCtrl.text,
+                                _nameCtrl.text, int.parse(_selectedRoleVal));
+                          }
+                        },
+                  child: formProv.isSaveButtonDisabled
+                      ? const Text(
+                          "Wait",
+                        )
+                      : const Text(
+                          "Save",
+                        ),
+                )
+              ],
+            )),
+      ),
     );
   }
 

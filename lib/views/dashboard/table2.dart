@@ -127,6 +127,7 @@ class MyData extends AdvancedDataTableSource {
                   message: "Delete",
                   child: IconButton(
                       onPressed: (() {
+                        // _action(index, "delete");
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -161,24 +162,39 @@ class MyData extends AdvancedDataTableSource {
         ]);
   }
 
-  void _action(int index, action) async {
-    if (action == "delete") {
-      try {
-        menuProv.isFetchingData = true;
-        var data = await dataProv.action(menuProv.menuId, "delete",
-            datas[index].getData(colnames[0]).toString());
-        menuProv.isFetchingData = false;
+  Future<void> _delete(index) async {
+    var err = null;
+    menuProv.isFetchingData = true;
+    List<dynamic> data;
+    try {
+      data = await dataProv.action(menuProv.menuId, "delete",
+          datas[index].getData(colnames[0]).toString());
+      menuProv.isFetchingData = false;
 
-        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
-            menuProv.menuId, null, null);
-      } catch (e) {
-        menuProv.isFetchingData = false;
-        return showDialog(
-            context: context,
-            builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: e);
-            });
-      }
+      menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+          menuProv.menuId, null, null);
+    } catch (e) {
+      err = e.toString();
+      menuProv.isFetchingData = false;
+      // return showDialog(
+      //       context: context,
+      //       builder: (context) {
+      //         return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+      //       });
+    }
+
+    if (err != null) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(title: "HTTP Error", error: err);
+          });
+    }
+  }
+
+  void _action(int index, action) {
+    if (action == "delete") {
+      _delete(index);
     } else if (action == "edit") {
       menuProv.setDashboardContent(
           "form", null, null, null, menuProv.menuId, action, datas[index]);

@@ -9,7 +9,7 @@ class HalfSpace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
-      height: DEFAULT_PADDING,
+      height: DEFAULT_PADDING / 2,
     );
   }
 }

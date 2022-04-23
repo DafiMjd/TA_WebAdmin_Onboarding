@@ -13,31 +13,39 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       key: context.read<MenuProvider>().scaffoldKey,
       drawer: const SideMenu(),
       body: SafeArea(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (Responsive.isDesktop(context))
-              const Expanded(
-                // default flex = 1
-                // and it takes 1/6 part of the screen
-                child: SideMenu(),
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Expanded(
+                  // It takes 5/6 part of the screen
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      Header(),
+                      Expanded(child: DashboardPage()),
+                      // Expanded(child: AddActivityForm(),)
+                    ],
+                  ),
+                ),
               ),
-            Expanded(
-              // It takes 5/6 part of the screen
-              flex: 5,
-              child: Column(
-                children:  [
-                  Header(),
-                  // Expanded(child: DashboardPage()),
-                  Expanded(child: AddActivityForm(),)
-                ],
-              ),
-            ),
-          ],
+              if (Responsive.isDesktop(context))
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: const Expanded(
+                    // default flex = 1
+                    // and it takes 1/6 part of the screen
+                    child: SideMenu(),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

@@ -135,7 +135,8 @@ class MenuProvider extends ChangeNotifier {
   set isFetchingData(val) {
     _isFetchingData = val;
     if (isFetchingData) {
-      dashboardContent = Container(width: 100, height: 100, child: const CircularProgressIndicator());
+      dashboardContent = Container(
+          width: 100, height: 100, child: const CircularProgressIndicator());
     } else {
       dashboardContent = Container();
     }
@@ -165,7 +166,6 @@ class MenuProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void setDashboardContent(
       type, dataTable, colnamesTable, menuTitle, menuId, actionForm, dataForm) {
     if (type == "table") {
@@ -176,7 +176,8 @@ class MenuProvider extends ChangeNotifier {
       data = dataTable;
       colnames = colnamesTable;
       if (isFetchingData) {
-        dashboardContent = Container(width: 100, height: 100, child: const CircularProgressIndicator());
+        dashboardContent = Container(
+            width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
         dashboardContent =
             MyTable2(datas: dataTable, colnames: colnamesTable, menuId: menuId);
@@ -185,7 +186,8 @@ class MenuProvider extends ChangeNotifier {
       isTableShown = false;
       isFormShown = true;
       if (isFetchingData) {
-        dashboardContent = Container(width: 100, height: 100, child: const CircularProgressIndicator());
+        dashboardContent = Container(
+            width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
         dashboardContent = getForm(menuId, actionForm, dataForm);
       }
@@ -223,7 +225,7 @@ class MenuProvider extends ChangeNotifier {
         return const AddCategoryForm();
       } else if (id == "jobtitle_list") {
         return const AddJobtitleForm();
-      }else if (id == "activity_list") {
+      } else if (id == "activity_list") {
         return AddActivityForm();
       }
       return Container();
@@ -234,8 +236,10 @@ class MenuProvider extends ChangeNotifier {
         return AddAdminForm(admin: data);
       } else if (id == "category_list") {
         return AddCategoryForm(category: data);
-      }else if (id == "jobtitle_list") {
+      } else if (id == "jobtitle_list") {
         return AddJobtitleForm(jobtitle: data);
+      } else if (id == "activity_list") {
+        return AddActivityForm(activity: data,);
       }
       return Container();
     }

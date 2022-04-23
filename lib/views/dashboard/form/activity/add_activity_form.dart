@@ -13,7 +13,9 @@ import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.da
 
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/activity/builder_tile.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/add_activity_detail_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/detail_card.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/form_builder_tile.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/text_card.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/todo_card.dart';
 import 'package:webadmin_onboarding/widgets/dropzone/dropped_file_widget.dart';
@@ -24,18 +26,17 @@ import 'package:webadmin_onboarding/widgets/half_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddActivityForm extends StatefulWidget {
-  AddActivityForm({Key? key, this.activity, this.activity_details})
-      : super(key: key);
+  AddActivityForm({Key? key, this.activity}) : super(key: key);
 
   Activity? activity;
-  List<ActivityDetail>? activity_details;
+  // List<ActivityDetail> activity_details;
 
   @override
   State<AddActivityForm> createState() => _AddActivityFormState();
 }
 
 class _AddActivityFormState extends State<AddActivityForm> {
-  final List<int> _items = List<int>.generate(5, (int index) => index);
+  // final List<int> _items = List<int>.generate(5, (int index) => index);
   late MenuProvider menuProv;
   late DataProvider dataProv;
   late AddActivityFormProvider formProv;
@@ -64,13 +65,17 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
       isEditing = false;
       widget.activity = Activity();
-      widget.activity_details = [];
+      formProv.activity = widget.activity;
+      formProv.actDetails = [];
     } else {
       // means editing
       _actNameCtrl =
           TextEditingController(text: widget.activity!.activity_name);
       _actDescCtrl =
           TextEditingController(text: widget.activity!.activity_description);
+
+      formProv.isActNameEmpty = _actNameCtrl.text.isEmpty;
+      formProv.isActDescEmpty = _actDescCtrl.text.isEmpty;
 
       isEditing = true;
     }
@@ -85,37 +90,32 @@ class _AddActivityFormState extends State<AddActivityForm> {
     //         duration: 1,
     //         id: 1));
 
-    // ignore: prefer_conditional_assignment
-
-    // if (widget.activity_details == null) {
-    //   widget.activity_details = [
-    //     ActivityDetail(
-    //         id: 1,
-    //         detail_urutan: 0,
-    //         detail_name: "Text1",
-    //         detail_desc: "Belajar Dart",
-    //         detail_link: "detail_link",
-    //         detail_type: "text",
-    //         activity: act),
-    //     ActivityDetail(
-    //         id: 2,
-    //         detail_urutan: 1,
-    //         detail_name: "ToDo1",
-    //         detail_desc: "Belajar MVVM",
-    //         detail_link: "detail_link",
-    //         detail_type: "to_do",
-    //         activity: act),
-    //     ActivityDetail(
-    //         id: 3,
-    //         detail_urutan: 2,
-    //         detail_name: "Text2",
-    //         detail_desc: "Belajar Provider",
-    //         detail_link: "detail_link",
-    //         detail_type: "text",
-    //         activity: act),
-    //   ];
-    //   // widget.activity_details = [];
-    // }
+    // formProv.actDetails = [
+    //   ActivityDetail(
+    //       id: 1,
+    //       detail_urutan: 0,
+    //       detail_name: "Text1",
+    //       detail_desc: "Belajar Dart",
+    //       detail_link: "detail_link",
+    //       detail_type: "text",
+    //       activity: act),
+    //   ActivityDetail(
+    //       id: 2,
+    //       detail_urutan: 1,
+    //       detail_name: "ToDo1",
+    //       detail_desc: "Belajar MVVM",
+    //       detail_link: "detail_link",
+    //       detail_type: "to_do",
+    //       activity: act),
+    //   ActivityDetail(
+    //       id: 3,
+    //       detail_urutan: 2,
+    //       detail_name: "Text2",
+    //       detail_desc: "Belajar Provider",
+    //       detail_link: "detail_link",
+    //       detail_type: "text",
+    //       activity: act),
+    // ];
 
     _loadDropDownData();
   }
@@ -128,7 +128,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError);
+            return ErrorAlertDialog(
+                title: "HTTP Error", error: onError.toString());
           });
     }
 
@@ -141,26 +142,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
     dataProv = context.watch<DataProvider>();
     formProv = context.watch<AddActivityFormProvider>();
 
-    // void _addActivity(
-    //     String title, String desc, int category_id) async {
-    //   formProv.isSaveButtonDisabled = true;
-    //   try {
-    //     var data = await dataProv.registerAdmin(title, desc, category_id);
-    //     List<String> colnames = dataProv.colnames;
-    //     menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
-    //         menuProv.menuId, null, null);
-    //     formProv.isSaveButtonDisabled = false;
-    //   } catch (onError) {
-    //     formProv.isSaveButtonDisabled = false;
-    //     return showDialog(
-    //         context: context,
-    //         builder: (context) {
-    //           return ErrorAlertDialog(error: onError);
-    //         });
-    //   }
-    //   formProv.isSaveButtonDisabled = false;
-    // }
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -169,44 +150,59 @@ class _AddActivityFormState extends State<AddActivityForm> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // Activity General Form
                 Container(
                   margin: const EdgeInsets.all(30),
                   width: MediaQuery.of(context).size.width,
                   child: activityForm(context),
                 ),
-                if (widget.activity_details != null)
+                if (formProv.actDetails.isNotEmpty)
                   Theme(
                     data: ThemeData(canvasColor: Colors.transparent),
                     child: ReorderableListView.builder(
-                      itemCount: widget.activity_details!.length,
+                      itemCount: formProv.actDetails.length,
                       itemBuilder: (context, index) {
-                        return getActivityDetailWidget(index);
+                        // return getActivityDetailWidget(index);
+                        return Container(
+                          key: Key('$index'),
+                          margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                          width: MediaQuery.of(context).size.width,
+                          child: Card(
+                            elevation: 5,
+                            child: DetailCard(
+                              actDetail: formProv.actDetails[index],
+                              delete: IconButton(
+                                onPressed: () {
+                                  removeActivityDetail(index);
+                                },
+                                icon: Icon(Icons.delete),
+                              ),
+                              edit: IconButton(
+                                  onPressed: () async {
+                                    return showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AddActivityDetailForm(
+                                              type: formProv.actDetails[index]
+                                                  .detail_type,
+                                              detail:
+                                                  formProv.actDetails[index]);
+                                        });
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                  )),
+                            ),
+                          ),
+                        );
                       },
                       shrinkWrap: true,
                       scrollController: ScrollController(),
-                      header: ElevatedButton(
-                        child: Text("cek"),
-                        onPressed: () {
-                          for (int i = 0;
-                              i < widget.activity_details!.length;
-                              i++) {
-                            widget.activity_details![i].detail_urutan = i;
-                            print(widget.activity_details![i].detail_name! +
-                                " " +
-                                widget.activity_details![i].detail_urutan!
-                                    .toString());
-                          }
-                        },
-                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       onReorder: (int oldIndex, int newIndex) {
                         setState(() {
-                          if (oldIndex < newIndex) {
-                            newIndex -= 1;
-                          }
-                          final item =
-                              widget.activity_details!.removeAt(oldIndex);
-                          widget.activity_details!.insert(newIndex, item);
+                          reorderActivityDetails(oldIndex, newIndex);
+                          reorderActivityDetailsUrutan();
                         });
                       },
                     ),
@@ -221,57 +217,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
           child: formBuilder(context),
         )
       ],
-    );
-  }
-
-  void reorderActivityDetails() {
-    for (int i = 0; i < widget.activity_details!.length; i++) {
-      widget.activity_details![i].detail_urutan = i;
-    }
-  }
-
-  Widget getActivityDetailWidget(int index) {
-    ActivityDetail actDetail = widget.activity_details![index];
-    if (actDetail.detail_type == 'text') {
-      return TextCard(
-        actDetail: actDetail,
-        key: Key('$index'),
-        delete: IconButton(
-            onPressed: (() {
-              remove(index);
-            }),
-            icon: const Icon(
-              Icons.delete,
-              size: 30,
-              color: Colors.black54,
-            )),
-      );
-    } else if (actDetail.detail_type == 'to_do') {
-      return ToDoCard(
-        actDetail: actDetail,
-        key: Key('$index'),
-        delete: IconButton(
-            onPressed: (() {
-              remove(index);
-            }),
-            icon: const Icon(
-              Icons.delete,
-              size: 30,
-              color: Colors.black54,
-            )),
-      );
-    }
-    return TextCard(
-      key: Key('$index'),
-      delete: IconButton(
-          onPressed: (() {
-            remove(index);
-          }),
-          icon: const Icon(
-            Icons.delete,
-            size: 30,
-            color: Colors.black54,
-          )),
     );
   }
 
@@ -303,28 +248,16 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
+                            return formNotFilledDisable(context);
+                          }
+                        : () async {
                             return showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return ErrorAlertDialog(
-                                      title: "Disable",
-                                      error:
-                                          "Fill The Above Form To Perform This Action");
+                                  return AddActivityDetailForm(type: 'text');
                                 });
-                          }
-                        : () {
-                            setState(() {
-                              final newIndex = widget.activity_details!.length;
-
-                              final item = ActivityDetail(
-                                  detail_name: "Text" + newIndex.toString(),
-                                  detail_urutan: newIndex,
-                                  detail_type: "text",
-                                  activity: widget.activity);
-                              widget.activity_details!.insert(newIndex, item);
-                            });
                           },
-                    child: BuilderTile(
+                    child: FormBuilderTile(
                       icon: Icons.text_format_sharp,
                       title: "Text",
                       subtitle: "Single line or mulitline text area",
@@ -332,8 +265,31 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   ),
                   HalfSpace(),
                   InkWell(
+                    onTap: (_actDescCtrl.text.isEmpty ||
+                            _actNameCtrl.text.isEmpty ||
+                            formProv.isCategoryEmpty)
+                        ? () async {
+                            return formNotFilledDisable(context);
+                          }
+                        : () async {
+                            return showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AddActivityDetailForm(
+                                    type: 'to_do',
+                                  );
+                                });
+                          },
+                    child: FormBuilderTile(
+                      icon: Icons.list_sharp,
+                      title: "To Do List",
+                      subtitle: "Add to do",
+                    ),
+                  ),
+                  HalfSpace(),
+                  InkWell(
                     onTap: () {},
-                    child: BuilderTile(
+                    child: FormBuilderTile(
                       icon: Icons.picture_as_pdf_sharp,
                       title: "Document",
                       subtitle: "Upload files",
@@ -342,16 +298,16 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   HalfSpace(),
                   InkWell(
                     onTap: () {},
-                    child: BuilderTile(
+                    child: FormBuilderTile(
                       icon: Icons.image_sharp,
                       title: "Image",
                       subtitle: "Upload image",
                     ),
                   ),
-                  HalfSpace(),
+                  Space(),
                   InkWell(
                     onTap: () {},
-                    child: BuilderTile(
+                    child: FormBuilderTile(
                         icon: Icons.video_collection_sharp,
                         title: "Video",
                         subtitle: "Upload media"),
@@ -359,13 +315,30 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   HalfSpace(),
                   InkWell(
                     onTap: () {},
-                    child: BuilderTile(
-                      icon: Icons.list_sharp,
-                      title: "To Do List",
-                      subtitle: "Add to do",
-                    ),
+                    child: FormBuilderTile(
+                        icon: Icons.remove_red_eye_outlined,
+                        title: "Preview",
+                        subtitle: "Preview On Mobile"),
                   ),
                   HalfSpace(),
+                  InkWell(
+                    onTap: () async {
+                      if (_actDescCtrl.text.isEmpty ||
+                          _actNameCtrl.text.isEmpty ||
+                          formProv.isCategoryEmpty) {
+                        return formNotFilledDisable(context);
+                      } else {
+                        if (formProv.actDetails.isEmpty) {
+                          return activityDetailEmpty(context);
+                        }
+                        _addActivity(formProv.activity);
+                      }
+                    },
+                    child: FormBuilderTile(
+                        icon: Icons.save_alt_rounded,
+                        title: "Save",
+                        subtitle: "Save New Activity"),
+                  ),
                 ]),
               ),
             ),
@@ -373,6 +346,27 @@ class _AddActivityFormState extends State<AddActivityForm> {
         ),
       ),
     );
+  }
+
+  Future<void> formNotFilledDisable(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return ErrorAlertDialog(
+              title: "Disable",
+              error: "Fill The Above Form To Perform This Action");
+        });
+  }
+
+  Future<void> activityDetailEmpty(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return ErrorAlertDialog(
+              title: "Disable",
+              error:
+                  "Provide The Content Of The Activity\nUse The Form Builder");
+        });
   }
 
   Card activityForm(BuildContext context) {
@@ -405,7 +399,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             onChanged: (value) {
                               formProv.isActNameEmpty =
                                   _actNameCtrl.text.isEmpty;
-                              widget.activity!.activity_name = value;
+                              formProv.activity.activity_name = value;
                             },
                             controller: _actNameCtrl,
                             decoration: const InputDecoration(
@@ -451,7 +445,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                         cat = categories[i];
                                       }
                                     }
-                                    widget.activity!.category = cat;
+                                    formProv.activity.category = cat;
 
                                     _selectedCategoryId = value.toString();
                                   });
@@ -476,7 +470,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                 onChanged: (value) {
                   formProv.isActDescEmpty = _actDescCtrl.text.isEmpty;
 
-                  widget.activity!.activity_description = value;
+                  formProv.activity.activity_description = value;
                 },
                 controller: _actDescCtrl,
                 decoration: const InputDecoration(
@@ -490,6 +484,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
               onPressed: (formProv.isSaveButtonDisabled)
                   ? () {}
                   : () {
+                      for (int i = 0; i < formProv.actDetails.length; i++) {
+                        print(formProv.actDetails[i].detail_desc +
+                            formProv.actDetails[i].detail_urutan.toString());
+                      }
                       // if (_actNameCtrl.text.isNotEmpty &&
                       //     _actDescCtrl.text.isNotEmpty &&
                       //     !formProv.isCategoryEmpty) {
@@ -510,32 +508,60 @@ class _AddActivityFormState extends State<AddActivityForm> {
     );
   }
 
-  TextFormField textField(controller) {
-    return TextFormField(
-        controller: controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-        ));
+  void _addActivity(Activity activity) async {
+    formProv.isSaveButtonDisabled = true;
+    try {
+      var data = await dataProv.createActivity(activity);
+      List<String> colnames = dataProv.colnames;
+      menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+          menuProv.menuId, null, null);
+      formProv.isSaveButtonDisabled = false;
+    } catch (onError) {
+      formProv.isSaveButtonDisabled = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(
+                title: "Http Error", error: onError.toString());
+          });
+    }
+    formProv.isSaveButtonDisabled = false;
   }
 
-  remove(int index) {
+  removeActivityDetail(int index) {
     setState(() {
-      widget.activity_details!.removeAt(index);
+      formProv.actDetails.removeAt(index);
+      reorderActivityDetailsUrutan();
     });
   }
-}
 
-Container titleField(title, isEmpty, textSize) => Container(
-    alignment: Alignment.centerLeft,
-    child: (isEmpty)
-        ? Text(
-            title + "*",
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.red,
-                fontSize: textSize),
-          )
-        : Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: textSize),
-          ));
+  void reorderActivityDetails(oldIndex, newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final ActivityDetail item = formProv.actDetails.removeAt(oldIndex);
+    formProv.actDetails.insert(newIndex, item);
+  }
+
+  // reorder field urutan activity details
+  void reorderActivityDetailsUrutan() {
+    for (int i = 0; i < formProv.actDetails.length; i++) {
+      formProv.actDetails[i].detail_urutan = i;
+    }
+  }
+
+  Container titleField(title, isEmpty, textSize) => Container(
+      alignment: Alignment.centerLeft,
+      child: (isEmpty)
+          ? Text(
+              title + "*",
+              style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red,
+                  fontSize: textSize),
+            )
+          : Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: textSize),
+            ));
+}

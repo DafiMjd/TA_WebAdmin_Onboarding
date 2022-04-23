@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
+import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
@@ -37,7 +38,7 @@ class DataProvider extends ChangeNotifier {
     _colnames = val;
   }
 
-  Future<List<dynamic>> getDatatable(id) async {
+  Future<List<dynamic>> getDatatable(id)  {
     switch (id) {
       case 'user_list':
         {
@@ -82,17 +83,22 @@ class DataProvider extends ChangeNotifier {
     return fetchAdmins();
   }
 
-  Future<List<dynamic>> _jobtitleAction(method, dataid) async {
+  Future<List<dynamic>> _jobtitleAction(method, dataid) {
     if (method == 'delete') return deleteJobtitle(int.parse(dataid));
     return fetchJobtitles();
   }
 
   Future<List<dynamic>> _categoryAction(method, dataid) async {
     if (method == 'delete') return deleteActivityCategory(int.parse(dataid));
-    return fetchJobtitles();
+    return fetchActivityCategories();
   }
 
-  Future<List<dynamic>> action(id, method, dataid) async {
+  Future<List<dynamic>> _activityAction(method, dataid) async {
+    if (method == 'delete') return deleteActivity(int.parse(dataid));
+    return fetchActivities();
+  }
+
+  Future<List<dynamic>> action(id, method, dataid) {
     switch (id) {
       case 'user_list':
         {
@@ -109,6 +115,10 @@ class DataProvider extends ChangeNotifier {
       case 'category_list':
         {
           return _categoryAction(method, dataid);
+        }
+      case 'activity_list':
+        {
+          return _activityAction(method, dataid);
         }
 
       default:
@@ -129,7 +139,7 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/Roles/$id";
 
     try {
-      var roleResult = await http.get(
+      var result = await http.get(
         Uri.parse(url),
         headers: {
           "Access-Control-Allow-Origin":
@@ -141,8 +151,11 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
-      return compute(parseRole, roleResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseRole, result.body);
     } catch (e) {
       rethrow;
     }
@@ -160,7 +173,7 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/Roles";
 
     try {
-      var roleResult = await http.get(
+      var result = await http.get(
         Uri.parse(url),
         headers: {
           "Access-Control-Allow-Origin":
@@ -172,8 +185,11 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
-      return compute(parseRoles, roleResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseRoles, result.body);
     } catch (e) {
       rethrow;
     }
@@ -193,7 +209,7 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/Roles/$platform";
 
     try {
-      var roleResult = await http.get(
+      var result = await http.get(
         Uri.parse(url),
         headers: {
           "Access-Control-Allow-Origin":
@@ -205,8 +221,11 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
-      return compute(parseRoles, roleResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseRoles, result.body);
     } catch (e) {
       rethrow;
     }
@@ -220,7 +239,7 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/Jobtitle/$id";
 
     try {
-      var jobtitleResult = await http.get(
+      var result = await http.get(
         Uri.parse(url),
         headers: {
           "Access-Control-Allow-Origin":
@@ -232,8 +251,11 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
-      return compute(parseJobtitle, jobtitleResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseJobtitle, result.body);
     } catch (e) {
       rethrow;
     }
@@ -251,7 +273,7 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/Jobtitle";
 
     try {
-      var roleResult = await http.get(
+      var result = await http.get(
         Uri.parse(url),
         headers: {
           "Access-Control-Allow-Origin":
@@ -263,8 +285,11 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
-      return compute(parseJobtitles, roleResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
     }
@@ -297,6 +322,10 @@ class DataProvider extends ChangeNotifier {
         },
       );
 
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
@@ -309,7 +338,7 @@ class DataProvider extends ChangeNotifier {
     String apiURL = "$BASE_URL/api/Jobtitle";
 
     try {
-      var apiResult = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(apiURL),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -324,19 +353,19 @@ class DataProvider extends ChangeNotifier {
             "jobtitle_description": jobtitle_description,
           }));
 
-      if (apiResult.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(apiResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
 
-      return compute(parseJobtitles, apiResult.body);
+      return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<List<Jobtitle>> editJobtitle(int id,
-      String jobtitle_name, String jobtitle_description) async {
+  Future<List<Jobtitle>> editJobtitle(
+      int id, String jobtitle_name, String jobtitle_description) async {
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle";
@@ -357,6 +386,10 @@ class DataProvider extends ChangeNotifier {
             "jobtitle_name": jobtitle_name,
             "jobtitle_description": jobtitle_description,
           }));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
 
       return compute(parseJobtitles, result.body);
     } catch (e) {
@@ -385,7 +418,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseUser, result.body);
     } catch (e) {
       rethrow;
@@ -416,7 +452,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -437,7 +476,7 @@ class DataProvider extends ChangeNotifier {
     String apiURL = "$BASE_URL/api/Auth/register-user";
 
     try {
-      var apiResult = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(apiURL),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -459,12 +498,11 @@ class DataProvider extends ChangeNotifier {
             "birthdate": "2000-12-05"
           }));
 
-      if (apiResult.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(apiResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-
-      return compute(parseUsers, apiResult.body);
+      return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
     }
@@ -488,15 +526,25 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<List<User>> editUser(String email, String name,
-      String phone, String gender, int role_id, int jobtitle_id, double progres, String birthdate) async {
+  Future<List<User>> editUser(
+      String email,
+      String name,
+      String phone,
+      String gender,
+      int role_id,
+      int jobtitle_id,
+      double progres,
+      String birthdate) async {
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User";
@@ -522,8 +570,10 @@ class DataProvider extends ChangeNotifier {
             "progress": progres,
             "birthdate": birthdate,
           }));
-
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -551,7 +601,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseAdmin, result.body);
     } catch (e) {
       rethrow;
@@ -582,7 +635,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;
@@ -603,7 +659,7 @@ class DataProvider extends ChangeNotifier {
     String apiURL = "$BASE_URL/api/Auth/register-admin";
 
     try {
-      var apiResult = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(apiURL),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -620,12 +676,11 @@ class DataProvider extends ChangeNotifier {
             "role_id": role_id,
           }));
 
-      if (apiResult.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(apiResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-
-      return compute(parseAdmins, apiResult.body);
+      return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;
     }
@@ -649,7 +704,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;
@@ -679,6 +737,10 @@ class DataProvider extends ChangeNotifier {
             "admin_name": name,
             "role_id": role_id,
           }));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
 
       return compute(parseAdmins, result.body);
     } catch (e) {
@@ -707,7 +769,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseActivityCategory, result.body);
     } catch (e) {
       rethrow;
@@ -738,7 +803,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseActivityCategories, result.body);
     } catch (e) {
       rethrow;
@@ -761,7 +829,7 @@ class DataProvider extends ChangeNotifier {
     String apiURL = "$BASE_URL/api/ActivityCategory";
 
     try {
-      var apiResult = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(apiURL),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -777,12 +845,11 @@ class DataProvider extends ChangeNotifier {
             "duration": duration,
           }));
 
-      if (apiResult.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(apiResult.body);
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-
-      return compute(parseActivityCategories, apiResult.body);
+      return compute(parseActivityCategories, result.body);
     } catch (e) {
       rethrow;
     }
@@ -806,6 +873,10 @@ class DataProvider extends ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
 
       return compute(parseActivityCategories, result.body);
     } catch (e) {
@@ -837,6 +908,11 @@ class DataProvider extends ChangeNotifier {
             "duration": duration,
           }));
 
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
       return compute(parseActivityCategories, result.body);
     } catch (e) {
       rethrow;
@@ -846,6 +922,12 @@ class DataProvider extends ChangeNotifier {
   // =================
 
   // Activity request
+  Activity parseActivity(String responseBody) {
+    final parsed = jsonDecode(responseBody);
+
+    return Activity.fromJson(parsed);
+  }
+
   Future<Activity> fetchActivityById(String id) async {
     var token = jwt['token'];
 
@@ -865,16 +947,23 @@ class DataProvider extends ChangeNotifier {
         },
       );
 
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
       return compute(parseActivity, result.body);
     } catch (e) {
       rethrow;
     }
   }
 
-  Activity parseActivity(String responseBody) {
-    final parsed = jsonDecode(responseBody);
+  List<Activity> parseActivities(String responseBody) {
+    List<Map<String, dynamic>> parsed =
+        jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    colnames = getColumnNames(parsed[0]);
 
-    return Activity.fromJson(parsed);
+    return parsed.map<Activity>((json) => Activity.fromJson(json)).toList();
   }
 
   Future<List<Activity>> fetchActivities() async {
@@ -896,19 +985,137 @@ class DataProvider extends ChangeNotifier {
         },
       );
 
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
       return compute(parseActivities, result.body);
     } catch (e) {
       rethrow;
     }
   }
 
-  List<Activity> parseActivities(String responseBody) {
+  Future<List<Activity>> createActivity(Activity activity) async {
+    var token = jwt['token'];
+    String apiURL = "$BASE_URL/api/Activities";
+
+    try {
+      var result = await http.post(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "activity_name": activity.activity_name,
+            "activity_description": activity.activity_description,
+            "category_id": activity.category!.id,
+          }));
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Activity>> deleteActivity(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Activities/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  //===========
+
+  // Activity Detail Request
+  Future<List<ActivityDetail>> fetchDetailByActivityId(String id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityDetail/$id";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivityDetails, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  List<ActivityDetail> parseActivityDetails(String responseBody) {
     List<Map<String, dynamic>> parsed =
         jsonDecode(responseBody).cast<Map<String, dynamic>>();
     colnames = getColumnNames(parsed[0]);
 
-    return parsed.map<Activity>((json) => Activity.fromJson(json)).toList();
+    print("dafi: " + parsed.length.toString());
+
+    return parsed.map<ActivityDetail>((json) => ActivityDetail.fromJson(json)).toList();
   }
+
+  ActivityDetail parseActivityDetail(String responseBody) {
+    final parsed = jsonDecode(responseBody);
+
+    return ActivityDetail.fromJson(parsed);
+  }
+
+
+
+
+
   //===========
 
 }

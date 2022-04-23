@@ -145,11 +145,11 @@ class MyData extends DataTableSource {
             menuProv.menuId, null, null);
       } catch (e) {
         menuProv.isFetchingData = false;
-        return showDialog(
-            context: context,
-            builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: e);
-            });
+        // return showDialog(
+        //     context: context,
+        //     builder: (context) {
+        //       return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+        //     });
       }
     } else if (action == "edit") {
       menuProv.setDashboardContent(
