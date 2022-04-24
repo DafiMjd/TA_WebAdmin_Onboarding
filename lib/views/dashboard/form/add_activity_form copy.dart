@@ -79,11 +79,11 @@ class _AddActivityFormState extends State<AddActivityForm> {
     formProv.isFetchingData = true;
     try {
       categories = await dataProv.fetchActivityCategories();
-    } catch (onError) {
+    } catch (e) {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
           });
     }
 

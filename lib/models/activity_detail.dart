@@ -49,4 +49,14 @@ class ActivityDetail {
       return "not found";
     }
   }
+
+  @override
+  String toString() {
+    return "id: " + id.toString() + 
+    "\nact name: " + activity.activity_name! + 
+    "\nact name: " + detail_name + 
+    "\ndesc: " + detail_desc + 
+    "\ntype: " + detail_type + 
+    "\nurutan: " + detail_urutan.toString();
+  }
 }

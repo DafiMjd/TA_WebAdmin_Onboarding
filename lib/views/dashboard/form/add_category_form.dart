@@ -83,11 +83,11 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
             menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = true;
-      } catch (onError) {
+      } catch (e) {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
             });
       }
 
@@ -114,12 +114,12 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
             menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = true;
-      } catch (onError) {
+      } catch (e) {
         return showDialog(
             context: context,
             builder: (context) {
               
-              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
             });
       }
       _catDescCtrl.text = "";
