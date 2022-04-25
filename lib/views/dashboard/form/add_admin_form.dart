@@ -71,11 +71,11 @@ class _AddAdminFormState extends State<AddAdminForm> {
     formProv.isFetchingData = true;
     try {
       roles = await dataProv.fetchRolesByPlatform("Website");
-    } catch (onError) {
+    } catch (e) {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
           });
     }
 
@@ -100,12 +100,12 @@ class _AddAdminFormState extends State<AddAdminForm> {
             menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = false;
-      } catch (onError) {
+      } catch (e) {
         formProv.isSaveButtonDisabled = false;
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
             });
       }
 

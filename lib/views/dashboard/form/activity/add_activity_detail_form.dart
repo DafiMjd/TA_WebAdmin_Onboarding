@@ -61,9 +61,6 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
 
       formProv.actDetails = newList;
 
-      for (int i = 0; i < formProv.actDetails.length; i++) {
-        print(formProv.actDetails[i].detail_desc);
-      }
     }
 
     editActivityDetail(desc) {
@@ -107,13 +104,14 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                 // save button
                 ElevatedButton(
                     onPressed: (_ctrl.text.isEmpty)
-                        ? () {}
+                        ? () {
+                          }
                         : () {
                             if (widget.detail == null) {
                               addActivityDetail(_ctrl.text);
                               Navigator.pop(context);
                             } else {
-                              editActivityDetail(_ctrl.text);
+                              // editActivityDetail(_ctrl.text);
                               Navigator.pop(context);
                             }
                           },

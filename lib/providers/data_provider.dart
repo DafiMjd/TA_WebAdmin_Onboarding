@@ -38,7 +38,7 @@ class DataProvider extends ChangeNotifier {
     _colnames = val;
   }
 
-  Future<List<dynamic>> getDatatable(id)  {
+  Future<List<dynamic>> getDatatable(id) {
     switch (id) {
       case 'user_list':
         {
@@ -1022,11 +1022,6 @@ class DataProvider extends ChangeNotifier {
         throw responseData['errorMessage'];
       }
 
-      if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw responseData['errorMessage'];
-      }
-
       return compute(parseActivities, result.body);
     } catch (e) {
       rethrow;
@@ -1066,7 +1061,7 @@ class DataProvider extends ChangeNotifier {
   //===========
 
   // Activity Detail Request
-  Future<List<ActivityDetail>> fetchDetailByActivityId(String id) async {
+  Future<List<ActivityDetail>> fetchDetailByActivityId(id) async {
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityDetail/$id";
@@ -1097,13 +1092,19 @@ class DataProvider extends ChangeNotifier {
   }
 
   List<ActivityDetail> parseActivityDetails(String responseBody) {
-    List<Map<String, dynamic>> parsed =
-        jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    colnames = getColumnNames(parsed[0]);
+    if (responseBody == '[]') {
+      return [];
+    } else {
+      // print(responseBody);
+      List<Map<String, dynamic>> parsed =
+          jsonDecode(responseBody).cast<Map<String, dynamic>>();
+      colnames = getColumnNames(parsed[0]);
+      print("dafi: " + parsed.toString());
 
-    print("dafi: " + parsed.length.toString());
-
-    return parsed.map<ActivityDetail>((json) => ActivityDetail.fromJson(json)).toList();
+      return parsed
+          .map<ActivityDetail>((json) => ActivityDetail.fromJson(json))
+          .toList();
+    }
   }
 
   ActivityDetail parseActivityDetail(String responseBody) {
@@ -1112,9 +1113,44 @@ class DataProvider extends ChangeNotifier {
     return ActivityDetail.fromJson(parsed);
   }
 
+  Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
+    var token = jwt['token'];
+    String apiURL = "$BASE_URL/api/ActivityDetail";
 
 
+    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
 
+    try {
+      var result = await http.post(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "activity_id": activity_id,
+            "detail_name": detail.detail_name,
+            "detail_desc": detail.detail_desc,
+            "detail_link": detail_link,
+            "detail_type": detail.detail_type,
+            "detail_urutan": detail.detail_urutan,
+          }));
+
+      if (result.statusCode == 400) {
+        print("masuk");
+        // Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw "error";
+      }
+
+      // return compute(parseActivityDetails, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   //===========
 

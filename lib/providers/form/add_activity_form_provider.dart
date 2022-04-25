@@ -64,7 +64,7 @@ class AddActivityFormProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  late List<ActivityDetail> _actDetails;
+  late List<ActivityDetail> _actDetails = [];
   List<ActivityDetail> get actDetails => _actDetails;
   set actDetails(val) {
     _actDetails = val;

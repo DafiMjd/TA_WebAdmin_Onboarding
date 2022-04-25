@@ -92,11 +92,11 @@ class _AddUserFormState extends State<AddUserForm> {
     try {
       roles = await dataProv.fetchRolesByPlatform("Mobile");
       jobtitles = await dataProv.fetchJobtitles();
-    } catch (onError) {
+    } catch (e) {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
           });
     }
 
@@ -122,11 +122,11 @@ class _AddUserFormState extends State<AddUserForm> {
             menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = false;
-      } catch (onError) {
+      } catch (e) {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
             });
       }
       _emailCtrl.text = "";
@@ -162,12 +162,12 @@ class _AddUserFormState extends State<AddUserForm> {
             menuProv.menuId, null, null);
 
         formProv.isSaveButtonDisabled = false;
-      } catch (onError) {
+      } catch (e) {
         formProv.isSaveButtonDisabled = false;
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
             });
       }
       _emailCtrl.text = "";

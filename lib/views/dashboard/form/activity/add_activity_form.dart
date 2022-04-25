@@ -42,10 +42,13 @@ class _AddActivityFormState extends State<AddActivityForm> {
   late AddActivityFormProvider formProv;
 
   late String _selectedCategoryId;
+  late String _selectedCategoryTitle;
   late List<ActivityCategory> categories;
 
   late final TextEditingController _actNameCtrl;
   late final TextEditingController _actDescCtrl;
+
+  late List<ActivityDetail> details;
 
   late bool isEditing;
 
@@ -62,20 +65,27 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
       formProv.isActNameEmpty = _actNameCtrl.text.isEmpty;
       formProv.isActDescEmpty = _actDescCtrl.text.isEmpty;
+      formProv.isCategoryEmpty = true;
 
       isEditing = false;
       widget.activity = Activity();
       formProv.activity = widget.activity;
-      formProv.actDetails = [];
+      List<ActivityDetail> init = [];
+      formProv.actDetails = init;
     } else {
+      formProv.activity = widget.activity;
+      _loadActDetails();
       // means editing
       _actNameCtrl =
           TextEditingController(text: widget.activity!.activity_name);
       _actDescCtrl =
           TextEditingController(text: widget.activity!.activity_description);
+      _selectedCategoryId = widget.activity!.id.toString();
+      _selectedCategoryTitle = widget.activity!.category!.category_name;
 
       formProv.isActNameEmpty = _actNameCtrl.text.isEmpty;
       formProv.isActDescEmpty = _actDescCtrl.text.isEmpty;
+      formProv.isCategoryEmpty = _selectedCategoryId.isEmpty;
 
       isEditing = true;
     }
@@ -120,16 +130,35 @@ class _AddActivityFormState extends State<AddActivityForm> {
     _loadDropDownData();
   }
 
-  void _loadDropDownData() async {
+  void _loadActDetails() async {
     formProv.isFetchingData = true;
     try {
-      categories = await dataProv.fetchActivityCategories();
-    } catch (onError) {
+      details = await dataProv.fetchDetailByActivityId(widget.activity!.id);
+    } catch (e) {
       return showDialog(
           context: context,
           builder: (context) {
             return ErrorAlertDialog(
-                title: "HTTP Error", error: onError.toString());
+                title: "HTTP Error", error: e.toString());
+          });
+    }
+    formProv.actDetails = details;
+
+    print("dafi detail: " + details.isEmpty.toString());
+
+    formProv.isFetchingData = false;
+  }
+
+  void _loadDropDownData() async {
+    formProv.isFetchingData = true;
+    try {
+      categories = await dataProv.fetchActivityCategories();
+    } catch (e) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(
+                title: "HTTP Error", error: e.toString());
           });
     }
 
@@ -173,7 +202,31 @@ class _AddActivityFormState extends State<AddActivityForm> {
                               actDetail: formProv.actDetails[index],
                               delete: IconButton(
                                 onPressed: () {
-                                  removeActivityDetail(index);
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text("Are You Sure?"),
+                                          content: Text("Press Okay To Delete"),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+                                                },
+                                                child: const Text("cancel")),
+                                            TextButton(
+                                                onPressed: () {
+                                                  removeActivityDetail(index);
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+                                                },
+                                                child: const Text("okay")),
+                                          ],
+                                        );
+                                      });
                                 },
                                 icon: Icon(Icons.delete),
                               ),
@@ -214,9 +267,68 @@ class _AddActivityFormState extends State<AddActivityForm> {
         ),
         Flexible(
           flex: 1,
-          child: formBuilder(context),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                actionBuilder(context),
+                formBuilder(context),
+              ],
+            ),
+          ),
         )
       ],
+    );
+  }
+
+  Widget actionBuilder(BuildContext context) {
+    return Center(
+      child: Container(
+          margin: const EdgeInsets.all(30),
+          width: MediaQuery.of(context).size.width,
+          child: Card(
+            elevation: 5,
+            child: Container(
+                padding: const EdgeInsets.fromLTRB(
+                  DEFAULT_PADDING,
+                  DEFAULT_PADDING * 2,
+                  DEFAULT_PADDING,
+                  DEFAULT_PADDING * 2,
+                ),
+                child: Scrollbar(
+                  child: SingleChildScrollView(
+                      child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () {},
+                        child: FormBuilderTile(
+                            icon: Icons.remove_red_eye_outlined,
+                            title: "Preview",
+                            subtitle: "Preview On Mobile"),
+                      ),
+                      HalfSpace(),
+                      InkWell(
+                        onTap: () async {
+                          if (_actDescCtrl.text.isEmpty ||
+                              _actNameCtrl.text.isEmpty ||
+                              formProv.isCategoryEmpty) {
+                            return formNotFilledDisable(context);
+                          } else {
+                            if (formProv.actDetails.isEmpty) {
+                              return activityDetailEmpty(context);
+                            }
+                            _addActivity(formProv.activity);
+                          }
+                        },
+                        child: FormBuilderTile(
+                            icon: Icons.save_alt_rounded,
+                            title: "Save",
+                            subtitle: "Save New Activity"),
+                      ),
+                    ],
+                  )),
+                )),
+          )),
     );
   }
 
@@ -312,33 +424,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         title: "Video",
                         subtitle: "Upload media"),
                   ),
-                  HalfSpace(),
-                  InkWell(
-                    onTap: () {},
-                    child: FormBuilderTile(
-                        icon: Icons.remove_red_eye_outlined,
-                        title: "Preview",
-                        subtitle: "Preview On Mobile"),
-                  ),
-                  HalfSpace(),
-                  InkWell(
-                    onTap: () async {
-                      if (_actDescCtrl.text.isEmpty ||
-                          _actNameCtrl.text.isEmpty ||
-                          formProv.isCategoryEmpty) {
-                        return formNotFilledDisable(context);
-                      } else {
-                        if (formProv.actDetails.isEmpty) {
-                          return activityDetailEmpty(context);
-                        }
-                        _addActivity(formProv.activity);
-                      }
-                    },
-                    child: FormBuilderTile(
-                        icon: Icons.save_alt_rounded,
-                        title: "Save",
-                        subtitle: "Save New Activity"),
-                  ),
                 ]),
               ),
             ),
@@ -346,6 +431,67 @@ class _AddActivityFormState extends State<AddActivityForm> {
         ),
       ),
     );
+  }
+
+  void _addActivity(Activity activity) async {
+    formProv.isSaveButtonDisabled = true;
+    try {
+      List<Activity> data = await dataProv.createActivity(activity);      
+      _addActivityDetail(data, formProv.actDetails);
+      formProv.isSaveButtonDisabled = false;
+    } catch (e) {
+      formProv.isSaveButtonDisabled = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(
+                title: "Http Error", error: e.toString());
+          });
+    }
+    formProv.isSaveButtonDisabled = false;
+  }
+
+  void _addActivityDetail(List<Activity> data, List<ActivityDetail> details) async {
+    List<String> colnames = dataProv.colnames;
+
+    for (int i = 0; i < details.length; i++) {
+      try {
+        dataProv.createActivityDetail(details[i], data.last.id);
+        // print(details[i].toString());
+      } catch (e) {
+        return showDialog(
+            context: context,
+            builder: (context) {
+              return ErrorAlertDialog(
+                  title: "Http Error", error: e.toString());
+            });
+      }
+    }
+
+    menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+        menuProv.menuId, null, null);
+  }
+
+  removeActivityDetail(int index) {
+    setState(() {
+      formProv.actDetails.removeAt(index);
+      reorderActivityDetailsUrutan();
+    });
+  }
+
+  void reorderActivityDetails(oldIndex, newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final ActivityDetail item = formProv.actDetails.removeAt(oldIndex);
+    formProv.actDetails.insert(newIndex, item);
+  }
+
+  // reorder field urutan activity details
+  void reorderActivityDetailsUrutan() {
+    for (int i = 0; i < formProv.actDetails.length; i++) {
+      formProv.actDetails[i].detail_urutan = i;
+    }
   }
 
   Future<void> formNotFilledDisable(BuildContext context) {
@@ -422,39 +568,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       const HalfSpace(),
                       (formProv.isFetchingData)
                           ? const CircularProgressIndicator()
-                          : SizedBox(
-                              // width: MediaQuery.of(context).size.width * 0.1,
-                              child: DropdownButtonFormField(
-                                dropdownColor: Colors.white,
-                                items: categories.map((val) {
-                                  return DropdownMenuItem(
-                                    value: val.id,
-                                    child: Text(
-                                      val.category_name,
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    formProv.isCategoryEmpty = false;
-                                    late final cat;
-                                    for (int i = 0;
-                                        i < categories.length;
-                                        i++) {
-                                      if (categories[i].id == value) {
-                                        cat = categories[i];
-                                      }
-                                    }
-                                    formProv.activity.category = cat;
-
-                                    _selectedCategoryId = value.toString();
-                                  });
-                                },
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
+                          : categoryDropdown()
                     ],
                   ),
                 ),
@@ -484,10 +598,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
               onPressed: (formProv.isSaveButtonDisabled)
                   ? () {}
                   : () {
-                      for (int i = 0; i < formProv.actDetails.length; i++) {
-                        print(formProv.actDetails[i].detail_desc +
-                            formProv.actDetails[i].detail_urutan.toString());
-                      }
+                      // for (int i = 0; i < formProv.actDetails.length; i++) {
+                      //   print(formProv.actDetails[i].toString());
+                      // }
+                      print(formProv.actDetails.last.detail_desc);
                       // if (_actNameCtrl.text.isNotEmpty &&
                       //     _actDescCtrl.text.isNotEmpty &&
                       //     !formProv.isCategoryEmpty) {
@@ -508,45 +622,66 @@ class _AddActivityFormState extends State<AddActivityForm> {
     );
   }
 
-  void _addActivity(Activity activity) async {
-    formProv.isSaveButtonDisabled = true;
-    try {
-      var data = await dataProv.createActivity(activity);
-      List<String> colnames = dataProv.colnames;
-      menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
-          menuProv.menuId, null, null);
-      formProv.isSaveButtonDisabled = false;
-    } catch (onError) {
-      formProv.isSaveButtonDisabled = false;
-      return showDialog(
-          context: context,
-          builder: (context) {
-            return ErrorAlertDialog(
-                title: "Http Error", error: onError.toString());
+  categoryDropdown() {
+    if (!isEditing) {
+      return DropdownButtonFormField(
+        dropdownColor: Colors.white,
+        items: categories.map((val) {
+          return DropdownMenuItem(
+            value: val.id,
+            child: Text(
+              val.category_name,
+            ),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            formProv.isCategoryEmpty = false;
+            late final cat;
+            for (int i = 0; i < categories.length; i++) {
+              if (categories[i].id == value) {
+                cat = categories[i];
+              }
+            }
+            formProv.activity.category = cat;
+
+            _selectedCategoryId = value.toString();
           });
-    }
-    formProv.isSaveButtonDisabled = false;
-  }
+        },
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+        ),
+      );
+    } else {
+      return DropdownButtonFormField(
+        hint: Text(_selectedCategoryTitle),
+        dropdownColor: Colors.white,
+        items: categories.map((val) {
+          return DropdownMenuItem(
+            value: val.id,
+            child: Text(
+              val.category_name,
+            ),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            formProv.isCategoryEmpty = false;
+            late final cat;
+            for (int i = 0; i < categories.length; i++) {
+              if (categories[i].id == value) {
+                cat = categories[i];
+              }
+            }
+            formProv.activity.category = cat;
 
-  removeActivityDetail(int index) {
-    setState(() {
-      formProv.actDetails.removeAt(index);
-      reorderActivityDetailsUrutan();
-    });
-  }
-
-  void reorderActivityDetails(oldIndex, newIndex) {
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-    final ActivityDetail item = formProv.actDetails.removeAt(oldIndex);
-    formProv.actDetails.insert(newIndex, item);
-  }
-
-  // reorder field urutan activity details
-  void reorderActivityDetailsUrutan() {
-    for (int i = 0; i < formProv.actDetails.length; i++) {
-      formProv.actDetails[i].detail_urutan = i;
+            _selectedCategoryId = value.toString();
+          });
+        },
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+        ),
+      );
     }
   }
 
