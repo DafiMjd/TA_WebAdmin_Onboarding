@@ -75,7 +75,7 @@ class _DashboardPageState extends State<DashboardPage> {
             const Space(),
             (menuProv.isTableShown) ? topActionButton() : Container(),
 
-            menuProv.isFetchingData ? Container(width: 100, height: 100, child: const CircularProgressIndicator()) :
+            menuProv.isFetchingData ? const SizedBox(width: 100, height: 100, child: CircularProgressIndicator()) :
             Expanded(
               child: menuProv.dashboardContent,
             ),

@@ -32,4 +32,12 @@ class Activity {
       return "not found";
     }
   }
+
+  @override
+  String toString() {
+    return "id: " + id.toString() + 
+    "\nact name: " + activity_name! + 
+    "\ndesc: " + activity_description! + 
+    "\ncat: " + category!.category_name;
+  }
 }

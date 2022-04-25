@@ -111,7 +111,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                               addActivityDetail(_ctrl.text);
                               Navigator.pop(context);
                             } else {
-                              // editActivityDetail(_ctrl.text);
+                              editActivityDetail(_ctrl.text);
                               Navigator.pop(context);
                             }
                           },

@@ -46,7 +46,7 @@ class _BodyState extends State<Body> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: onError);
+              return ErrorAlertDialog(title: "HTTP Error", error: onError.toString());
             });
       });
     }

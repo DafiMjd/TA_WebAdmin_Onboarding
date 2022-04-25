@@ -1058,11 +1058,47 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<Activity>> editActivity(Activity activity) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Activities";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "id": activity.id,
+            "activity_name": activity.activity_name,
+            "activity_description": activity.activity_description,
+            "category_id": activity.category!.id,
+          }));
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   //===========
 
   // Activity Detail Request
-  Future<List<ActivityDetail>> fetchDetailByActivityId(id) async {
+  Future<List<ActivityDetail>> fetchDetailByActivityId(
+      Activity activity) async {
     var token = jwt['token'];
+    var id = activity.id;
 
     String url = "$BASE_URL/api/ActivityDetail/$id";
 
@@ -1085,26 +1121,27 @@ class DataProvider extends ChangeNotifier {
         throw responseData['errorMessage'];
       }
 
-      return compute(parseActivityDetails, result.body);
+      if (result.body == '[]') {
+        return [];
+      }
+
+      List<Map<String, dynamic>> parsed =
+          jsonDecode(result.body).cast<Map<String, dynamic>>();
+      // colnames = getColumnNames(parsed[0]);
+      for (int i = 0; i < parsed.length; i++) {
+        parsed[i]['activity_'] = activity;
+      }
+
+      return compute(parseActivityDetails, parsed);
     } catch (e) {
       rethrow;
     }
   }
 
-  List<ActivityDetail> parseActivityDetails(String responseBody) {
-    if (responseBody == '[]') {
-      return [];
-    } else {
-      // print(responseBody);
-      List<Map<String, dynamic>> parsed =
-          jsonDecode(responseBody).cast<Map<String, dynamic>>();
-      colnames = getColumnNames(parsed[0]);
-      print("dafi: " + parsed.toString());
-
-      return parsed
-          .map<ActivityDetail>((json) => ActivityDetail.fromJson(json))
-          .toList();
-    }
+  List<ActivityDetail> parseActivityDetails(List<Map<String, dynamic>> parsed) {
+    return parsed
+        .map<ActivityDetail>((json) => ActivityDetail.fromJson(json))
+        .toList();
   }
 
   ActivityDetail parseActivityDetail(String responseBody) {
@@ -1116,7 +1153,6 @@ class DataProvider extends ChangeNotifier {
   Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
     var token = jwt['token'];
     String apiURL = "$BASE_URL/api/ActivityDetail";
-
 
     String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
 
@@ -1141,7 +1177,45 @@ class DataProvider extends ChangeNotifier {
           }));
 
       if (result.statusCode == 400) {
-        print("masuk");
+        // Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw "error";
+      }
+
+      // return compute(parseActivityDetails, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editActivityDetail(ActivityDetail detail) async {
+    var token = jwt['token'];
+    String apiURL = "$BASE_URL/api/ActivityDetail";
+
+    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "id": detail.id,
+            "activity_id": detail.activity.id,
+            "detail_name": detail.detail_name,
+            "detail_desc": detail.detail_desc,
+            "detail_link": detail_link,
+            "detail_type": detail.detail_type,
+            "detail_urutan": detail.detail_urutan,
+          }));
+
+      if (result.statusCode == 400) {
+        print("dafierror");
         // Map<String, dynamic> responseData = jsonDecode(result.body);
         throw "error";
       }

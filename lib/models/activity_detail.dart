@@ -19,15 +19,17 @@ class ActivityDetail {
       required this.activity});
 
   factory ActivityDetail.fromJson(Map<String, dynamic> json) {
-    return ActivityDetail(
+    // print("\ndafimajid: $json");
+    var newAct = ActivityDetail(
       id: json['id'],
-      activity: Activity.fromJson(json['activity_']),
+      activity: json['activity_'],
       detail_name: json['detail_name'],
       detail_desc: json['detail_desc'],
       detail_link: json['detail_link'],
       detail_type: json['detail_type'],
       detail_urutan: json['detail_urutan'],
     );
+    return newAct;
   }
 
   dynamic getData(String identifier) {

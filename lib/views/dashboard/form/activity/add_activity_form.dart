@@ -133,36 +133,34 @@ class _AddActivityFormState extends State<AddActivityForm> {
   void _loadActDetails() async {
     formProv.isFetchingData = true;
     try {
-      details = await dataProv.fetchDetailByActivityId(widget.activity!.id);
+      details = await dataProv.fetchDetailByActivityId(widget.activity!);
+      formProv.isFetchingData = false;
     } catch (e) {
+      formProv.isFetchingData = false;
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(
-                title: "HTTP Error", error: e.toString());
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
           });
     }
     formProv.actDetails = details;
 
-    print("dafi detail: " + details.isEmpty.toString());
-
-    formProv.isFetchingData = false;
+    // print("dafi detail: " + details.isEmpty.toString());
   }
 
   void _loadDropDownData() async {
     formProv.isFetchingData = true;
     try {
       categories = await dataProv.fetchActivityCategories();
+      formProv.isFetchingData = false;
     } catch (e) {
+      formProv.isFetchingData = false;
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(
-                title: "HTTP Error", error: e.toString());
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
           });
     }
-
-    formProv.isFetchingData = false;
   }
 
   @override
@@ -171,113 +169,126 @@ class _AddActivityFormState extends State<AddActivityForm> {
     dataProv = context.watch<DataProvider>();
     formProv = context.watch<AddActivityFormProvider>();
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Flexible(
-          flex: 3,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Activity General Form
-                Container(
-                  margin: const EdgeInsets.all(30),
-                  width: MediaQuery.of(context).size.width,
-                  child: activityForm(context),
-                ),
-                if (formProv.actDetails.isNotEmpty)
-                  Theme(
-                    data: ThemeData(canvasColor: Colors.transparent),
-                    child: ReorderableListView.builder(
-                      itemCount: formProv.actDetails.length,
-                      itemBuilder: (context, index) {
-                        // return getActivityDetailWidget(index);
-                        return Container(
-                          key: Key('$index'),
-                          margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
-                          width: MediaQuery.of(context).size.width,
-                          child: Card(
-                            elevation: 5,
-                            child: DetailCard(
-                              actDetail: formProv.actDetails[index],
-                              delete: IconButton(
-                                onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text("Are You Sure?"),
-                                          content: Text("Press Okay To Delete"),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context,
-                                                          rootNavigator: true)
-                                                      .pop();
-                                                },
-                                                child: const Text("cancel")),
-                                            TextButton(
-                                                onPressed: () {
-                                                  removeActivityDetail(index);
-                                                  Navigator.of(context,
-                                                          rootNavigator: true)
-                                                      .pop();
-                                                },
-                                                child: const Text("okay")),
-                                          ],
-                                        );
-                                      });
-                                },
-                                icon: Icon(Icons.delete),
-                              ),
-                              edit: IconButton(
-                                  onPressed: () async {
-                                    return showDialog(
+    if ((formProv.isFetchingData)) {
+      return const SizedBox(
+          height: 100,
+          width: 100,
+          child: Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: CircularProgressIndicator())));
+    } else {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            flex: 3,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Activity General Form
+                  Container(
+                    margin: const EdgeInsets.all(30),
+                    width: MediaQuery.of(context).size.width,
+                    child: activityForm(context),
+                  ),
+                  if (formProv.actDetails.isNotEmpty)
+                    Theme(
+                      data: ThemeData(canvasColor: Colors.transparent),
+                      child: ReorderableListView.builder(
+                        itemCount: formProv.actDetails.length,
+                        itemBuilder: (context, index) {
+                          // return getActivityDetailWidget(index);
+                          return Container(
+                            key: Key('$index'),
+                            margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                            width: MediaQuery.of(context).size.width,
+                            child: Card(
+                              elevation: 5,
+                              child: DetailCard(
+                                actDetail: formProv.actDetails[index],
+                                delete: IconButton(
+                                  onPressed: () {
+                                    showDialog(
                                         context: context,
                                         builder: (context) {
-                                          return AddActivityDetailForm(
-                                              type: formProv.actDetails[index]
-                                                  .detail_type,
-                                              detail:
-                                                  formProv.actDetails[index]);
+                                          return AlertDialog(
+                                            title: Text("Are You Sure?"),
+                                            content:
+                                                Text("Press Okay To Delete"),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                  },
+                                                  child: const Text("cancel")),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    removeActivityDetail(index);
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                  },
+                                                  child: const Text("okay")),
+                                            ],
+                                          );
                                         });
                                   },
-                                  icon: Icon(
-                                    Icons.edit,
-                                  )),
+                                  icon: Icon(Icons.delete),
+                                ),
+                                edit: IconButton(
+                                    onPressed: () async {
+                                      return showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AddActivityDetailForm(
+                                                type: formProv.actDetails[index]
+                                                    .detail_type,
+                                                detail:
+                                                    formProv.actDetails[index]);
+                                          });
+                                    },
+                                    icon: Icon(
+                                      Icons.edit,
+                                    )),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      shrinkWrap: true,
-                      scrollController: ScrollController(),
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      onReorder: (int oldIndex, int newIndex) {
-                        setState(() {
-                          reorderActivityDetails(oldIndex, newIndex);
-                          reorderActivityDetailsUrutan();
-                        });
-                      },
+                          );
+                        },
+                        shrinkWrap: true,
+                        scrollController: ScrollController(),
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        onReorder: (int oldIndex, int newIndex) {
+                          setState(() {
+                            reorderActivityDetails(oldIndex, newIndex);
+                            reorderActivityDetailsUrutan();
+                          });
+                        },
+                      ),
                     ),
-                  ),
-                const DoubleSpace(),
-              ],
+                  const DoubleSpace(),
+                ],
+              ),
             ),
           ),
-        ),
-        Flexible(
-          flex: 1,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                actionBuilder(context),
-                formBuilder(context),
-              ],
+          Flexible(
+            flex: 1,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  actionBuilder(context),
+                  formBuilder(context),
+                ],
+              ),
             ),
-          ),
-        )
-      ],
-    );
+          )
+        ],
+      );
+    }
   }
 
   Widget actionBuilder(BuildContext context) {
@@ -317,7 +328,12 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             if (formProv.actDetails.isEmpty) {
                               return activityDetailEmpty(context);
                             }
-                            _addActivity(formProv.activity);
+                            if (isEditing) {
+                              print("dafi");
+                              _editActivity(formProv.activity);
+                            } else {
+                              _addActivity(formProv.activity);
+                            }
                           }
                         },
                         child: FormBuilderTile(
@@ -433,10 +449,51 @@ class _AddActivityFormState extends State<AddActivityForm> {
     );
   }
 
+  void _editActivity(Activity activity) async {
+    formProv.isSaveButtonDisabled = true;
+    try {
+      List<Activity> data = await dataProv.editActivity(activity);
+      // _addActivityDetail(data, formProv.actDetails);
+      List<String> colnames = dataProv.colnames;
+      menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+          menuProv.menuId, null, null);
+      formProv.isSaveButtonDisabled = false;
+    } catch (e) {
+      formProv.isSaveButtonDisabled = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(title: "Http Error", error: e.toString());
+          });
+    }
+    formProv.isSaveButtonDisabled = false;
+  }
+
+  void _editActivityDetail(
+      List<Activity> data, List<ActivityDetail> details) async {
+    List<String> colnames = dataProv.colnames;
+
+    for (int i = 0; i < details.length; i++) {
+      try {
+        dataProv.editActivityDetail(details[i]);
+        // print(details[i].toString());
+      } catch (e) {
+        return showDialog(
+            context: context,
+            builder: (context) {
+              return ErrorAlertDialog(title: "Http Error", error: e.toString());
+            });
+      }
+    }
+
+    menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+        menuProv.menuId, null, null);
+  }
+
   void _addActivity(Activity activity) async {
     formProv.isSaveButtonDisabled = true;
     try {
-      List<Activity> data = await dataProv.createActivity(activity);      
+      List<Activity> data = await dataProv.createActivity(activity);
       _addActivityDetail(data, formProv.actDetails);
       formProv.isSaveButtonDisabled = false;
     } catch (e) {
@@ -444,14 +501,14 @@ class _AddActivityFormState extends State<AddActivityForm> {
       return showDialog(
           context: context,
           builder: (context) {
-            return ErrorAlertDialog(
-                title: "Http Error", error: e.toString());
+            return ErrorAlertDialog(title: "Http Error", error: e.toString());
           });
     }
     formProv.isSaveButtonDisabled = false;
   }
 
-  void _addActivityDetail(List<Activity> data, List<ActivityDetail> details) async {
+  void _addActivityDetail(
+      List<Activity> data, List<ActivityDetail> details) async {
     List<String> colnames = dataProv.colnames;
 
     for (int i = 0; i < details.length; i++) {
@@ -462,8 +519,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
         return showDialog(
             context: context,
             builder: (context) {
-              return ErrorAlertDialog(
-                  title: "Http Error", error: e.toString());
+              return ErrorAlertDialog(title: "Http Error", error: e.toString());
             });
       }
     }
@@ -601,7 +657,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       // for (int i = 0; i < formProv.actDetails.length; i++) {
                       //   print(formProv.actDetails[i].toString());
                       // }
-                      print(formProv.actDetails.last.detail_desc);
+                      print("dafi: " +
+                          formProv.actDetails[0].toString() +
+                          "\n\n" +
+                          formProv.actDetails[1].toString());
                       // if (_actNameCtrl.text.isNotEmpty &&
                       //     _actDescCtrl.text.isNotEmpty &&
                       //     !formProv.isCategoryEmpty) {
