@@ -52,6 +52,9 @@ dependencies:
   flutter_dropzone: ^3.0.5
   dotted_border: ^2.0.0
 
+  # device preview
+  device_preview: ^1.0.0
+
 
 
 dev_dependencies:

@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
-import 'package:webadmin_onboarding/widgets/half_space.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddActivityDetailForm extends StatefulWidget {
   const AddActivityDetailForm({Key? key, this.detail, required this.type})
@@ -88,7 +87,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
                     maxLines: 7,
                     onChanged: (value) {
@@ -99,7 +98,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                       border: OutlineInputBorder(),
                     )),
 
-                const DoubleSpace(),
+                Space.doubleSpace(),
 
                 // save button
                 ElevatedButton(
@@ -122,7 +121,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                         : const Text(
                             "Save Changes",
                           )),
-                HalfSpace(),
+                Space.halfSpace(),
                 // cancel button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.black45),
@@ -145,6 +144,8 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
       return titleField("Add Text", isEmpty, 20);
     } else if (type == 'to_do') {
       return titleField("Add To Do List", isEmpty, 20);
+    }else if (type == 'header') {
+      return titleField("Add Header", isEmpty, 20);
     }
 
     return titleField("Add Text", isEmpty, 20);

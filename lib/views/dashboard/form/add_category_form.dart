@@ -10,7 +10,6 @@ import 'package:webadmin_onboarding/providers/form/add_category_form_provider.da
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 
@@ -145,10 +144,10 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                   "Add Activity Category",
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                 ),
-                const DoubleSpace(),
+                Space.doubleSpace(),
                 // Category Name
                 titleField("Category Name", formProv.isCategoryNameEmpty),
-                const DoubleSpace(),
+                Space.doubleSpace(),
                 TextFormField(
                     onChanged: (value) =>
                         formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
@@ -156,11 +155,11 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
+                 Space.space(),
     
                 // Catgeory Description
                 titleField("Catgeory Description", formProv.isCategoryDescEmpty),
-                const DoubleSpace(),
+                Space.doubleSpace(),
                 TextFormField(
                     onChanged: (value) =>
                         formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
@@ -168,11 +167,11 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
+                 Space.space(),
     
                 // Duration
                 titleField("Duration in Days", formProv.isDurationEmpty),
-                const DoubleSpace(),
+                Space.doubleSpace(),
                 TextFormField(
                     onChanged: (value) =>
                         formProv.isDurationEmpty = _durationCtrl.text.isEmpty,
@@ -184,7 +183,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
+                 Space.space(),
     
                 // save button
                 ElevatedButton(

@@ -3,18 +3,25 @@ import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/drawer_menu.dart';
 import 'package:webadmin_onboarding/widgets/drawer_submenu.dart';
 
-class SideMenu extends StatelessWidget {
-  const SideMenu({Key? key}) : super(key: key);
+class SideMenu extends StatefulWidget {
+  const SideMenu({Key? key, required this.listMenu}) : super(key: key);
 
+  final List<Menu> listMenu;
+
+  @override
+  State<SideMenu> createState() => _SideMenuState();
+}
+
+class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
     DataProvider dataProv = context.watch<DataProvider>();
     MenuProvider menuProv = context.watch<MenuProvider>();
-    List<Menu> listMenu = menuProv.listMenu;
 
     void _pressSubMenu(Menu menu) async {
       menuProv.isFetchingData = true;
@@ -36,17 +43,24 @@ class SideMenu extends StatelessWidget {
       }
     }
 
-    Widget drawSubMenuItem(Menu menu) {
-      return DrawerSubmenu(
-          title: menu.title,
-          icon: menu.icon!,
-          press: () {
-            _pressSubMenu(menu);
-          });
+    Widget drawSubMenuItem(Menu menu, Menu submenu) {
+      return Visibility(
+        visible: menu.selected,
+        child: DrawerSubmenu(
+            title: submenu.title,
+            icon: submenu.icon!,
+            press: () {
+              _pressSubMenu(submenu);
+            }),
+      );
     }
 
     Widget drawMenuItem(Menu menu) {
-      return DrawerMenu(title: menu.title, icon: menu.icon!, press: () {});
+      return DrawerMenu(menu: menu, press: () {
+        setState(() {
+          menu.selected = !menu.selected;
+        });
+      });
     }
 
     ListView drawSubMenu(List<Menu> listMenu, int index) {
@@ -59,7 +73,7 @@ class SideMenu extends StatelessWidget {
             physics: const ClampingScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (context, index2) =>
-                drawSubMenuItem(listMenu[index].submenu![index2]),
+                drawSubMenuItem(listMenu[index], listMenu[index].submenu![index2]),
           )
         ],
       );
@@ -84,9 +98,12 @@ class SideMenu extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Onboarding",
-                style: TextStyle(color: Colors.white, fontSize: 20),
+              InkWell(
+                onTap: () => menuProv.init(),
+                child: Text(
+                  "Onboarding",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
               ),
               Text(
                 role,
@@ -101,7 +118,7 @@ class SideMenu extends StatelessWidget {
 
     // String role = menuProv.role;
     return Drawer(
-      child: ListView(children: drawSideBar(listMenu, "Admin")),
+      child: ListView(children: drawSideBar(widget.listMenu, "Admin")),
     );
   }
 }

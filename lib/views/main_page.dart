@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
+import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/add_activity_form.dart';
 import 'package:webadmin_onboarding/views/main/header.dart';
@@ -8,13 +9,21 @@ import 'package:webadmin_onboarding/views/main/side_menu.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatelessWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({Key? key, required this.role}) : super(key: key);
+
+  final String role;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: context.read<MenuProvider>().scaffoldKey,
-      drawer: const SideMenu(),
+      drawer: (role == "Super Admin")
+          ? SideMenu(
+              listMenu: MENU_SUPER_ADMIN,
+            )
+          : SideMenu(
+              listMenu: MENU_ADMIN,
+            ),
       body: SafeArea(
         child: Directionality(
           textDirection: TextDirection.rtl,
@@ -38,10 +47,16 @@ class MainPage extends StatelessWidget {
               if (Responsive.isDesktop(context))
                 Directionality(
                   textDirection: TextDirection.ltr,
-                  child: const Expanded(
+                  child: Expanded(
                     // default flex = 1
                     // and it takes 1/6 part of the screen
-                    child: SideMenu(),
+                    child: (role == "Super Admin")
+                        ? SideMenu(
+                            listMenu: MENU_SUPER_ADMIN,
+                          )
+                        : SideMenu(
+                            listMenu: MENU_ADMIN,
+                          ),
                   ),
                 ),
             ],

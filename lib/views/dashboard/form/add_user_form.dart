@@ -10,8 +10,6 @@ import 'package:webadmin_onboarding/providers/form/add_user_form_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
-import 'package:webadmin_onboarding/widgets/half_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddUserForm extends StatefulWidget {
@@ -92,15 +90,15 @@ class _AddUserFormState extends State<AddUserForm> {
     try {
       roles = await dataProv.fetchRolesByPlatform("Mobile");
       jobtitles = await dataProv.fetchJobtitles();
+      formProv.isFetchingData = false;
     } catch (e) {
+      formProv.isFetchingData = false;
       return showDialog(
           context: context,
           builder: (context) {
             return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
           });
     }
-
-    formProv.isFetchingData = false;
   }
 
   @override
@@ -203,10 +201,10 @@ class _AddUserFormState extends State<AddUserForm> {
                   "Add User",
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                 ),
-                const DoubleSpace(),
+                Space.doubleSpace(),
                 // email
                 titleField("Email", formProv.isEmailFieldEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
                     onChanged: (value) =>
                         formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
@@ -214,14 +212,14 @@ class _AddUserFormState extends State<AddUserForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
-        
+                 Space.space(),
+
                 // password
                 Visibility(
                     visible: widget.user == null,
                     child: titleField("Password", formProv.isPwFieldEmpty)),
                 Visibility(
-                    visible: widget.user == null, child: const HalfSpace()),
+                    visible: widget.user == null, child: Space.halfSpace()),
                 Visibility(
                   visible: widget.user == null,
                   child: TextFormField(
@@ -233,11 +231,11 @@ class _AddUserFormState extends State<AddUserForm> {
                         border: OutlineInputBorder(),
                       )),
                 ),
-                Visibility(visible: widget.user == null, child: const Space()),
-        
+                Visibility(visible: widget.user == null, child:  Space.space()),
+
                 // name
                 titleField("Name", formProv.isNameFieldEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
                     onChanged: (value) =>
                         formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
@@ -245,11 +243,11 @@ class _AddUserFormState extends State<AddUserForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
-        
+                 Space.space(),
+
                 // phone number
                 titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
                     onChanged: (value) => formProv.isPhoneNumFieldEmpty =
                         _phoneNumCtrl.text.isEmpty,
@@ -257,32 +255,32 @@ class _AddUserFormState extends State<AddUserForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
-        
+                 Space.space(),
+
                 // Gender
                 titleField("Gender", formProv.isGenderFieldEmpty),
-                const HalfSpace(),
-        
-                genderDropdown(widget.user == null),
-        
-                const Space(),
+                Space.halfSpace(),
+
+                _genderDropdown(widget.user == null),
+
+                 Space.space(),
                 // Role
                 titleField("Role", formProv.isRoleFieldEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 (formProv.isFetchingData)
                     ? const CircularProgressIndicator()
-                    : roleDropdown(widget.user == null),
-        
-                const Space(),
+                    : _roleDropdown(widget.user == null),
+
+                 Space.space(),
                 // Jobtitle
                 titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 (formProv.isFetchingData)
                     ? const CircularProgressIndicator()
-                    : jobtitleDropdown(widget.user == null),
-        
-                const DoubleSpace(),
-        
+                    : _jobtitleDropdown(widget.user == null),
+
+                Space.doubleSpace(),
+
                 // save button
                 ElevatedButton(
                   onPressed: (formProv.isSaveButtonDisabled)
@@ -349,7 +347,7 @@ class _AddUserFormState extends State<AddUserForm> {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ));
 
-  Widget genderDropdown(bool bool) {
+  Widget _genderDropdown(bool bool) {
     if (bool) {
       // adding
       return DropdownButtonFormField(
@@ -397,7 +395,7 @@ class _AddUserFormState extends State<AddUserForm> {
     );
   }
 
-  Widget roleDropdown(bool bool) {
+  Widget _roleDropdown(bool bool) {
     if (bool) {
       return DropdownButtonFormField(
         dropdownColor: Colors.white,
@@ -445,7 +443,7 @@ class _AddUserFormState extends State<AddUserForm> {
     );
   }
 
-  Widget jobtitleDropdown(bool bool) {
+  Widget _jobtitleDropdown(bool bool) {
     if (bool) {
       return DropdownButtonFormField(
         dropdownColor: Colors.white,

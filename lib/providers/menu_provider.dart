@@ -23,29 +23,6 @@ class MenuProvider extends ChangeNotifier {
     }
   }
 
-  final List<Menu> _listMenu = [
-    Menu(
-        id: "manage_user",
-        title: "Manage User",
-        icon: Icons.account_circle,
-        submenu: [
-          Menu(id: "user_list", title: "User List"),
-          Menu(id: "admin_list", title: "Admin List"),
-          Menu(id: "role_list", title: "Role List"),
-          Menu(id: "jobtitle_list", title: "Jobtitle List"),
-        ]),
-    Menu(
-        id: "manage_activity",
-        title: "ManageActivity",
-        icon: Icons.task,
-        submenu: [
-          Menu(id: "activity_list", title: "Activity List"),
-          Menu(id: "category_list", title: "Category List")
-        ]),
-  ];
-
-  get listMenu => _listMenu;
-
   late Map<String, dynamic> _jwt;
   get jwt => _jwt;
 
@@ -211,8 +188,10 @@ class MenuProvider extends ChangeNotifier {
 
   void init() {
     menuName = "Selamat Datang";
+    dashboardContent = Container();
     isFormShown = false;
     isTableShown = false;
+    notifyListeners();
   }
 
   Widget getForm(id, action, dynamic data) {

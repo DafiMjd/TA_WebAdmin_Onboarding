@@ -335,10 +335,10 @@ class DataProvider extends ChangeNotifier {
   Future<List<Jobtitle>> createJobtitle(
       String jobtitle_name, String jobtitle_description) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Jobtitle";
+    String url = "$BASE_URL/api/Jobtitle";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -473,10 +473,10 @@ class DataProvider extends ChangeNotifier {
   Future<List<User>> registerUser(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Auth/register-user";
+    String url = "$BASE_URL/api/Auth/register-user";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -653,13 +653,13 @@ class DataProvider extends ChangeNotifier {
     return parsed.map<Admin>((json) => Admin.fromJson(json)).toList();
   }
 
-  Future<List<Admin>> registerAdmin(
-      String email, String password, String name, int role_id) async {
+  Future<List<Admin>> registerAdmin(String email, String password, String name,
+      String phone, String gender, int role_id, int jobtitle_id) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Auth/register-admin";
+    String url = "$BASE_URL/api/Auth/register-admin";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -674,6 +674,10 @@ class DataProvider extends ChangeNotifier {
             "password": password,
             "admin_name": name,
             "role_id": role_id,
+            "jobtitle_id": jobtitle_id,
+            "gender": gender,
+            "phone_number": phone,
+            "birthdate": "2000-12-05"
           }));
 
       if (result.statusCode == 400) {
@@ -715,7 +719,13 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Admin>> editAdmin(
-      String email, String password, String name, int role_id) async {
+      String email,
+      String name,
+      String phone,
+      String gender,
+      int role_id,
+      int jobtitle_id,
+      String birthdate) async {
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin";
@@ -733,9 +743,13 @@ class DataProvider extends ChangeNotifier {
           },
           body: jsonEncode({
             "email": email,
-            "password": password,
             "admin_name": name,
+            "gender": gender,
+            "phone_number": phone,
             "role_id": role_id,
+            "jobtitle_id": jobtitle_id,
+            "progress": 0,
+            "birthdate": birthdate
           }));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
@@ -826,10 +840,10 @@ class DataProvider extends ChangeNotifier {
   Future<List<ActivityCategory>> createActivityCategory(
       String category_name, String category_description, int duration) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/ActivityCategory";
+    String url = "$BASE_URL/api/ActivityCategory";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -998,10 +1012,10 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Activity>> createActivity(Activity activity) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Activities";
+    String url = "$BASE_URL/api/Activities";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -1152,12 +1166,12 @@ class DataProvider extends ChangeNotifier {
 
   Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/ActivityDetail";
+    String url = "$BASE_URL/api/ActivityDetail";
 
     String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -1189,12 +1203,12 @@ class DataProvider extends ChangeNotifier {
 
   Future<void> editActivityDetail(ActivityDetail detail) async {
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/ActivityDetail";
+    String url = "$BASE_URL/api/ActivityDetail";
 
     String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
 
     try {
-      var result = await http.put(Uri.parse(apiURL),
+      var result = await http.put(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -1221,6 +1235,32 @@ class DataProvider extends ChangeNotifier {
       }
 
       // return compute(parseActivityDetails, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteActivityDetail(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityDetail/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (result.statusCode == 400) {
+        throw "error";
+      }
     } catch (e) {
       rethrow;
     }

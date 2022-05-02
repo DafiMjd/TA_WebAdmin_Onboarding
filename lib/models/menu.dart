@@ -5,7 +5,7 @@ class Menu {
   final String title;
   final IconData? icon;
   final List<Menu>? submenu;
-  bool selected = false;
+  bool selected = true;
 
   Menu({required this.id, required this.title, this.icon = Icons.circle, this.submenu});
 

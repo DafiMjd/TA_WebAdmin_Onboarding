@@ -55,7 +55,7 @@ class ActivityDetail {
   @override
   String toString() {
     return "id: " + id.toString() + 
-    "\nact name: " + activity.activity_name! + 
+    "\nact name: " + activity.id.toString() + 
     "\nact name: " + detail_name + 
     "\ndesc: " + detail_desc + 
     "\ntype: " + detail_type + 

@@ -4,7 +4,6 @@ import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -72,7 +71,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
 
-            const Space(),
+            Space.space(),
             (menuProv.isTableShown) ? topActionButton() : Container(),
 
             menuProv.isFetchingData ? const SizedBox(width: 100, height: 100, child: CircularProgressIndicator()) :
@@ -80,8 +79,8 @@ class _DashboardPageState extends State<DashboardPage> {
               child: menuProv.dashboardContent,
             ),
 
-            const Space(),
-            if (Responsive.isMobile(context)) const Space(),
+            Space.space(),
+            if (Responsive.isMobile(context)) Space.space(),
             // if (Responsive.isMobile(context)) StarageDetails(),
           ],
         ),

@@ -1,12 +1,15 @@
 import 'package:advanced_datatable/advanced_datatable_source.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/models/activity.dart';
+import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/column_name_parse.dart';
 import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/activity_preview.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/custom_advanced_paginated_datatable.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
@@ -39,7 +42,7 @@ class MyTable2 extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          const Space(),
+          Space.space(),
           paginatedDataTable(_dataTable),
         ],
       ),
@@ -108,7 +111,10 @@ class MyData extends AdvancedDataTableSource {
               Tooltip(
                   message: "Detail",
                   child: IconButton(
-                      onPressed: (() {}), icon: const Icon(Icons.details))),
+                      onPressed: (() {
+                        _action(index, "detail");
+                      }),
+                      icon: const Icon(Icons.details))),
               const SizedBox(
                 width: 5,
               ),
@@ -192,12 +198,82 @@ class MyData extends AdvancedDataTableSource {
     }
   }
 
-  void _action(int index, action) {
+  // Future<List<ActivityDetail>> _loadActDetails(Activity data) async {
+  //   dataProv.isFetchingData = true;
+  //   List<ActivityDetail> details;
+  //   try {
+  //     details = await dataProv.fetchDetailByActivityId(data);
+
+  //     dataProv.isFetchingData = false;
+  //   } catch (e) {
+  //     dataProv.isFetchingData = false;
+  //     return showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+  //         });
+  //   }
+
+  //   return details;
+
+  //   // print("dafi detail: " + details.isEmpty.toString());
+  // }
+
+  void _action(int index, action) async {
     if (action == "delete") {
       _delete(index);
     } else if (action == "edit") {
       menuProv.setDashboardContent(
           "form", null, null, null, menuProv.menuId, action, datas[index]);
+    } else if (action == "detail") {
+      if (menuId == 'activity_list') {
+        dataProv.isFetchingData = true;
+        List<ActivityDetail> details = [];
+
+        try {
+          details = await dataProv.fetchDetailByActivityId(datas[index]);
+
+          dataProv.isFetchingData = false;
+          return showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("close"))
+                  ],
+                  title: Text("Preview"),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  content: Builder(
+                    builder: (context) {
+                      return Container(
+                        // height: height,
+                        width: 390,
+                        height: 840,
+                        child: ActivityPreview(
+                          actDetails: details,
+                          activity: datas[index],
+                        ),
+                      );
+                    },
+                  ),
+                  contentPadding: EdgeInsets.all(DEFAULT_PADDING),
+                );
+                // return ActivityPreview(actDetails: formProv.actDetails, activity: widget.activity!);
+              });
+        } catch (e) {
+          return showDialog(
+              context: context,
+              builder: (context) {
+                return ErrorAlertDialog(
+                    error: "HTTP Error", title: e.toString());
+              });
+        }
+      }
     }
   }
 

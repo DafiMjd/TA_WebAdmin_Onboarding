@@ -40,6 +40,8 @@ class DetailCard extends StatelessWidget {
       return Icons.video_collection_outlined;
     } else if (detail_type == 'pdf') {
       return Icons.picture_as_pdf_sharp;
+    }else if (detail_type == 'header') {
+      return Icons.h_mobiledata_outlined;
     }
     return Icons.text_fields_sharp;
   }

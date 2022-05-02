@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class ToDoCard extends StatefulWidget {
@@ -45,7 +44,7 @@ class _ToDoCardState extends State<ToDoCard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               titleField("To Do", _ctrl.text.isEmpty, 18),
-              const DoubleSpace(),
+              Space.doubleSpace(),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -67,7 +66,8 @@ class _ToDoCardState extends State<ToDoCard> {
                   ),
                 ],
               ),
-              const Space(),
+              Space.space(),
+              Space.space(),
               Container(
                 alignment: Alignment.centerRight,
                 child: Tooltip(

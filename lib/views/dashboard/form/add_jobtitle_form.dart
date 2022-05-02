@@ -8,8 +8,6 @@ import 'package:webadmin_onboarding/providers/form/add_jobtitle_form_provider.da
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
-import 'package:webadmin_onboarding/widgets/half_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddJobtitleForm extends StatefulWidget {
@@ -129,10 +127,10 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
                   "Add Jobtitle",
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                 ),
-                const DoubleSpace(),
+                Space.doubleSpace(),
                 // Jobtitle Name
                 titleField("Jobtitle Name", formProv.isJobtitleNameEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
                     onChanged: (value) => formProv.isJobtitleNameEmpty =
                         _jobtitleNameCtrl.text.isEmpty,
@@ -140,11 +138,11 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
+                 Space.space(),
     
                 // Jobtitle Description
                 titleField("Jobtitle Description", formProv.isJobtitleDescEmpty),
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
                     onChanged: (value) => formProv.isJobtitleDescEmpty =
                         _jobtitleDescCtrl.text.isEmpty,
@@ -152,7 +150,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     )),
-                const Space(),
+                 Space.space(),
     
                 // save button
                 ElevatedButton(

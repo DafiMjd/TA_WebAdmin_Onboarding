@@ -42,7 +42,7 @@ class _TextCardState extends State<TextCard> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             titleField("Text + " + widget.key.toString(), _ctrl.text.isEmpty, 18),
-            const Space(),
+            Space.space(),
             TextFormField(
                 maxLines: 2,
                 onChanged: (val) => setState(() {}),
@@ -50,7 +50,7 @@ class _TextCardState extends State<TextCard> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 )),
-            const Space(),
+            Space.space(),
             Container(
               alignment: Alignment.centerRight,
               child: Tooltip(
