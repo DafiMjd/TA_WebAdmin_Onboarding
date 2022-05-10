@@ -3,13 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
+import 'package:webadmin_onboarding/models/activity_owned.dart';
+import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
+import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/column_name_parse.dart';
-import 'package:webadmin_onboarding/utils/PaginatedDataTableCustom.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/activity_preview.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/assign_activity.dart';
+import 'package:webadmin_onboarding/widgets/checkbox_action.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/custom_advanced_paginated_datatable.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
@@ -19,17 +23,22 @@ class MyTable2 extends StatelessWidget {
       {Key? key,
       required this.datas,
       required this.colnames,
-      required this.menuId})
+      required this.menuId,
+      this.maxRow})
       : super(key: key);
 
   final List<dynamic> datas;
   final List<String> colnames;
   final String menuId;
+  final int? maxRow;
 
   @override
   Widget build(BuildContext context) {
     DataProvider dataProv = context.watch<DataProvider>();
     MenuProvider menuProv = context.watch<MenuProvider>();
+    AssignActivityProvider assignProv = context.watch<AssignActivityProvider>();
+
+    ScrollController scrollbarController = ScrollController();
 
     final AdvancedDataTableSource _dataTable = MyData(
         datas: datas,
@@ -37,14 +46,21 @@ class MyTable2 extends StatelessWidget {
         menuId: menuId,
         dataProv: dataProv,
         menuProv: menuProv,
+        assignProv: assignProv,
         context: context);
+        
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Space.space(),
-          paginatedDataTable(_dataTable),
-        ],
+    return Scrollbar(
+      isAlwaysShown: true,
+      controller: scrollbarController,
+      child: SingleChildScrollView(
+        controller: scrollbarController,
+        child: Column(
+          children: [
+            Space.space(),
+            paginatedDataTable(_dataTable),
+          ],
+        ),
       ),
     );
   }
@@ -65,7 +81,11 @@ class MyTable2 extends StatelessWidget {
       columns: getDataColumns(),
       columnSpacing: 50,
       horizontalMargin: 10,
-      rowsPerPage: (datas.length > 8) ? 8 : datas.length,
+      rowsPerPage: (maxRow != null)
+          ? maxRow!
+          : (datas.length > 8)
+              ? 8
+              : datas.length,
       showCheckboxColumn: false,
     );
   }
@@ -75,10 +95,12 @@ class MyTable2 extends StatelessWidget {
 class MyData extends AdvancedDataTableSource {
   final List<dynamic> datas;
   final List<String> colnames;
-  final String menuId;
+  String menuId;
   final DataProvider dataProv;
   final MenuProvider menuProv;
+  final AssignActivityProvider assignProv;
   final BuildContext context;
+  List<String>? selectedEmail = [];
 
   MyData(
       {required this.datas,
@@ -86,7 +108,9 @@ class MyData extends AdvancedDataTableSource {
       required this.menuId,
       required this.dataProv,
       required this.menuProv,
-      required this.context});
+      required this.context,
+      required this.assignProv,
+      this.selectedEmail});
 
   @override
   bool get isRowCountApproximate => false;
@@ -96,6 +120,309 @@ class MyData extends AdvancedDataTableSource {
   int get selectedRowCount => 0;
   @override
   DataRow getRow(int index) {
+    final currentRowData = lastDetails!.rows[index];
+
+    var selectActions = [
+      Tooltip(
+        message: "Select",
+        child: CheckboxAction(press: () {
+          assignProv.selectedEmail.contains(currentRowData.getData('email'))
+              ? assignProv.selectedEmail.remove(currentRowData.getData('email'))
+              : assignProv.selectedEmail.add(currentRowData.getData('email'));
+        }),
+      ),
+      IconButton(
+          onPressed: () {
+            if (assignProv.selectedEmail.isEmpty) {
+              print("empty");
+            } else {
+              assignProv.selectedEmail.forEach((element) {
+                print(element);
+              });
+              print("----------");
+            }
+          },
+          icon: Icon(Icons.e_mobiledata)),
+    ];
+
+    var basicActions = [
+      Tooltip(
+          message: "Edit",
+          child: IconButton(
+            onPressed: () {
+              _action(index, "edit");
+            },
+            icon: const Icon(Icons.edit),
+          )),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Delete",
+          child: IconButton(
+              onPressed: (() {
+                // _action(index, "delete");
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Are You Sure?"),
+                        content: Text("Press Okay To Delete"),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                              child: const Text("cancel")),
+                          TextButton(
+                              onPressed: () {
+                                _action(index, "delete");
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                              child: const Text("okay")),
+                        ],
+                      );
+                    });
+              }),
+              icon: const Icon(Icons.delete))),
+    ];
+
+    var activityOwnedActions = [
+      Tooltip(
+          message: "Detail",
+          child: IconButton(
+            onPressed: () {
+              menuId = 'activity_owned_by_user_list';
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('List Activiy Owned By ' +
+                          datas[index].getData('Name')),
+                      content: Container(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          // height: MediaQuery.of(context).size.height * 0.7,
+                          child: (datas[index].activities_owned.isEmpty)
+                              ? Text("No Assigned Activities in This User")
+                              : MyTable2(
+                                  datas: datas[index].activities_owned,
+                                  colnames: [
+                                    'activity_name',
+                                    'status',
+                                    'start_date',
+                                    'end_date'
+                                  ],
+                                  menuId: menuId)),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              menuId = 'activity_owned_list';
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Text("close")),
+                      ],
+                    );
+                  });
+            },
+            icon: const Icon(Icons.details_sharp),
+          )),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Edit",
+          child: IconButton(
+            onPressed: () {
+              _action(index, "edit");
+            },
+            icon: const Icon(Icons.edit),
+          )),
+      const SizedBox(
+        width: 5,
+      ),
+    ];
+
+    var activityActions = [
+      Tooltip(
+          message: "Preview",
+          child: IconButton(
+              onPressed: (() {
+                _action(index, "detail");
+              }),
+              icon: const Icon(Icons.remove_red_eye_sharp))),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Edit",
+          child: IconButton(
+            onPressed: () {
+              _action(index, "edit");
+            },
+            icon: const Icon(Icons.edit),
+          )),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Delete",
+          child: IconButton(
+              onPressed: (() {
+                // _action(index, "delete");
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Are You Sure?"),
+                        content: Text("Press Okay To Delete"),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                              child: const Text("cancel")),
+                          TextButton(
+                              onPressed: () {
+                                _action(index, "delete");
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                              child: const Text("okay")),
+                        ],
+                      );
+                    });
+              }),
+              icon: const Icon(Icons.delete))),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Assign",
+          child: IconButton(
+            onPressed: () async {
+              // menuProv.dashboardContent = CircularProgressIndicator();
+              try {
+                List<ActivityOwned> assignedUser =
+                    await _getAssignedUser(currentRowData.id);
+
+                List<User> unassignedUser =
+                    await _getUnassignedUser(assignedUser);
+
+                menuProv.isTableShown = false;
+                menuProv.isFormShown = true;
+                menuProv.menuName = 'Assign Activity ' + currentRowData.getData('activity_name');
+
+                (menuProv.isFetchingData)
+                    ? menuProv.dashboardContent = CircularProgressIndicator()
+                    : menuProv.dashboardContent = AssignActivity(
+                        assignedUser: assignedUser,
+                        unassignedUser: unassignedUser,
+                        activity: currentRowData,
+                      );
+                    // : menuProv.dashboardContent = MyTable2(
+                    //     datas: unassignedUser,
+                    //     colnames: [
+                    //       'email',
+                    //       'name',
+                    //     ],
+                    //     menuId: 'unassigned_user',
+                    //     maxRow: 4,
+                    //   );
+
+                // : showDialog(
+                //     context: context,
+                //     builder: (context) {
+                //       return AssignActivity(
+                //           assignedUser: assignedUser,
+                //           unassignedUser: unassignedUser,
+                //           activity: datas[index]);
+                //     });
+              } catch (e) {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return ErrorAlertDialog(
+                          error: e.toString(), title: e.toString());
+                    });
+              }
+            },
+            icon: const Icon(Icons.send_rounded),
+          )),
+    ];
+
+    var noAction = [Text("No Action")];
+
+    var userActions = [
+      Tooltip(
+          message: "Is Active",
+          child: IconButton(
+              onPressed: (() {}),
+              icon: const Icon(Icons.check_box_outline_blank))),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Edit",
+          child: IconButton(
+            onPressed: () {
+              _action(index, "edit");
+            },
+            icon: const Icon(Icons.edit),
+          )),
+      const SizedBox(
+        width: 5,
+      ),
+      Tooltip(
+          message: "Delete",
+          child: IconButton(
+              onPressed: (() {
+                // _action(index, "delete");
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Are You Sure?"),
+                        content: Text("Press Okay To Delete"),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                              child: const Text("cancel")),
+                          TextButton(
+                              onPressed: () {
+                                _action(index, "delete");
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                              child: const Text("okay")),
+                        ],
+                      );
+                    });
+              }),
+              icon: const Icon(Icons.delete))),
+    ];
+
+    getActions(menuId) {
+      if (menuId == 'user_list' || menuId == 'admin_list') {
+        return userActions;
+      } else if (menuId == 'activity_list') {
+        return activityActions;
+      } else if (menuId == 'activity_owned_list') {
+        return activityOwnedActions;
+      } else if (menuId == 'role_list' || menuId == 'jobtitle_list') {
+        return basicActions;
+      } else if (menuId == 'unassigned_user') {
+        return selectActions;
+      } else {
+        return noAction;
+      }
+    }
+
     return DataRow(
         color: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
@@ -107,64 +434,10 @@ class MyData extends AdvancedDataTableSource {
         }),
         cells: [
           DataCell(Row(
-            children: [
-              Tooltip(
-                  message: "Detail",
-                  child: IconButton(
-                      onPressed: (() {
-                        _action(index, "detail");
-                      }),
-                      icon: const Icon(Icons.details))),
-              const SizedBox(
-                width: 5,
-              ),
-              Tooltip(
-                  message: "Edit",
-                  child: IconButton(
-                    onPressed: () {
-                      _action(index, "edit");
-                    },
-                    icon: const Icon(Icons.edit),
-                  )),
-              const SizedBox(
-                width: 5,
-              ),
-              Tooltip(
-                  message: "Delete",
-                  child: IconButton(
-                      onPressed: (() {
-                        // _action(index, "delete");
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text("Are You Sure?"),
-                                content: Text("Press Okay To Delete"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
-                                      },
-                                      child: const Text("cancel")),
-                                  TextButton(
-                                      onPressed: () {
-                                        _action(index, "delete");
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
-                                      },
-                                      child: const Text("okay")),
-                                ],
-                              );
-                            });
-                      }),
-                      icon: const Icon(Icons.delete))),
-            ],
+            children: getActions(menuId),
           )),
           for (int i = 0; i < colnames.length; i++)
-            DataCell(Text(datas[index].getData(colnames[i]).toString())),
+            DataCell(Text(currentRowData.getData(colnames[i]).toString())),
         ]);
   }
 
@@ -198,26 +471,95 @@ class MyData extends AdvancedDataTableSource {
     }
   }
 
-  // Future<List<ActivityDetail>> _loadActDetails(Activity data) async {
-  //   dataProv.isFetchingData = true;
-  //   List<ActivityDetail> details;
-  //   try {
-  //     details = await dataProv.fetchDetailByActivityId(data);
+  void showActOwnedDetails(index) async {
+    List<ActivityDetail> details = [];
 
-  //     dataProv.isFetchingData = false;
-  //   } catch (e) {
-  //     dataProv.isFetchingData = false;
-  //     return showDialog(
-  //         context: context,
-  //         builder: (context) {
-  //           return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
-  //         });
-  //   }
+    try {
+      details = await dataProv.fetchDetailByActivityId(datas[index]);
 
-  //   return details;
+      dataProv.isFetchingData = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("close"))
+              ],
+              title:
+                  Text('Activities Owned By ' + datas[index].getData('Name')),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              content: Builder(
+                builder: (context) {
+                  return MyTable2(
+                      datas: datas[index].activities_owned,
+                      colnames: ['activity_name', 'status'],
+                      menuId: menuId);
+                },
+              ),
+              contentPadding: EdgeInsets.all(DEFAULT_PADDING),
+            );
+            // return ActivityPreview(actDetails: formProv.actDetails, activity: widget.activity!);
+          });
+    } catch (e) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(error: "HTTP Error", title: e.toString());
+          });
+    }
+  }
 
-  //   // print("dafi detail: " + details.isEmpty.toString());
-  // }
+  void showActDetails(index) async {
+    List<ActivityDetail> details = [];
+
+    try {
+      details = await dataProv.fetchDetailByActivityId(datas[index]);
+
+      dataProv.isFetchingData = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("close"))
+              ],
+              title: Text("Preview"),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              content: Builder(
+                builder: (context) {
+                  return Container(
+                    // height: height,
+                    width: 390,
+                    height: 840,
+                    child: ActivityPreview(
+                      actDetails: details,
+                      activity: datas[index],
+                    ),
+                  );
+                },
+              ),
+              contentPadding: EdgeInsets.all(DEFAULT_PADDING),
+            );
+            // return ActivityPreview(actDetails: formProv.actDetails, activity: widget.activity!);
+          });
+    } catch (e) {
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(error: "HTTP Error", title: e.toString());
+          });
+    }
+  }
 
   void _action(int index, action) async {
     if (action == "delete") {
@@ -227,65 +569,60 @@ class MyData extends AdvancedDataTableSource {
           "form", null, null, null, menuProv.menuId, action, datas[index]);
     } else if (action == "detail") {
       if (menuId == 'activity_list') {
-        dataProv.isFetchingData = true;
-        List<ActivityDetail> details = [];
+        showActDetails(index);
+      } else if (menuId == 'activity_owned_list') {
+        showActOwnedDetails(index);
+      }
+    }
+  }
 
-        try {
-          details = await dataProv.fetchDetailByActivityId(datas[index]);
+  Future<List<ActivityOwned>> _getAssignedUser(int id) async {
+    menuProv.isFetchingData = true;
+    try {
+      var data = await dataProv.fetchActivityOwnedByActivity(id);
 
-          dataProv.isFetchingData = false;
-          return showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("close"))
-                  ],
-                  title: Text("Preview"),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  content: Builder(
-                    builder: (context) {
-                      return Container(
-                        // height: height,
-                        width: 390,
-                        height: 840,
-                        child: ActivityPreview(
-                          actDetails: details,
-                          activity: datas[index],
-                        ),
-                      );
-                    },
-                  ),
-                  contentPadding: EdgeInsets.all(DEFAULT_PADDING),
-                );
-                // return ActivityPreview(actDetails: formProv.actDetails, activity: widget.activity!);
-              });
-        } catch (e) {
-          return showDialog(
-              context: context,
-              builder: (context) {
-                return ErrorAlertDialog(
-                    error: "HTTP Error", title: e.toString());
-              });
+      return data;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> _getUnassignedUser(
+      List<ActivityOwned> assignedUser) async {
+    menuProv.isFetchingData = true;
+    try {
+      var data = await dataProv.fetchUsersByRole(4);
+
+      if (assignedUser.isEmpty) {
+        menuProv.isFetchingData = false;
+        return data;
+      }
+
+      data.forEach((element) {});
+
+      for (int i = 0; i < assignedUser.length; i++) {
+        for (int j = 0; j < data.length; j++) {
+          if (assignedUser[i].user_email == data[j].email) {
+            data.removeAt(j);
+          }
         }
       }
+
+      menuProv.isFetchingData = false;
+
+      return data;
+    } catch (e) {
+      rethrow;
     }
   }
 
   @override
   Future<RemoteDataSourceDetails> getNextPage(
       NextPageRequest pageRequest) async {
-    return RemoteDataSourceDetails(
-      datas.length,
-      datas
-          .skip(pageRequest.offset)
-          .take(pageRequest.pageSize)
-          .toList(), //again in a real world example you would only get the right amount of rows
-    );
+    var x = datas.skip(pageRequest.offset).take(pageRequest.pageSize).toList();
+    if (assignProv.selectedEmail.isNotEmpty) {
+      assignProv.selectedEmail.clear();
+    }
+    return RemoteDataSourceDetails(datas.length, x);
   }
 }

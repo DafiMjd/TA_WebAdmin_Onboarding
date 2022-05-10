@@ -1,9 +1,11 @@
 import 'package:provider/provider.dart';
+import 'package:webadmin_onboarding/models/activity_owned.dart';
+import 'package:webadmin_onboarding/models/activity_owned_by_user.dart';
 import 'package:webadmin_onboarding/models/menu.dart';
+import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/drawer_menu.dart';
 import 'package:webadmin_onboarding/widgets/drawer_submenu.dart';
@@ -23,7 +25,68 @@ class _SideMenuState extends State<SideMenu> {
     DataProvider dataProv = context.watch<DataProvider>();
     MenuProvider menuProv = context.watch<MenuProvider>();
 
+    Future<ActivityOwnedByUser> _getActivityOwnedData(User user) async {
+      try {
+        var data = await dataProv.fetchActivityOwnedByEmail(user.email);
+
+        var newData = ActivityOwnedByUser(user: user, activities_owned: data);
+        return newData;
+      } catch (e) {
+        rethrow;
+      }
+    }
+
+    Future<List<ActivityOwnedByUser>> _getActivityOwnedByUserData(
+        List<User> users) async {
+      List<ActivityOwnedByUser> datas = [];
+      List<String> y = [];
+
+      menuProv.isFetchingData = true;
+
+      for (final element in users) {
+        try {
+          ActivityOwnedByUser newData = await _getActivityOwnedData(element);
+          datas.add(newData);
+          // datas.forEach((element) {print(element.activities[0].activity_name);});
+        } catch (e) {
+          rethrow;
+        }
+      }
+
+      return datas;
+    }
+
+    void _pressActivityOwnedMenu(Menu menu) async {
+      List<ActivityOwnedByUser> datas = [];
+      List<User> users = [];
+
+
+      menuProv.isFetchingData = true;
+      try {
+        List<User> users = await dataProv.fetchUsersByRole(4); // 4 = id for role karyawan
+
+        datas = await _getActivityOwnedByUserData(users);
+        
+        List<String> colnames = ['Email', 'Name', 'Activities Owned'];
+        menuProv.isFetchingData = false;
+
+        menuProv.setDashboardContent(
+            "table", datas, colnames, menu.title, menu.id, null, null);
+      } catch (e) {
+        menuProv.isFetchingData = false;
+        return showDialog(
+            context: context,
+            builder: (context) {
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+            });
+      }
+    }
+
     void _pressSubMenu(Menu menu) async {
+      if (menu.id == 'activity_owned_list') {
+        _pressActivityOwnedMenu(menu);
+        return;
+      }
       menuProv.isFetchingData = true;
       List<dynamic> data;
       try {
@@ -56,11 +119,13 @@ class _SideMenuState extends State<SideMenu> {
     }
 
     Widget drawMenuItem(Menu menu) {
-      return DrawerMenu(menu: menu, press: () {
-        setState(() {
-          menu.selected = !menu.selected;
-        });
-      });
+      return DrawerMenu(
+          menu: menu,
+          press: () {
+            setState(() {
+              menu.selected = !menu.selected;
+            });
+          });
     }
 
     ListView drawSubMenu(List<Menu> listMenu, int index) {
@@ -72,8 +137,8 @@ class _SideMenuState extends State<SideMenu> {
             itemCount: listMenu[index].submenu!.length,
             physics: const ClampingScrollPhysics(),
             shrinkWrap: true,
-            itemBuilder: (context, index2) =>
-                drawSubMenuItem(listMenu[index], listMenu[index].submenu![index2]),
+            itemBuilder: (context, index2) => drawSubMenuItem(
+                listMenu[index], listMenu[index].submenu![index2]),
           )
         ],
       );

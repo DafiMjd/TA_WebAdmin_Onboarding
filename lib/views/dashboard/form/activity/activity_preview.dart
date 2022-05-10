@@ -18,6 +18,8 @@ class ActivityPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScrollController scrollbarController = ScrollController();
+
     
 
     return Scaffold(
@@ -25,38 +27,44 @@ class ActivityPreview extends StatelessWidget {
           backgroundColor: ORANGE_GARUDA,
           foregroundColor: Colors.black,
           title: Text(activity.activity_name!)),
-      body: SingleChildScrollView(
-          child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.all(10),
-        child: Card(
-          elevation: 3,
-          child: Container(
-            padding: EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ActivityDetailWidget(
-                  type: 'header',
-                  text: 'Deskripsi',
-                ),
-                ActivityDetailWidget(
-                  type: 'text',
-                  text: activity.activity_description,
-                ),
-                ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: actDetails.length,
-                    itemBuilder: (context, i) {
-                      return ActivityDetailWidget(
-                        detail: actDetails[i],
-                      );
-                    }),
-              ],
+      body: Scrollbar(
+      controller: scrollbarController,
+      isAlwaysShown: true,
+        
+        child: SingleChildScrollView(
+      controller: scrollbarController,
+            child: Container(
+          width: MediaQuery.of(context).size.width,
+          margin: EdgeInsets.all(10),
+          child: Card(
+            elevation: 3,
+            child: Container(
+              padding: EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ActivityDetailWidget(
+                    type: 'header',
+                    text: 'Deskripsi',
+                  ),
+                  ActivityDetailWidget(
+                    type: 'text',
+                    text: activity.activity_description,
+                  ),
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: actDetails.length,
+                      itemBuilder: (context, i) {
+                        return ActivityDetailWidget(
+                          detail: actDetails[i],
+                        );
+                      }),
+                ],
+              ),
             ),
           ),
-        ),
-      )),
+        )),
+      ),
     );
   }
 }

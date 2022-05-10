@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
+import 'package:webadmin_onboarding/models/activity_owned.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
@@ -64,6 +65,10 @@ class DataProvider extends ChangeNotifier {
         {
           return fetchActivityCategories();
         }
+      // case 'activity_owned_list':
+      //   {
+      //     // return fetchActivityOwnedByEmail();
+      //   }
 
       default:
         {
@@ -350,7 +355,7 @@ class DataProvider extends ChangeNotifier {
           },
           body: jsonEncode({
             "jobtitle_name": jobtitle_name,
-            "jobtitle_description": jobtitle_description,
+            "jobtitle_description": jobtitle_description
           }));
 
       if (result.statusCode == 400) {
@@ -384,7 +389,7 @@ class DataProvider extends ChangeNotifier {
           body: jsonEncode({
             "id": id,
             "jobtitle_name": jobtitle_name,
-            "jobtitle_description": jobtitle_description,
+            "jobtitle_description": jobtitle_description
           }));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
@@ -438,6 +443,34 @@ class DataProvider extends ChangeNotifier {
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseUsers, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> fetchUsersByRole(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/UsersByRole/$id";
 
     try {
       var result = await http.get(
@@ -568,7 +601,7 @@ class DataProvider extends ChangeNotifier {
             "role_id": role_id,
             "jobtitle_id": jobtitle_id,
             "progress": progres,
-            "birthdate": birthdate,
+            "birthdate": birthdate
           }));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
@@ -718,14 +751,8 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<Admin>> editAdmin(
-      String email,
-      String name,
-      String phone,
-      String gender,
-      int role_id,
-      int jobtitle_id,
-      String birthdate) async {
+  Future<List<Admin>> editAdmin(String email, String name, String phone,
+      String gender, int role_id, int jobtitle_id, String birthdate) async {
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin";
@@ -856,7 +883,7 @@ class DataProvider extends ChangeNotifier {
           body: jsonEncode({
             "category_name": category_name,
             "category_description": category_description,
-            "duration": duration,
+            "duration": duration
           }));
 
       if (result.statusCode == 400) {
@@ -919,7 +946,7 @@ class DataProvider extends ChangeNotifier {
             "id": id,
             "category_name": category_name,
             "category_description": category_description,
-            "duration": duration,
+            "duration": duration
           }));
 
       if (result.statusCode == 400) {
@@ -1028,7 +1055,7 @@ class DataProvider extends ChangeNotifier {
           body: jsonEncode({
             "activity_name": activity.activity_name,
             "activity_description": activity.activity_description,
-            "category_id": activity.category!.id,
+            "category_id": activity.category!.id
           }));
 
       if (result.statusCode == 400) {
@@ -1092,7 +1119,7 @@ class DataProvider extends ChangeNotifier {
             "id": activity.id,
             "activity_name": activity.activity_name,
             "activity_description": activity.activity_description,
-            "category_id": activity.category!.id,
+            "category_id": activity.category!.id
           }));
 
       if (result.statusCode == 400) {
@@ -1187,7 +1214,7 @@ class DataProvider extends ChangeNotifier {
             "detail_desc": detail.detail_desc,
             "detail_link": detail_link,
             "detail_type": detail.detail_type,
-            "detail_urutan": detail.detail_urutan,
+            "detail_urutan": detail.detail_urutan
           }));
 
       if (result.statusCode == 400) {
@@ -1225,7 +1252,7 @@ class DataProvider extends ChangeNotifier {
             "detail_desc": detail.detail_desc,
             "detail_link": detail_link,
             "detail_type": detail.detail_type,
-            "detail_urutan": detail.detail_urutan,
+            "detail_urutan": detail.detail_urutan
           }));
 
       if (result.statusCode == 400) {
@@ -1261,6 +1288,122 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         throw "error";
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  //===========
+
+  // Activity Owned Request
+  Future<List<ActivityOwned>> fetchActivityOwnedByEmail(String email) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivitiesOwned/$email";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      if (result.body == '[]') {
+        return [];
+      }
+
+      return compute(parseActivitiesOwned, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  List<ActivityOwned> parseActivitiesOwned(String responseBody) {
+    colnames = ['User', 'Activities'];
+    List<Map<String, dynamic>> parsed =
+        jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    return parsed
+        .map<ActivityOwned>((json) => ActivityOwned.fromJson(json))
+        .toList();
+  }
+
+  Future<List<ActivityOwned>> fetchActivityOwnedByActivity(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivitiesOwnedByActivity/$id";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+
+      if (result.body == '[]') {
+        return [];
+      }
+
+      return compute(parseActivitiesOwned, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> assignActivity(String email, int activity_id, String start_date,
+      String end_date, int category_id) async {
+    var token = jwt['token'];
+    String url = "$BASE_URL/api/ActivitiesOwned";
+
+    try {
+      var result = await http.post(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "user_email": email,
+            "activity_id": activity_id,
+            "start_date": start_date,
+            "end_date": end_date,
+            "status": "assigned",
+            "category_id": category_id
+          }));
+
+      if (result.statusCode == 400) {
+        // Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw "error";
+      }
+
+      // return compute(parseActivityDetails, result.body);
     } catch (e) {
       rethrow;
     }

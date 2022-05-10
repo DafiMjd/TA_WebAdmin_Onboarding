@@ -27,6 +27,9 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
   late final TextEditingController _jobtitleNameCtrl;
   late final TextEditingController _jobtitleDescCtrl;
 
+  ScrollController scrollbarController = ScrollController();
+
+
   @override
   void initState() {
     super.initState();
@@ -114,79 +117,84 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
       formProv.isSaveButtonDisabled = false;
     }
 
-    return SingleChildScrollView(
-      child: Card(
-        elevation: 5,
-        child: Container(
-            padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-                DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
-            width: MediaQuery.of(context).size.width * 0.6,
-            child: Column(
-              children: [
-                const Text(
-                  "Add Jobtitle",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-                ),
-                Space.doubleSpace(),
-                // Jobtitle Name
-                titleField("Jobtitle Name", formProv.isJobtitleNameEmpty),
-                Space.halfSpace(),
-                TextFormField(
-                    onChanged: (value) => formProv.isJobtitleNameEmpty =
-                        _jobtitleNameCtrl.text.isEmpty,
-                    controller: _jobtitleNameCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                 Space.space(),
-    
-                // Jobtitle Description
-                titleField("Jobtitle Description", formProv.isJobtitleDescEmpty),
-                Space.halfSpace(),
-                TextFormField(
-                    onChanged: (value) => formProv.isJobtitleDescEmpty =
-                        _jobtitleDescCtrl.text.isEmpty,
-                    controller: _jobtitleDescCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                 Space.space(),
-    
-                // save button
-                ElevatedButton(
-                  onPressed: (formProv.isSaveButtonDisabled)
-                      ? () {}
-                      : () {
-                          if (_jobtitleNameCtrl.text.isNotEmpty &&
-                              _jobtitleDescCtrl.text.isNotEmpty &&
-                              !formProv.isJobtitleDescEmpty &&
-                              !formProv.isJobtitleDescEmpty) {
-                            if (widget.jobtitle == null) {
-                              // means adding
-                              _addJobtitle(
-                                _jobtitleNameCtrl.text,
-                                _jobtitleDescCtrl.text,
-                              );
-                            } else {
-                              // means editing
-                              _editJobtitle(
-                                widget.jobtitle!.id,
-                                _jobtitleNameCtrl.text,
-                                _jobtitleDescCtrl.text,
-                              );
+    return Scrollbar(
+      controller: scrollbarController,
+      isAlwaysShown: true,
+      child: SingleChildScrollView(
+      controller: scrollbarController,
+        child: Card(
+          elevation: 5,
+          child: Container(
+              padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Column(
+                children: [
+                  const Text(
+                    "Add Jobtitle",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                  ),
+                  Space.doubleSpace(),
+                  // Jobtitle Name
+                  titleField("Jobtitle Name", formProv.isJobtitleNameEmpty),
+                  Space.halfSpace(),
+                  TextFormField(
+                      onChanged: (value) => formProv.isJobtitleNameEmpty =
+                          _jobtitleNameCtrl.text.isEmpty,
+                      controller: _jobtitleNameCtrl,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      )),
+                   Space.space(),
+      
+                  // Jobtitle Description
+                  titleField("Jobtitle Description", formProv.isJobtitleDescEmpty),
+                  Space.halfSpace(),
+                  TextFormField(
+                      onChanged: (value) => formProv.isJobtitleDescEmpty =
+                          _jobtitleDescCtrl.text.isEmpty,
+                      controller: _jobtitleDescCtrl,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      )),
+                   Space.space(),
+      
+                  // save button
+                  ElevatedButton(
+                    onPressed: (formProv.isSaveButtonDisabled)
+                        ? () {}
+                        : () {
+                            if (_jobtitleNameCtrl.text.isNotEmpty &&
+                                _jobtitleDescCtrl.text.isNotEmpty &&
+                                !formProv.isJobtitleDescEmpty &&
+                                !formProv.isJobtitleDescEmpty) {
+                              if (widget.jobtitle == null) {
+                                // means adding
+                                _addJobtitle(
+                                  _jobtitleNameCtrl.text,
+                                  _jobtitleDescCtrl.text,
+                                );
+                              } else {
+                                // means editing
+                                _editJobtitle(
+                                  widget.jobtitle!.id,
+                                  _jobtitleNameCtrl.text,
+                                  _jobtitleDescCtrl.text,
+                                );
+                              }
                             }
-                          }
-                        },
-                  child: formProv.isSaveButtonDisabled
-                      ? const Text(
-                          "Wait",
-                        )
-                      : const Text(
-                          "Save",
-                        ),
-                )
-              ],
-            )),
+                          },
+                    child: formProv.isSaveButtonDisabled
+                        ? const Text(
+                            "Wait",
+                          )
+                        : const Text(
+                            "Save",
+                          ),
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }

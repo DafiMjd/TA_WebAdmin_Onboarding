@@ -40,6 +40,9 @@ class _AddUserFormState extends State<AddUserForm> {
   late final TextEditingController _pwCtrl;
   late final TextEditingController _nameCtrl;
   late final TextEditingController _phoneNumCtrl;
+  
+  ScrollController scrollbarController = ScrollController();
+
 
   @override
   void initState() {
@@ -188,140 +191,147 @@ class _AddUserFormState extends State<AddUserForm> {
       formProv.isSaveButtonDisabled = false;
     }
 
-    return SingleChildScrollView(
-      child: Card(
-        elevation: 5,
-        child: Container(
-            padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-                DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
-            width: MediaQuery.of(context).size.width * 0.6,
-            child: Column(
-              children: [
-                const Text(
-                  "Add User",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-                ),
-                Space.doubleSpace(),
-                // email
-                titleField("Email", formProv.isEmailFieldEmpty),
-                Space.halfSpace(),
-                TextFormField(
-                    onChanged: (value) =>
-                        formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
-                    controller: _emailCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                 Space.space(),
+    return Scrollbar(
 
-                // password
-                Visibility(
-                    visible: widget.user == null,
-                    child: titleField("Password", formProv.isPwFieldEmpty)),
-                Visibility(
-                    visible: widget.user == null, child: Space.halfSpace()),
-                Visibility(
-                  visible: widget.user == null,
-                  child: TextFormField(
-                      obscureText: true,
+      controller: scrollbarController,
+      isAlwaysShown: true,
+      child: SingleChildScrollView(
+
+      controller: scrollbarController,
+        child: Card(
+          elevation: 5,
+          child: Container(
+              padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Column(
+                children: [
+                  const Text(
+                    "Add User",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                  ),
+                  Space.doubleSpace(),
+                  // email
+                  titleField("Email", formProv.isEmailFieldEmpty),
+                  Space.halfSpace(),
+                  TextFormField(
                       onChanged: (value) =>
-                          formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
-                      controller: _pwCtrl,
+                          formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
+                      controller: _emailCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
-                ),
-                Visibility(visible: widget.user == null, child:  Space.space()),
-
-                // name
-                titleField("Name", formProv.isNameFieldEmpty),
-                Space.halfSpace(),
-                TextFormField(
-                    onChanged: (value) =>
-                        formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
-                    controller: _nameCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                 Space.space(),
-
-                // phone number
-                titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
-                Space.halfSpace(),
-                TextFormField(
-                    onChanged: (value) => formProv.isPhoneNumFieldEmpty =
-                        _phoneNumCtrl.text.isEmpty,
-                    controller: _phoneNumCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                 Space.space(),
-
-                // Gender
-                titleField("Gender", formProv.isGenderFieldEmpty),
-                Space.halfSpace(),
-
-                _genderDropdown(widget.user == null),
-
-                 Space.space(),
-                // Role
-                titleField("Role", formProv.isRoleFieldEmpty),
-                Space.halfSpace(),
-                (formProv.isFetchingData)
-                    ? const CircularProgressIndicator()
-                    : _roleDropdown(widget.user == null),
-
-                 Space.space(),
-                // Jobtitle
-                titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
-                Space.halfSpace(),
-                (formProv.isFetchingData)
-                    ? const CircularProgressIndicator()
-                    : _jobtitleDropdown(widget.user == null),
-
-                Space.doubleSpace(),
-
-                // save button
-                ElevatedButton(
-                  onPressed: (formProv.isSaveButtonDisabled)
-                      ? () {}
-                      : () {
-                          if (_emailCtrl.text.isNotEmpty &&
-                              _nameCtrl.text.isNotEmpty &&
-                              _phoneNumCtrl.text.isNotEmpty &&
-                              !formProv.isGenderFieldEmpty &&
-                              !formProv.isRoleFieldEmpty &&
-                              !formProv.isJobtitleFieldEmpty) {
-                            if (widget.user == null) {
-                              _addUser(
-                                  _emailCtrl.text,
-                                  _pwCtrl.text,
-                                  _nameCtrl.text,
-                                  _phoneNumCtrl.text,
-                                  _selectedGenderVal,
-                                  int.parse(_selectedRoleId),
-                                  int.parse(_selectedJobtitleId));
-                            } else {
-                              _editUser(
-                                  _emailCtrl.text,
-                                  _nameCtrl.text,
-                                  _phoneNumCtrl.text,
-                                  _selectedGenderVal,
-                                  int.parse(_selectedRoleId),
-                                  int.parse(_selectedJobtitleId));
+                   Space.space(),
+    
+                  // password
+                  Visibility(
+                      visible: widget.user == null,
+                      child: titleField("Password", formProv.isPwFieldEmpty)),
+                  Visibility(
+                      visible: widget.user == null, child: Space.halfSpace()),
+                  Visibility(
+                    visible: widget.user == null,
+                    child: TextFormField(
+                        obscureText: true,
+                        onChanged: (value) =>
+                            formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
+                        controller: _pwCtrl,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        )),
+                  ),
+                  Visibility(visible: widget.user == null, child:  Space.space()),
+    
+                  // name
+                  titleField("Name", formProv.isNameFieldEmpty),
+                  Space.halfSpace(),
+                  TextFormField(
+                      onChanged: (value) =>
+                          formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
+                      controller: _nameCtrl,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      )),
+                   Space.space(),
+    
+                  // phone number
+                  titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
+                  Space.halfSpace(),
+                  TextFormField(
+                      onChanged: (value) => formProv.isPhoneNumFieldEmpty =
+                          _phoneNumCtrl.text.isEmpty,
+                      controller: _phoneNumCtrl,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      )),
+                   Space.space(),
+    
+                  // Gender
+                  titleField("Gender", formProv.isGenderFieldEmpty),
+                  Space.halfSpace(),
+    
+                  _genderDropdown(widget.user == null),
+    
+                   Space.space(),
+                  // Role
+                  titleField("Role", formProv.isRoleFieldEmpty),
+                  Space.halfSpace(),
+                  (formProv.isFetchingData)
+                      ? const CircularProgressIndicator()
+                      : _roleDropdown(widget.user == null),
+    
+                   Space.space(),
+                  // Jobtitle
+                  titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
+                  Space.halfSpace(),
+                  (formProv.isFetchingData)
+                      ? const CircularProgressIndicator()
+                      : _jobtitleDropdown(widget.user == null),
+    
+                  Space.doubleSpace(),
+    
+                  // save button
+                  ElevatedButton(
+                    onPressed: (formProv.isSaveButtonDisabled)
+                        ? () {}
+                        : () {
+                            if (_emailCtrl.text.isNotEmpty &&
+                                _nameCtrl.text.isNotEmpty &&
+                                _phoneNumCtrl.text.isNotEmpty &&
+                                !formProv.isGenderFieldEmpty &&
+                                !formProv.isRoleFieldEmpty &&
+                                !formProv.isJobtitleFieldEmpty) {
+                              if (widget.user == null) {
+                                _addUser(
+                                    _emailCtrl.text,
+                                    _pwCtrl.text,
+                                    _nameCtrl.text,
+                                    _phoneNumCtrl.text,
+                                    _selectedGenderVal,
+                                    int.parse(_selectedRoleId),
+                                    int.parse(_selectedJobtitleId));
+                              } else {
+                                _editUser(
+                                    _emailCtrl.text,
+                                    _nameCtrl.text,
+                                    _phoneNumCtrl.text,
+                                    _selectedGenderVal,
+                                    int.parse(_selectedRoleId),
+                                    int.parse(_selectedJobtitleId));
+                              }
                             }
-                          }
-                        },
-                  child: formProv.isSaveButtonDisabled
-                      ? const Text(
-                          "Wait",
-                        )
-                      : const Text(
-                          "Save",
-                        ),
-                )
-              ],
-            )),
+                          },
+                    child: formProv.isSaveButtonDisabled
+                        ? const Text(
+                            "Wait",
+                          )
+                        : const Text(
+                            "Save",
+                          ),
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }

@@ -58,6 +58,11 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
   List<int> deletedActDetailIds = [];
 
+  ScrollController scrollCtrlGeneral = ScrollController();
+  ScrollController scrollCtrlActionAndBuilder = ScrollController();
+  ScrollController scrollCtrlAction = ScrollController();
+  ScrollController scrollCtrlBuilder = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -158,105 +163,119 @@ class _AddActivityFormState extends State<AddActivityForm> {
         children: [
           Flexible(
             flex: 3,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Activity General Form
-                  Container(
-                    margin: const EdgeInsets.all(30),
-                    width: MediaQuery.of(context).size.width,
-                    child: activityForm(context),
-                  ),
-                  if (formProv.actDetails.isNotEmpty)
-                    Theme(
-                      data: ThemeData(canvasColor: Colors.transparent),
-                      child: ReorderableListView.builder(
-                        itemCount: formProv.actDetails.length,
-                        itemBuilder: (context, index) {
-                          // return getActivityDetailWidget(index);
-                          return Container(
-                            key: Key('$index'),
-                            margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
-                            width: MediaQuery.of(context).size.width,
-                            child: Card(
-                              elevation: 5,
-                              child: DetailCard(
-                                actDetail: formProv.actDetails[index],
-                                delete: IconButton(
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: Text("Are You Sure?"),
-                                            content:
-                                                Text("Press Okay To Delete"),
-                                            actions: [
-                                              TextButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
-                                                  },
-                                                  child: const Text("cancel")),
-                                              TextButton(
-                                                  onPressed: () {
-                                                    _removeActivityDetail(
-                                                        index);
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
-                                                  },
-                                                  child: const Text("okay")),
-                                            ],
-                                          );
-                                        });
-                                  },
-                                  icon: Icon(Icons.delete),
-                                ),
-                                edit: IconButton(
-                                    onPressed: () async {
-                                      return showDialog(
+            child: Scrollbar(
+              controller: scrollCtrlGeneral,
+              isAlwaysShown: true,
+              child: SingleChildScrollView(
+                controller: scrollCtrlGeneral,
+                child: Column(
+                  children: [
+                    // Activity General Form
+                    Container(
+                      margin: const EdgeInsets.all(30),
+                      width: MediaQuery.of(context).size.width,
+                      child: activityForm(context),
+                    ),
+                    if (formProv.actDetails.isNotEmpty)
+                      Theme(
+                        data: ThemeData(canvasColor: Colors.transparent),
+                        child: ReorderableListView.builder(
+                          itemCount: formProv.actDetails.length,
+                          itemBuilder: (context, index) {
+                            // return getActivityDetailWidget(index);
+                            return Container(
+                              key: Key('$index'),
+                              margin: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                              width: MediaQuery.of(context).size.width,
+                              child: Card(
+                                elevation: 5,
+                                child: DetailCard(
+                                  actDetail: formProv.actDetails[index],
+                                  delete: IconButton(
+                                    onPressed: () {
+                                      showDialog(
                                           context: context,
                                           builder: (context) {
-                                            return AddActivityDetailForm(
-                                                type: formProv.actDetails[index]
-                                                    .detail_type,
-                                                detail:
-                                                    formProv.actDetails[index]);
+                                            return AlertDialog(
+                                              title: Text("Are You Sure?"),
+                                              content:
+                                                  Text("Press Okay To Delete"),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
+                                                    },
+                                                    child:
+                                                        const Text("cancel")),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      _removeActivityDetail(
+                                                          index);
+                                                      Navigator.of(context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
+                                                    },
+                                                    child: const Text("okay")),
+                                              ],
+                                            );
                                           });
                                     },
-                                    icon: Icon(
-                                      Icons.edit,
-                                    )),
+                                    icon: Icon(Icons.delete),
+                                  ),
+                                  edit: IconButton(
+                                      onPressed: () async {
+                                        return showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AddActivityDetailForm(
+                                                  type: formProv
+                                                      .actDetails[index]
+                                                      .detail_type,
+                                                  detail: formProv
+                                                      .actDetails[index]);
+                                            });
+                                      },
+                                      icon: Icon(
+                                        Icons.edit,
+                                      )),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        shrinkWrap: true,
-                        scrollController: ScrollController(),
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        onReorder: (int oldIndex, int newIndex) {
-                          setState(() {
-                            reorderActivityDetails(oldIndex, newIndex);
-                            reorderActivityDetailsUrutan();
-                          });
-                        },
+                            );
+                          },
+                          shrinkWrap: true,
+                          scrollController: ScrollController(),
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          onReorder: (int oldIndex, int newIndex) {
+                            setState(() {
+                              reorderActivityDetails(oldIndex, newIndex);
+                              reorderActivityDetailsUrutan();
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                  Space.doubleSpace(),
-                ],
+                    Space.doubleSpace(),
+                  ],
+                ),
               ),
             ),
           ),
           Flexible(
             flex: 1,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  actionBuilder(context),
-                  formBuilder(context),
-                ],
+            child: Scrollbar(
+              controller: scrollCtrlActionAndBuilder,
+              isAlwaysShown: true,
+              child: SingleChildScrollView(
+                controller: scrollCtrlActionAndBuilder,
+                child: Column(
+                  children: [
+                    actionBuilder(context),
+                    formBuilder(context),
+                  ],
+                ),
               ),
             ),
           )
@@ -280,147 +299,109 @@ class _AddActivityFormState extends State<AddActivityForm> {
                   DEFAULT_PADDING * 2,
                 ),
                 child: Scrollbar(
+                  controller: scrollCtrlAction,
+                  isAlwaysShown: true,
                   child: SingleChildScrollView(
+                      controller: scrollCtrlAction,
                       child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          if (_actDescCtrl.text.isEmpty ||
-                              _actNameCtrl.text.isEmpty ||
-                              formProv.isCategoryEmpty) {
-                            return formNotFilledDisable(context);
-                          } else {
-                            if (formProv.actDetails.isEmpty) {
-                              return activityDetailEmpty(context);
-                            }
-                            // mainProv.isDevicePreview = true;
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => ActivityPreview(
-                            //             actDetails: formProv.actDetails,
-                            //             activity: widget.activity!)));
-                            return showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text("Preview"),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10.0))),
-                                    content: Builder(
-                                      builder: (context) {
-                                        // Get available height and width of the build area of this widget. Make a choice depending on the size.
-                                        var height =
-                                            MediaQuery.of(context).size.height /
-                                                2;
-                                        // var width =
-                                        //     MediaQuery.of(context).size.width /
-                                        //         2;
-                                        double width = 390;
-
-                                        return Container(
-                                          // height: height,
-                                          width: width,
-                                          padding: const EdgeInsets.fromLTRB(
-                                              DEFAULT_PADDING,
-                                              DEFAULT_PADDING,
-                                              DEFAULT_PADDING,
-                                              DEFAULT_PADDING),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Space.halfSpace(),
-                                              TextFormField(
-                                                  maxLines: 7,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                  )),
-
-                                              Space.doubleSpace(),
-
-                                              // save button
-                                              Space.halfSpace(),
-                                              // cancel button
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    primary: Colors.black45),
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: const Text(
-                                                  "Cancel",
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    contentPadding:
-                                        EdgeInsets.all(DEFAULT_PADDING),
-                                  );
-                                  // return ActivityPreview(actDetails: formProv.actDetails, activity: widget.activity!);
-                                });
-
-                            // js.context.callMethod('open', [
-                            //   MaterialPageRoute(
-                            //       builder: (context) => ActivityPreview(
-                            //           actDetails: formProv.actDetails,
-                            //           activity: widget.activity!))
-                            // ]);
-
-                            // html.window.open( MaterialPageRoute(
-                            //       builder: (context) => ActivityPreview(
-                            //           actDetails: formProv.actDetails,
-                            //           activity: widget.activity!)) ,"_blank");
-                          }
-                        },
-                        child: FormBuilderTile(
-                            icon: Icons.remove_red_eye_outlined,
-                            title: "Preview",
-                            subtitle: "Preview On Mobile"),
-                      ),
-                      Space.halfSpace(),
-                      InkWell(
-                        onTap: () async {
-                          if (_actDescCtrl.text.isEmpty ||
-                              _actNameCtrl.text.isEmpty ||
-                              formProv.isCategoryEmpty) {
-                            return formNotFilledDisable(context);
-                          } else {
-                            if (formProv.actDetails.isEmpty) {
-                              return activityDetailEmpty(context);
-                            }
-
-                            reorderActivityDetailsUrutan();
-
-                            if (deletedActDetailIds.isNotEmpty) {
-                              for (int i = 0;
-                                  i < deletedActDetailIds.length;
-                                  i++) {
-                                _removeActivityDetailFromDb(
-                                    deletedActDetailIds[i]);
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: () async {
+                              if (_actDescCtrl.text.isEmpty ||
+                                  _actNameCtrl.text.isEmpty ||
+                                  formProv.isCategoryEmpty) {
+                                return formNotFilledDisable(context);
+                              } else {
+                                if (formProv.actDetails.isEmpty) {
+                                  return activityDetailEmpty(context);
+                                }
+                                // mainProv.isDevicePreview = true;
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => ActivityPreview(
+                                //             actDetails: formProv.actDetails,
+                                //             activity: widget.activity!)));
+                                return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text("close"))
+                                        ],
+                                        title: Text("Preview"),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0))),
+                                        content: Builder(
+                                          builder: (context) {
+                                            return Container(
+                                              // height: height,
+                                              width: 390,
+                                              height: 840,
+                                              child: ActivityPreview(
+                                                actDetails: details,
+                                                activity: widget.activity!,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        contentPadding:
+                                            EdgeInsets.all(DEFAULT_PADDING),
+                                      );
+                                      // return ActivityPreview(actDetails: formProv.actDetails, activity: widget.activity!);
+                                    });
                               }
-                            }
+                            },
+                            child: FormBuilderTile(
+                                icon: Icons.remove_red_eye_outlined,
+                                title: "Preview",
+                                subtitle: "Preview On Mobile"),
+                          ),
+                          Space.halfSpace(),
+                          InkWell(
+                            onTap: () async {
+                              if (_actDescCtrl.text.isEmpty ||
+                                  _actNameCtrl.text.isEmpty ||
+                                  formProv.isCategoryEmpty) {
+                                return formNotFilledDisable(context);
+                              } else {
+                                if (formProv.actDetails.isEmpty) {
+                                  return activityDetailEmpty(context);
+                                }
 
-                            if (isEditing) {
-                              print("dafi");
-                              _editActivity(formProv.activity);
-                            } else {
-                              _addActivity(formProv.activity);
-                            }
-                          }
-                        },
-                        child: FormBuilderTile(
-                            icon: Icons.save_alt_rounded,
-                            title: "Save",
-                            subtitle: "Save New Activity"),
-                      ),
-                    ],
-                  )),
+                                reorderActivityDetailsUrutan();
+
+                                if (deletedActDetailIds.isNotEmpty) {
+                                  for (int i = 0;
+                                      i < deletedActDetailIds.length;
+                                      i++) {
+                                    _removeActivityDetailFromDb(
+                                        deletedActDetailIds[i]);
+                                  }
+                                }
+
+                                if (isEditing) {
+                                  _editActivity(formProv.activity);
+                                } else {
+                                  var act = formProv.activity;
+                                  print(act.activity_name! + "|" + act.activity_description! + "|" + act.category!.id.toString() );
+                                  _addActivity(formProv.activity);
+                                }
+                              }
+                            },
+                            child: FormBuilderTile(
+                                icon: Icons.save_alt_rounded,
+                                title: "Save",
+                                subtitle: "Save New Activity"),
+                          ),
+                        ],
+                      )),
                 )),
           )),
     );
@@ -441,8 +422,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
               DEFAULT_PADDING * 2,
             ),
             child: Scrollbar(
-              isAlwaysShown: true,
+                  controller: scrollCtrlBuilder,
+                  isAlwaysShown: true,
               child: SingleChildScrollView(
+                  controller: scrollCtrlBuilder,
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
                     "Form Builder",

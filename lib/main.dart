@@ -9,6 +9,7 @@ import 'package:webadmin_onboarding/providers/form/add_admin_form_provider.dart'
 import 'package:webadmin_onboarding/providers/form/add_category_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_jobtitle_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_user_form_provider.dart';
+import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
 import 'package:webadmin_onboarding/providers/main_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
@@ -19,22 +20,7 @@ import 'package:webadmin_onboarding/views/main_page.dart';
 
 void main() {
   runApp(const MyApp());
-  // runApp(
-  //   ChangeNotifierProvider(
-  //       create: ((context) => MainProvider()),
-  //       child: Consumer<MainProvider>(builder: (context, mainProv, _) {
-  //         return DevicePreview(
-  //             enabled: mainProv.isDevicePreview,
-  //             tools: [...DevicePreview.defaultTools],
-  //             builder: (context) => MyApp());
-  //       })),
-  // );
 }
-
-// child: DevicePreview(
-//     enabled: context.read,
-//     tools: [...DevicePreview.defaultTools],
-//     builder: (context) => MyApp()),
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -65,6 +51,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AddCategoryFormProvider()),
         ChangeNotifierProvider(create: (context) => AddJobtitleFormProvider()),
         ChangeNotifierProvider(create: (context) => AddActivityFormProvider()),
+        ChangeNotifierProvider(create: (context) => AssignActivityProvider()),
       ],
       builder: (context, child) => Consumer<AuthProvider>(
           builder: (context, auth, child) => MaterialApp(

@@ -27,7 +27,6 @@ class AuthProvider with ChangeNotifier {
   Widget authenticated() {
     var jwt = window.localStorage["csrf"];
     jwtDecoded = jsonDecode(jwt!);
-    print("dafi: " + jwtDecoded.toString());
 
     return const MainPage(role: "Super Admin");
   }
