@@ -156,6 +156,9 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                   titleField("Category Name", formProv.isCategoryNameEmpty),
                   Space.doubleSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(100),
+                  ],
                       onChanged: (value) =>
                           formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
                       controller: _catNameCtrl,
@@ -168,6 +171,9 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                   titleField("Catgeory Description", formProv.isCategoryDescEmpty),
                   Space.doubleSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(100),
+                  ],
                       onChanged: (value) =>
                           formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
                       controller: _catDescCtrl,
@@ -186,6 +192,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    LengthLimitingTextInputFormatter(10),
                       ],
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -235,13 +242,6 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
     );
   }
 
-  TextFormField textField(controller) {
-    return TextFormField(
-        controller: controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-        ));
-  }
 
   Container titleField(title, isEmpty) => Container(
       alignment: Alignment.centerLeft,

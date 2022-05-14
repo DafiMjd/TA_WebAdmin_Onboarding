@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
@@ -139,6 +140,9 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
                   titleField("Jobtitle Name", formProv.isJobtitleNameEmpty),
                   Space.halfSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(100),
+                  ],
                       onChanged: (value) => formProv.isJobtitleNameEmpty =
                           _jobtitleNameCtrl.text.isEmpty,
                       controller: _jobtitleNameCtrl,
@@ -151,6 +155,9 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
                   titleField("Jobtitle Description", formProv.isJobtitleDescEmpty),
                   Space.halfSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(200),
+                  ],
                       onChanged: (value) => formProv.isJobtitleDescEmpty =
                           _jobtitleDescCtrl.text.isEmpty,
                       controller: _jobtitleDescCtrl,

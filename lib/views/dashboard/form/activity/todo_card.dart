@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
@@ -58,6 +59,9 @@ class _ToDoCardState extends State<ToDoCard> {
                   Expanded(
                     // width: MediaQuery.of(context).size.width * 0.4,
                     child: TextFormField(
+                        inputFormatters: <TextInputFormatter>[
+                          LengthLimitingTextInputFormatter(500),
+                        ],
                         onChanged: (val) => setState(() {}),
                         controller: _ctrl,
                         decoration: const InputDecoration(
@@ -70,9 +74,7 @@ class _ToDoCardState extends State<ToDoCard> {
               Space.space(),
               Container(
                 alignment: Alignment.centerRight,
-                child: Tooltip(
-                    message: "Delete Card",
-                    child: widget.delete),
+                child: Tooltip(message: "Delete Card", child: widget.delete),
               ),
             ],
           ),
@@ -81,7 +83,6 @@ class _ToDoCardState extends State<ToDoCard> {
     );
   }
 }
-
 
 Container titleField(title, isEmpty, textSize) => Container(
     alignment: Alignment.centerLeft,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:provider/provider.dart';
@@ -65,6 +66,9 @@ class _BodyState extends State<Body> {
               ),
               const SizedBox(height: 70),
               TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(200),
+                  ],
                   onFieldSubmitted: (value) {
                     if (_emailController.text.isNotEmpty &&
                         _passwordController.text.isNotEmpty) {
@@ -97,6 +101,9 @@ class _BodyState extends State<Body> {
               ),
               const SizedBox(height: 30),
               TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(200),
+                  ],
                   onFieldSubmitted: (value) {
                     if (_emailController.text.isNotEmpty &&
                         _passwordController.text.isNotEmpty) {

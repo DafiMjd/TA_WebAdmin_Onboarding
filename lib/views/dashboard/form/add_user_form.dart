@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
@@ -215,6 +216,9 @@ class _AddUserFormState extends State<AddUserForm> {
                   titleField("Email", formProv.isEmailFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(200),
+                  ],
                       onChanged: (value) =>
                           formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
                       controller: _emailCtrl,
@@ -232,6 +236,9 @@ class _AddUserFormState extends State<AddUserForm> {
                   Visibility(
                     visible: widget.user == null,
                     child: TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(200),
+                  ],
                         obscureText: true,
                         onChanged: (value) =>
                             formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
@@ -246,6 +253,9 @@ class _AddUserFormState extends State<AddUserForm> {
                   titleField("Name", formProv.isNameFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(100),
+                  ],
                       onChanged: (value) =>
                           formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
                       controller: _nameCtrl,
@@ -258,6 +268,10 @@ class _AddUserFormState extends State<AddUserForm> {
                   titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    LengthLimitingTextInputFormatter(15),
+                  ],
                       onChanged: (value) => formProv.isPhoneNumFieldEmpty =
                           _phoneNumCtrl.text.isEmpty,
                       controller: _phoneNumCtrl,
@@ -334,14 +348,6 @@ class _AddUserFormState extends State<AddUserForm> {
         ),
       ),
     );
-  }
-
-  TextFormField textField(controller) {
-    return TextFormField(
-        controller: controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-        ));
   }
 
   Container titleField(title, isEmpty) => Container(

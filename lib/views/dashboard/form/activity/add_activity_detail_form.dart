@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.dart';
@@ -59,7 +60,6 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
       }
 
       formProv.actDetails = newList;
-
     }
 
     editActivityDetail(desc) {
@@ -89,6 +89,9 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
               children: [
                 Space.halfSpace(),
                 TextFormField(
+                    inputFormatters: <TextInputFormatter>[
+                      LengthLimitingTextInputFormatter(500),
+                    ],
                     maxLines: 7,
                     onChanged: (value) {
                       formProv.isActDetailEmpty = _ctrl.text.isEmpty;
@@ -103,8 +106,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                 // save button
                 ElevatedButton(
                     onPressed: (_ctrl.text.isEmpty)
-                        ? () {
-                          }
+                        ? () {}
                         : () {
                             if (widget.detail == null) {
                               addActivityDetail(_ctrl.text);
@@ -144,7 +146,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
       return titleField("Add Text", isEmpty, 20);
     } else if (type == 'to_do') {
       return titleField("Add To Do List", isEmpty, 20);
-    }else if (type == 'header') {
+    } else if (type == 'header') {
       return titleField("Add Header", isEmpty, 20);
     }
 

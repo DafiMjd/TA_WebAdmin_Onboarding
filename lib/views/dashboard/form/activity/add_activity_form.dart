@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
@@ -390,7 +391,11 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   _editActivity(formProv.activity);
                                 } else {
                                   var act = formProv.activity;
-                                  print(act.activity_name! + "|" + act.activity_description! + "|" + act.category!.id.toString() );
+                                  print(act.activity_name! +
+                                      "|" +
+                                      act.activity_description! +
+                                      "|" +
+                                      act.category!.id.toString());
                                   _addActivity(formProv.activity);
                                 }
                               }
@@ -422,10 +427,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
               DEFAULT_PADDING * 2,
             ),
             child: Scrollbar(
-                  controller: scrollCtrlBuilder,
-                  isAlwaysShown: true,
+              controller: scrollCtrlBuilder,
+              isAlwaysShown: true,
               child: SingleChildScrollView(
-                  controller: scrollCtrlBuilder,
+                controller: scrollCtrlBuilder,
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Text(
                     "Form Builder",
@@ -707,6 +712,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       Space.halfSpace(),
                       SizedBox(
                         child: TextFormField(
+                            inputFormatters: <TextInputFormatter>[
+                              LengthLimitingTextInputFormatter(200),
+                            ],
                             onChanged: (value) {
                               formProv.isActNameEmpty =
                                   _actNameCtrl.text.isEmpty;
@@ -743,6 +751,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
             titleField("Activity Description", formProv.isActDescEmpty, 14),
             Space.halfSpace(),
             TextFormField(
+                inputFormatters: <TextInputFormatter>[
+                  LengthLimitingTextInputFormatter(200),
+                ],
                 maxLines: 2,
                 onChanged: (value) {
                   formProv.isActDescEmpty = _actDescCtrl.text.isEmpty;
