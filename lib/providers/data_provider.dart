@@ -79,12 +79,15 @@ class DataProvider extends ChangeNotifier {
 
   // method to do update and delete
   Future<List<dynamic>> _userAction(method, dataid) async {
-    if (method == 'delete') return deleteUser(dataid);
+    if (method == 'delete')
+      return deleteUser(dataid);
+    else if (method == 'edit_active') return editUserActive(dataid);
     return fetchUsers();
   }
 
   Future<List<dynamic>> _adminAction(method, dataid) async {
     if (method == 'delete') return deleteAdmin(dataid);
+    else if (method == 'edit_active') return editUserActive(dataid);
     return fetchAdmins();
   }
 
@@ -160,6 +163,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502) {
+        throw "Server Down";
+      }
       return compute(parseRole, result.body);
     } catch (e) {
       rethrow;
@@ -193,6 +199,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502) {
+        throw "Server Down";
       }
       return compute(parseRoles, result.body);
     } catch (e) {
@@ -230,6 +239,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502) {
+        throw "Server Down";
+      }
       return compute(parseRoles, result.body);
     } catch (e) {
       rethrow;
@@ -259,6 +271,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502) {
+        throw "Server Down";
       }
       return compute(parseJobtitle, result.body);
     } catch (e) {
@@ -569,6 +584,32 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<User>> editUserActive(String email) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/User/active";
+
+    try {
+      var result = await http.put(Uri.parse(url), headers: {
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      }, body: {
+        'email': email
+      });
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      return compute(parseUsers, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<List<User>> editUser(
       String email,
       String name,
@@ -783,6 +824,32 @@ class DataProvider extends ChangeNotifier {
         throw responseData['errorMessage'];
       }
 
+      return compute(parseAdmins, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Admin>> editAdminActive(String email) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Admin/active";
+
+    try {
+      var result = await http.put(Uri.parse(url), headers: {
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      }, body: {
+        'email': email
+      });
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
       return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;

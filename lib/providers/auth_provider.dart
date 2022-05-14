@@ -28,7 +28,11 @@ class AuthProvider with ChangeNotifier {
     var jwt = window.localStorage["csrf"];
     jwtDecoded = jsonDecode(jwt!);
 
-    return const MainPage(role: "Super Admin");
+
+    String role = jwtDecoded['role'];
+    print(role);
+
+    return MainPage(role: role);
   }
 
   bool getIsAuth() {
@@ -62,7 +66,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> auth(String email, String password) async {
-    String apiURL = "$BASE_URL/api/Auth/login-super-admin";
+    String apiURL = "$BASE_URL/api/Auth/loginAdmin";
 
     try {
       var apiResult = await http.post(Uri.parse(apiURL),

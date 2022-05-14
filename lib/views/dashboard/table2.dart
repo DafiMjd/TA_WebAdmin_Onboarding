@@ -48,7 +48,6 @@ class MyTable2 extends StatelessWidget {
         menuProv: menuProv,
         assignProv: assignProv,
         context: context);
-        
 
     return Scrollbar(
       isAlwaysShown: true,
@@ -90,6 +89,19 @@ class MyTable2 extends StatelessWidget {
     );
   }
 }
+
+Color getColor(Set<MaterialState> states) {
+    const Set<MaterialState> interactiveStates = <MaterialState>{
+      MaterialState.pressed,
+      // MaterialState.hovered,
+      MaterialState.focused,
+    };
+    // hovered
+    // if (states.any(interactiveStates.contains)) {
+    //   return Colors.blue;
+    // }
+    return Colors.black;
+  }
 
 // The "soruce" of the table
 class MyData extends AdvancedDataTableSource {
@@ -313,7 +325,8 @@ class MyData extends AdvancedDataTableSource {
 
                 menuProv.isTableShown = false;
                 menuProv.isFormShown = true;
-                menuProv.menuName = 'Assign Activity ' + currentRowData.getData('activity_name');
+                menuProv.menuName = 'Assign Activity ' +
+                    currentRowData.getData('activity_name');
 
                 (menuProv.isFetchingData)
                     ? menuProv.dashboardContent = CircularProgressIndicator()
@@ -322,15 +335,15 @@ class MyData extends AdvancedDataTableSource {
                         unassignedUser: unassignedUser,
                         activity: currentRowData,
                       );
-                    // : menuProv.dashboardContent = MyTable2(
-                    //     datas: unassignedUser,
-                    //     colnames: [
-                    //       'email',
-                    //       'name',
-                    //     ],
-                    //     menuId: 'unassigned_user',
-                    //     maxRow: 4,
-                    //   );
+                // : menuProv.dashboardContent = MyTable2(
+                //     datas: unassignedUser,
+                //     colnames: [
+                //       'email',
+                //       'name',
+                //     ],
+                //     menuId: 'unassigned_user',
+                //     maxRow: 4,
+                //   );
 
                 // : showDialog(
                 //     context: context,
@@ -357,10 +370,18 @@ class MyData extends AdvancedDataTableSource {
 
     var userActions = [
       Tooltip(
-          message: "Is Active",
-          child: IconButton(
-              onPressed: (() {}),
-              icon: const Icon(Icons.check_box_outline_blank))),
+        message: "Is Active",
+        child: Checkbox(
+          checkColor: Colors.white,
+          fillColor: MaterialStateProperty.resolveWith(getColor),
+          value: currentRowData.getData('active'),
+          onChanged: (bool? value) {
+            // setState(() {
+            //   isChecked = value!;
+            // });
+          },
+        ),
+      ),
       const SizedBox(
         width: 5,
       ),
@@ -414,7 +435,9 @@ class MyData extends AdvancedDataTableSource {
         return activityActions;
       } else if (menuId == 'activity_owned_list') {
         return activityOwnedActions;
-      } else if (menuId == 'role_list' || menuId == 'jobtitle_list') {
+      } else if (menuId == 'role_list' ||
+          menuId == 'jobtitle_list' ||
+          menuId == 'category_list') {
         return basicActions;
       } else if (menuId == 'unassigned_user') {
         return selectActions;
@@ -439,6 +462,27 @@ class MyData extends AdvancedDataTableSource {
           for (int i = 0; i < colnames.length; i++)
             DataCell(Text(currentRowData.getData(colnames[i]).toString())),
         ]);
+  }
+
+  Future<void> _editActiveUser(index) async {
+    menuProv.isFetchingData = true;
+    List<dynamic> data;
+    try {
+      data = await dataProv.action(menuProv.menuId, "edit_active",
+          datas[index].getData(colnames[0]).toString());
+      menuProv.isFetchingData = false;
+
+      menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+          menuProv.menuId, null, null);
+    } catch (e) {
+      menuProv.isFetchingData = false;
+      return showDialog(
+            context: context,
+            builder: (context) {
+              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+            });
+    }
+
   }
 
   Future<void> _delete(index) async {

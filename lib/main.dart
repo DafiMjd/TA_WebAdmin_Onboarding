@@ -55,9 +55,6 @@ class MyApp extends StatelessWidget {
       ],
       builder: (context, child) => Consumer<AuthProvider>(
           builder: (context, auth, child) => MaterialApp(
-            routes: {
-              '/log':(context) => LoginPage()
-            },
                 debugShowCheckedModeBanner: false,
                 title: "Web Admin Onboarding App",
                 theme: ThemeData.light().copyWith(

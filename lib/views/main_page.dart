@@ -17,7 +17,7 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: context.read<MenuProvider>().scaffoldKey,
-      drawer: (role == "Super Admin")
+      drawer: (role == 'superadmin')
           ? SideMenu(
               listMenu: MENU_SUPER_ADMIN,
             )
@@ -50,7 +50,7 @@ class MainPage extends StatelessWidget {
                   child: Expanded(
                     // default flex = 1
                     // and it takes 1/6 part of the screen
-                    child: (role == "Super Admin")
+                    child: (role == 'superadmin')
                         ? SideMenu(
                             listMenu: MENU_SUPER_ADMIN,
                           )
