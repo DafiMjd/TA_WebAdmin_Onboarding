@@ -19,7 +19,7 @@ class DetailCard extends StatelessWidget {
     return ListTile(
         contentPadding: EdgeInsets.all(DEFAULT_PADDING),
         leading: Icon(getLeadingIcon(actDetail.detail_type)),
-        title: Text(actDetail.detail_desc),
+        title: Text(getTitle(actDetail.detail_type)),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -27,6 +27,15 @@ class DetailCard extends StatelessWidget {
             Tooltip(message: "Delete Card", child: delete),
           ],
         ));
+  }
+
+  String getTitle(String detail_type) {
+    if (detail_type == 'text' || detail_type == 'to_do' || detail_type == 'header') {
+      return actDetail.detail_desc;
+    } else {
+      return actDetail.detail_name;
+    }
+
   }
 
   IconData getLeadingIcon(String detail_type) {

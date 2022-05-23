@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -6,19 +7,20 @@ import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.da
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
-class AddActivityDetailForm extends StatefulWidget {
-  const AddActivityDetailForm({Key? key, this.detail, required this.type})
+class AddTextDetailForm extends StatefulWidget {
+  const AddTextDetailForm({Key? key, this.detail, required this.type})
       : super(key: key);
 
   final ActivityDetail? detail;
   final String type;
 
   @override
-  State<AddActivityDetailForm> createState() => _AddActivityDetailFormState();
+  State<AddTextDetailForm> createState() => _AddTextDetailFormState();
 }
 
-class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
+class _AddTextDetailFormState extends State<AddTextDetailForm> {
   late final TextEditingController _ctrl;
+  late AddActivityFormProvider formProv;
 
   @override
   void initState() {
@@ -40,35 +42,12 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
 
   @override
   Widget build(BuildContext context) {
-    AddActivityFormProvider formProv = context.watch<AddActivityFormProvider>();
+    formProv = context.watch<AddActivityFormProvider>();
 
-    addActivityDetail(desc) {
-      final newIndex = formProv.actDetails.length;
+    return textDialog();
+  }
 
-      final item = ActivityDetail(
-          detail_name: widget.type + newIndex.toString(),
-          detail_urutan: newIndex,
-          detail_type: widget.type,
-          detail_desc: desc,
-          activity: formProv.activity);
-
-      List<ActivityDetail> newList = formProv.actDetails;
-      if (newList.isEmpty) {
-        newList = [item];
-      } else {
-        newList.add(item);
-      }
-
-      formProv.actDetails = newList;
-    }
-
-    editActivityDetail(desc) {
-      List<ActivityDetail> newList = formProv.actDetails;
-      newList[widget.detail!.detail_urutan].detail_desc = desc;
-
-      formProv.actDetails = newList;
-    }
-
+  textDialog() {
     return AlertDialog(
       title: getTitleField(formProv.isActDetailEmpty, widget.type),
       shape: RoundedRectangleBorder(
@@ -139,6 +118,33 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
       ),
       contentPadding: EdgeInsets.all(DEFAULT_PADDING),
     );
+  }
+
+  addActivityDetail(desc) {
+    final newIndex = formProv.actDetails.length;
+
+    final item = ActivityDetail(
+        detail_name: widget.type + newIndex.toString(),
+        detail_urutan: newIndex,
+        detail_type: widget.type,
+        detail_desc: desc,
+        activity: formProv.activity);
+
+    List<ActivityDetail> newList = formProv.actDetails;
+    if (newList.isEmpty) {
+      newList = [item];
+    } else {
+      newList.add(item);
+    }
+
+    formProv.actDetails = newList;
+  }
+
+  editActivityDetail(desc) {
+    List<ActivityDetail> newList = formProv.actDetails;
+    newList[widget.detail!.detail_urutan].detail_desc = desc;
+
+    formProv.actDetails = newList;
   }
 
   Container getTitleField(isEmpty, type) {

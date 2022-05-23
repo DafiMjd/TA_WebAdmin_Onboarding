@@ -1,6 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:typed_data';
+
+import 'package:universal_html/html.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
+import 'package:webadmin_onboarding/models/file_data_model.dart';
 
 class ActivityDetail {
   int? id;
@@ -8,6 +12,7 @@ class ActivityDetail {
   String detail_name, detail_desc, detail_type;
   String? detail_link;
   Activity activity;
+  Uint8List? file;
 
   ActivityDetail(
       {this.id,
@@ -15,6 +20,7 @@ class ActivityDetail {
       required this.detail_name,
       required this.detail_desc,
       this.detail_link,
+      this.file,
       required this.detail_type,
       required this.activity});
 

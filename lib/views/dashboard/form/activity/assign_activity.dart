@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_owned.dart';
+import 'package:webadmin_onboarding/models/activity_owned_by_user.dart';
 import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
@@ -117,6 +118,19 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
   ScrollController scrollbarController = ScrollController();
 
+  late DataProvider dataProv;
+  late MenuProvider menuProv;
+  late AssignActivityProvider assignProv;
+
+  @override
+  void initState() {
+    super.initState();
+
+    dataProv = Provider.of<DataProvider>(context, listen: false);
+    menuProv = Provider.of<MenuProvider>(context, listen: false);
+    assignProv = Provider.of<AssignActivityProvider>(context, listen: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
@@ -227,15 +241,11 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
   // List<String> emails, int activity_id, String start_date, String end_date
   void _assignActivity() async {
-    DataProvider dataProv = Provider.of<DataProvider>(context, listen: false);
-    MenuProvider menuProv = Provider.of<MenuProvider>(context, listen: false);
-    AssignActivityProvider assignProv =
-        Provider.of<AssignActivityProvider>(context, listen: false);
     assignProv.isAssignButtonDisabled = true;
     for (final element in widget.selectedEmail) {
       try {
-        dataProv.assignActivity(
-            element, widget.activity.id!, _startDateAndTime, _endDateAndTime, widget.activity.category!.id);
+        dataProv.assignActivity(element, widget.activity.id!, _startDateAndTime,
+            _endDateAndTime, widget.activity.category!.id);
       } catch (e) {
         showDialog(
             context: context,
@@ -244,9 +254,67 @@ class _DateTimePickerState extends State<DateTimePicker> {
             });
       }
     }
+    _showActivityOwnedTable();
+    Navigator.pop(context);
 
     assignProv.isAssignButtonDisabled = false;
     // menuProv.setDashboardContent(type, dataTable, colnamesTable, menuTitle, menuId, actionForm, dataForm)
+  }
+
+  Future<ActivityOwnedByUser> _getActivityOwnedData(User user) async {
+    try {
+      var data = await dataProv.fetchActivityOwnedByEmail(user.email);
+
+      var newData = ActivityOwnedByUser(user: user, activities_owned: data);
+      return newData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<ActivityOwnedByUser>> _getActivityOwnedByUserData(
+      List<User> users) async {
+    List<ActivityOwnedByUser> datas = [];
+
+    menuProv.isFetchingData = true;
+
+    for (final element in users) {
+      try {
+        ActivityOwnedByUser newData = await _getActivityOwnedData(element);
+        datas.add(newData);
+        // datas.forEach((element) {print(element.activities[0].activity_name);});
+      } catch (e) {
+        rethrow;
+      }
+    }
+
+    return datas;
+  }
+
+  void _showActivityOwnedTable() async {
+    List<ActivityOwnedByUser> datas = [];
+    List<User> users = [];
+
+    menuProv.isFetchingData = true;
+    try {
+      List<User> users =
+          await dataProv.fetchUsersByRole(4); // 4 = id for role karyawan
+
+      datas = await _getActivityOwnedByUserData(users);
+
+      List<String> colnames = ['Email', 'Name', 'Activities Owned'];
+      menuProv.isFetchingData = false;
+
+      menuProv.setDashboardContent("table", datas, colnames,
+          'Activity Owned List', 'activity_owned_list', null, null);
+    } catch (e) {
+      menuProv.isFetchingData = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+          });
+    }
   }
 
   InkWell startDate(BuildContext context) {

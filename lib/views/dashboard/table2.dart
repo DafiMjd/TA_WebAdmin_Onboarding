@@ -90,19 +90,6 @@ class MyTable2 extends StatelessWidget {
   }
 }
 
-Color getColor(Set<MaterialState> states) {
-    const Set<MaterialState> interactiveStates = <MaterialState>{
-      MaterialState.pressed,
-      // MaterialState.hovered,
-      MaterialState.focused,
-    };
-    // hovered
-    // if (states.any(interactiveStates.contains)) {
-    //   return Colors.blue;
-    // }
-    return Colors.black;
-  }
-
 // The "soruce" of the table
 class MyData extends AdvancedDataTableSource {
   final List<dynamic> datas;
@@ -134,7 +121,7 @@ class MyData extends AdvancedDataTableSource {
   DataRow getRow(int index) {
     final currentRowData = lastDetails!.rows[index];
 
-    var selectActions = [
+    getSelectActions() => [
       Tooltip(
         message: "Select",
         child: CheckboxAction(press: () {
@@ -157,7 +144,7 @@ class MyData extends AdvancedDataTableSource {
           icon: Icon(Icons.e_mobiledata)),
     ];
 
-    var basicActions = [
+    getBasicActions() => [
       Tooltip(
           message: "Edit",
           child: IconButton(
@@ -201,7 +188,7 @@ class MyData extends AdvancedDataTableSource {
               icon: const Icon(Icons.delete))),
     ];
 
-    var activityOwnedActions = [
+    getActivityOwnedActions() => [
       Tooltip(
           message: "Detail",
           child: IconButton(
@@ -256,7 +243,7 @@ class MyData extends AdvancedDataTableSource {
       ),
     ];
 
-    var activityActions = [
+    getActivityActions() => [
       Tooltip(
           message: "Preview",
           child: IconButton(
@@ -366,83 +353,79 @@ class MyData extends AdvancedDataTableSource {
           )),
     ];
 
-    var noAction = [Text("No Action")];
 
-    var userActions = [
-      Tooltip(
-        message: "Is Active",
-        child: Checkbox(
-          checkColor: Colors.white,
-          fillColor: MaterialStateProperty.resolveWith(getColor),
-          value: currentRowData.getData('active'),
-          onChanged: (bool? value) {
-            // setState(() {
-            //   isChecked = value!;
-            // });
-          },
+    getUserActions() => [
+        Tooltip(
+            message: "Is Active",
+            child: IconButton(
+                onPressed: (() {
+                  _editActiveUser(index);
+                }),
+                icon: Icon((currentRowData.getData('active'))
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank))),
+        const SizedBox(
+          width: 5,
         ),
-      ),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Edit",
-          child: IconButton(
-            onPressed: () {
-              _action(index, "edit");
-            },
-            icon: const Icon(Icons.edit),
-          )),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Delete",
-          child: IconButton(
-              onPressed: (() {
-                // _action(index, "delete");
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Are You Sure?"),
-                        content: Text("Press Okay To Delete"),
-                        actions: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              },
-                              child: const Text("cancel")),
-                          TextButton(
-                              onPressed: () {
-                                _action(index, "delete");
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              },
-                              child: const Text("okay")),
-                        ],
-                      );
-                    });
-              }),
-              icon: const Icon(Icons.delete))),
-    ];
+        Tooltip(
+            message: "Edit",
+            child: IconButton(
+              onPressed: () {
+                _action(index, "edit");
+              },
+              icon: const Icon(Icons.edit),
+            )),
+        const SizedBox(
+          width: 5,
+        ),
+        Tooltip(
+            message: "Delete",
+            child: IconButton(
+                onPressed: (() {
+                  // _action(index, "delete");
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Are You Sure?"),
+                          content: Text("Press Okay To Delete"),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
+                                },
+                                child: const Text("cancel")),
+                            TextButton(
+                                onPressed: () {
+                                  _action(index, "delete");
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
+                                },
+                                child: const Text("okay")),
+                          ],
+                        );
+                      });
+                }),
+                icon: const Icon(Icons.delete))),
+      ];
+    
 
     getActions(menuId) {
       if (menuId == 'user_list' || menuId == 'admin_list') {
-        return userActions;
+        return getUserActions();
       } else if (menuId == 'activity_list') {
-        return activityActions;
+        return getActivityActions();
       } else if (menuId == 'activity_owned_list') {
-        return activityOwnedActions;
+        return getActivityOwnedActions();
       } else if (menuId == 'role_list' ||
           menuId == 'jobtitle_list' ||
           menuId == 'category_list') {
-        return basicActions;
+        return getBasicActions();
       } else if (menuId == 'unassigned_user') {
-        return selectActions;
+        return getSelectActions();
       } else {
-        return noAction;
+        return getNoAction();
       }
     }
 
@@ -464,6 +447,8 @@ class MyData extends AdvancedDataTableSource {
         ]);
   }
 
+  getNoAction() => [Text("No Action")];
+
   Future<void> _editActiveUser(index) async {
     menuProv.isFetchingData = true;
     List<dynamic> data;
@@ -477,12 +462,11 @@ class MyData extends AdvancedDataTableSource {
     } catch (e) {
       menuProv.isFetchingData = false;
       return showDialog(
-            context: context,
-            builder: (context) {
-              return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
-            });
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+          });
     }
-
   }
 
   Future<void> _delete(index) async {
@@ -492,6 +476,7 @@ class MyData extends AdvancedDataTableSource {
     try {
       data = await dataProv.action(menuProv.menuId, "delete",
           datas[index].getData(colnames[0]).toString());
+      
       menuProv.isFetchingData = false;
 
       menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,

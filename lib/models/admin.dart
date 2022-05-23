@@ -8,6 +8,8 @@ class Admin {
   final Role role;
   final Jobtitle jobtitle;
 
+  bool active;
+
   Admin(
       {required this.email,
       required this.admin_name,
@@ -15,7 +17,8 @@ class Admin {
       required this.birthdate,
       required this.gender,
       required this.jobtitle,
-      required this.phone_number});
+      required this.phone_number,
+      required this.active});
 
   factory Admin.fromJson(Map<String, dynamic> json) {
     return Admin(
@@ -26,6 +29,7 @@ class Admin {
       gender: json['gender'],
       birthdate: json['birthdate'],
       phone_number: json['phone_number'],
+      active: json['active']
     );
   }
 
@@ -44,6 +48,8 @@ class Admin {
       return birthdate;
     } else if (identifier == 'phone_number') {
       return phone_number;
+    } else if (identifier == 'active') {
+      return active;
     } else {
       return "not found";
     }

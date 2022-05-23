@@ -16,13 +16,10 @@ import 'package:webadmin_onboarding/providers/main_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/activity_preview.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/activity/add_activity_detail_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/add_file_detail_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/add_text_detail_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/detail_card.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/form_builder_tile.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/activity/text_card.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/activity/todo_card.dart';
-import 'package:webadmin_onboarding/widgets/dropzone/dropped_file_widget.dart';
-import 'package:webadmin_onboarding/widgets/dropzone/dropzone_widget.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
@@ -41,7 +38,6 @@ class AddActivityForm extends StatefulWidget {
 }
 
 class _AddActivityFormState extends State<AddActivityForm> {
-  // final List<int> _items = List<int>.generate(5, (int index) => index);
   late MenuProvider menuProv;
   late DataProvider dataProv;
   late AddActivityFormProvider formProv;
@@ -183,6 +179,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                         child: ReorderableListView.builder(
                           itemCount: formProv.actDetails.length,
                           itemBuilder: (context, index) {
+                            print(formProv.actDetails[index].detail_type);
                             // return getActivityDetailWidget(index);
                             return Container(
                               key: Key('$index'),
@@ -232,12 +229,23 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                         return showDialog(
                                             context: context,
                                             builder: (context) {
-                                              return AddActivityDetailForm(
-                                                  type: formProv
-                                                      .actDetails[index]
-                                                      .detail_type,
-                                                  detail: formProv
-                                                      .actDetails[index]);
+                                              var type = formProv
+                                                  .actDetails[index]
+                                                  .detail_type;
+                                              print(type);
+                                              if (type == 'text' ||
+                                                  type == 'to_do' ||
+                                                  type == 'header') {
+                                                return AddTextDetailForm(
+                                                    type: type,
+                                                    detail: formProv
+                                                        .actDetails[index]);
+                                              } else {
+                                                return AddFileDetailForm(
+                                                    type: type,
+                                                    detail: formProv
+                                                        .actDetails[index]);
+                                              }
                                             });
                                       },
                                       icon: Icon(
@@ -307,6 +315,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // preview button
                           InkWell(
                             onTap: () async {
                               if (_actDescCtrl.text.isEmpty ||
@@ -346,7 +355,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                               width: 390,
                                               height: 840,
                                               child: ActivityPreview(
-                                                actDetails: details,
+                                                actDetails: formProv.actDetails,
                                                 activity: widget.activity!,
                                               ),
                                             );
@@ -365,6 +374,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                 subtitle: "Preview On Mobile"),
                           ),
                           Space.halfSpace(),
+                          // save button
                           InkWell(
                             onTap: () async {
                               if (_actDescCtrl.text.isEmpty ||
@@ -391,11 +401,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   _editActivity(formProv.activity);
                                 } else {
                                   var act = formProv.activity;
-                                  print(act.activity_name! +
-                                      "|" +
-                                      act.activity_description! +
-                                      "|" +
-                                      act.category!.id.toString());
                                   _addActivity(formProv.activity);
                                 }
                               }
@@ -437,6 +442,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                   ),
                   Space.doubleSpace(),
+                  // Header
                   InkWell(
                     onTap: (_actDescCtrl.text.isEmpty ||
                             _actNameCtrl.text.isEmpty ||
@@ -448,7 +454,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             return showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return AddActivityDetailForm(type: 'header');
+                                  return AddTextDetailForm(type: 'header');
                                 });
                           },
                     child: FormBuilderTile(
@@ -458,6 +464,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     ),
                   ),
                   Space.halfSpace(),
+                  // Text
                   InkWell(
                     onTap: (_actDescCtrl.text.isEmpty ||
                             _actNameCtrl.text.isEmpty ||
@@ -469,7 +476,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             return showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return AddActivityDetailForm(type: 'text');
+                                  return AddTextDetailForm(type: 'text');
                                 });
                           },
                     child: FormBuilderTile(
@@ -479,6 +486,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     ),
                   ),
                   Space.halfSpace(),
+                  // To Do
                   InkWell(
                     onTap: (_actDescCtrl.text.isEmpty ||
                             _actNameCtrl.text.isEmpty ||
@@ -490,7 +498,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             return showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return AddActivityDetailForm(
+                                  return AddTextDetailForm(
                                     type: 'to_do',
                                   );
                                 });
@@ -502,15 +510,33 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     ),
                   ),
                   Space.halfSpace(),
+                  // Document
                   InkWell(
-                    onTap: () {},
+                    onTap:
+                        // (_actDescCtrl.text.isEmpty ||
+                        //         _actNameCtrl.text.isEmpty ||
+                        //         formProv.isCategoryEmpty)
+                        //     ? () async {
+                        //         return formNotFilledDisable(context);
+                        //       }
+                        //     :
+                        () async {
+                      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AddFileDetailForm(
+                              type: 'pdf',
+                            );
+                          });
+                    },
                     child: FormBuilderTile(
                       icon: Icons.picture_as_pdf_sharp,
                       title: "Document",
-                      subtitle: "Upload files",
+                      subtitle: "Upload file",
                     ),
                   ),
                   Space.halfSpace(),
+                  // Image
                   InkWell(
                     onTap: () {},
                     child: FormBuilderTile(
@@ -520,6 +546,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                     ),
                   ),
                   Space.space(),
+                  // Video
                   InkWell(
                     onTap: () {},
                     child: FormBuilderTile(
@@ -563,14 +590,14 @@ class _AddActivityFormState extends State<AddActivityForm> {
     for (int i = 0; i < details.length; i++) {
       try {
         if (details[i].id == null) {
-          dataProv.createActivityDetail(details[i], widget.activity!.id);
+          dataProv.createActivityDetail2(details[i], widget.activity!.id);
         } else {
           dataProv.editActivityDetail(details[i]);
         }
         // print(details[i].toString());
         List<String> colnames = dataProv.colnames;
-        menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
-            menuProv.menuId, null, null);
+        // menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
+        //     menuProv.menuId, null, null);
       } catch (e) {
         return showDialog(
             context: context,
@@ -607,14 +634,14 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
     for (int i = 0; i < details.length; i++) {
       try {
-        dataProv.createActivityDetail(details[i], data.last.id);
+        await dataProv.createActivityDetail2(details[i], data.last.id);
         // print(details[i].toString());
       } catch (e) {
         return showDialog(
-            context: context,
-            builder: (context) {
-              return ErrorAlertDialog(title: "Http Error", error: e.toString());
-            });
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(title: "Http Error", error: e.toString());
+          });
       }
     }
 

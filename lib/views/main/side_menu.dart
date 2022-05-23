@@ -39,7 +39,6 @@ class _SideMenuState extends State<SideMenu> {
     Future<List<ActivityOwnedByUser>> _getActivityOwnedByUserData(
         List<User> users) async {
       List<ActivityOwnedByUser> datas = [];
-      List<String> y = [];
 
       menuProv.isFetchingData = true;
 

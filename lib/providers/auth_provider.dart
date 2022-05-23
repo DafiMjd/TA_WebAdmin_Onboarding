@@ -90,6 +90,11 @@ class AuthProvider with ChangeNotifier {
         throw responseData['errorMessage'];
       }
 
+
+      if (apiResult.statusCode == 502 || apiResult.statusCode == 500) {
+        throw "Server Down";
+      }
+
       isLoginButtonDisabled = false;
     } catch (e) {
       isLoginButtonDisabled = false;

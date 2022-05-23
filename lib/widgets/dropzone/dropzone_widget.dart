@@ -1,6 +1,11 @@
+
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:universal_io/io.dart';
+
 import 'package:webadmin_onboarding/models/file_data_model.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 
@@ -36,14 +41,14 @@ class _DropZoneWidgetState extends State<DropZoneWidget> {
               onDropMultiple: (value) {
                 (value!.length > widget.maxFiles)
                     ? fileInvalid("Unable To Drop Multiple Files", context)
-                    : UploadedFile(value.first,
-                        ctrl); // upload without checking the ext and size
-                // checkFile(value.first, ctrl, context);
+                    :
+                    // UploadedFile(value.first,
+                    //     ctrl); // upload without checking the ext and size
+                    checkFile(value.first, ctrl, context);
               },
               onCreated: (controller) => ctrl = controller,
               onHover: () => setState(() => highlight = true),
-              onLeave: () => setState(() => highlight = false)
-              ),
+              onLeave: () => setState(() => highlight = false)),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -90,9 +95,10 @@ class _DropZoneWidgetState extends State<DropZoneWidget> {
     );
   }
 
-  Future checkFile(dynamic event, ctrl, context) async {
+  Future checkFile(dynamic event, DropzoneViewController ctrl, context) async {
     final mime = await ctrl.getFileMIME(event);
     final byte = await ctrl.getFileSize(event);
+
     var sizeInMB = byte / (1024 * 1024);
 
     if (widget.mimes.contains(mime)) {
@@ -120,12 +126,20 @@ class _DropZoneWidgetState extends State<DropZoneWidget> {
         });
   }
 
-  Future UploadedFile(dynamic event, ctrl) async {
+  Future UploadedFile(dynamic event, DropzoneViewController ctrl) async {
     final name = event.name;
+    var x = ctrl;
 
     final mime = await ctrl.getFileMIME(event);
     final byte = await ctrl.getFileSize(event);
     final url = await ctrl.createFileUrl(event);
+    final stream = await ctrl.getFileStream(event);
+    Uint8List fileData = await ctrl.getFileData(event);
+
+    // File file = File.fromRawPath(fileData);
+    // print('path' + file.path);
+
+    // File file = File.fromRawPath(fileData);
 
     print('Name : $name');
     print('Mime: $mime');
@@ -133,8 +147,8 @@ class _DropZoneWidgetState extends State<DropZoneWidget> {
     print('Size : ${byte / (1024 * 1024)}');
     print('URL: $url');
 
-    final droppedFile =
-        FileDataModel(name: name, mime: mime, bytes: byte, url: url);
+    final droppedFile = FileDataModel(
+        name: name, mime: mime, bytes: byte, url: url, stream: stream, fileData: fileData);
 
     widget.onDroppedFile(droppedFile);
     setState(() {

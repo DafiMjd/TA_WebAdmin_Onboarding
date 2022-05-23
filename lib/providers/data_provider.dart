@@ -1,6 +1,9 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
+import 'package:universal_html/html.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/models/activity_owned.dart';
@@ -13,6 +16,8 @@ import 'package:webadmin_onboarding/utils/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:http_parser/http_parser.dart';
 
 class DataProvider extends ChangeNotifier {
   bool _isFetchingData = false;
@@ -86,8 +91,9 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<dynamic>> _adminAction(method, dataid) async {
-    if (method == 'delete') return deleteAdmin(dataid);
-    else if (method == 'edit_active') return editUserActive(dataid);
+    if (method == 'delete')
+      return deleteAdmin(dataid);
+    else if (method == 'edit_active') return editAdminActive(dataid);
     return fetchAdmins();
   }
 
@@ -102,7 +108,10 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<dynamic>> _activityAction(method, dataid) async {
-    if (method == 'delete') return deleteActivity(int.parse(dataid));
+    if (method == 'delete') {
+      deleteActivityDetailByActivityId(int.parse(dataid));
+      return deleteActivity(int.parse(dataid));
+    }
     return fetchActivities();
   }
 
@@ -163,7 +172,7 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-      if (result.statusCode == 502) {
+      if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
       return compute(parseRole, result.body);
@@ -200,7 +209,7 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-      if (result.statusCode == 502) {
+      if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
       return compute(parseRoles, result.body);
@@ -239,7 +248,7 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-      if (result.statusCode == 502) {
+      if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
       return compute(parseRoles, result.body);
@@ -272,7 +281,7 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
-      if (result.statusCode == 502) {
+      if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
       return compute(parseJobtitle, result.body);
@@ -308,6 +317,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseJobtitles, result.body);
     } catch (e) {
@@ -346,6 +358,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
@@ -376,6 +391,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseJobtitles, result.body);
@@ -410,6 +428,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseJobtitles, result.body);
     } catch (e) {
@@ -441,6 +462,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseUser, result.body);
     } catch (e) {
@@ -476,6 +500,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -503,6 +530,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseUsers, result.body);
     } catch (e) {
@@ -550,6 +580,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -578,6 +611,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -590,19 +626,23 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/User/active";
 
     try {
-      var result = await http.put(Uri.parse(url), headers: {
-        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Expose-Headers": "Authorization, authenticated",
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      }, body: {
-        'email': email
-      });
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseUsers, result.body);
     } catch (e) {
@@ -648,6 +688,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -678,6 +721,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseAdmin, result.body);
     } catch (e) {
@@ -712,6 +758,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseAdmins, result.body);
     } catch (e) {
@@ -758,6 +807,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;
@@ -785,6 +837,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseAdmins, result.body);
     } catch (e) {
@@ -823,6 +878,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseAdmins, result.body);
     } catch (e) {
@@ -836,19 +894,23 @@ class DataProvider extends ChangeNotifier {
     String url = "$BASE_URL/api/Admin/active";
 
     try {
-      var result = await http.put(Uri.parse(url), headers: {
-        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Expose-Headers": "Authorization, authenticated",
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      }, body: {
-        'email': email
-      });
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseAdmins, result.body);
     } catch (e) {
@@ -880,6 +942,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseActivityCategory, result.body);
     } catch (e) {
@@ -914,6 +979,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseActivityCategories, result.body);
     } catch (e) {
@@ -957,6 +1025,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseActivityCategories, result.body);
     } catch (e) {
       rethrow;
@@ -984,6 +1055,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseActivityCategories, result.body);
@@ -1019,6 +1093,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseActivityCategories, result.body);
@@ -1059,6 +1136,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivity, result.body);
     } catch (e) {
@@ -1097,6 +1177,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivities, result.body);
     } catch (e) {
@@ -1129,6 +1212,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivities, result.body);
     } catch (e) {
@@ -1158,6 +1244,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseActivities, result.body);
@@ -1193,6 +1282,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivities, result.body);
     } catch (e) {
@@ -1227,6 +1319,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       if (result.body == '[]') {
@@ -1288,12 +1383,80 @@ class DataProvider extends ChangeNotifier {
         // Map<String, dynamic> responseData = jsonDecode(result.body);
         throw "error";
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       // return compute(parseActivityDetails, result.body);
     } catch (e) {
       rethrow;
     }
   }
+
+  Future<void> createActivityDetail2(ActivityDetail detail, activity_id) async {
+    var token = jwt['token'];
+    var url = Uri.parse("$BASE_URL/api/ActivityDetail");
+
+    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
+
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['activity_id'] = activity_id.toString();
+      request.fields['detail_name'] = detail.detail_name;
+      request.fields['detail_desc'] = detail.detail_desc;
+      request.fields['detail_link'] = detail_link;
+      request.fields['detail_type'] = detail.detail_type;
+      request.fields['detail_urutan'] = detail.detail_urutan.toString();
+
+      if (detail.file != null) {
+        // print(detail.file!);
+        // request.files.add(http.MultipartFile.fromBytes(
+        //     'files', detail.file!));
+        request.files.add(await http.MultipartFile.fromPath(
+          'files',
+          '/Users/dafimj/Downloads/metode pelaksanaan - Alur.png',
+          contentType: MediaType('image', 'png'),
+        ));
+      }
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.statusCode == 200) print('Uploaded!');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Future<Uint8List> _getHtmlFileContent(File blob) async {
+  //   Uint8List? file;
+  //   final reader = FileReader();
+  //   reader.readAsDataUrl(blob.slice(0, blob.size, blob.type));
+  //   reader.onLoadEnd.listen((event) {
+  //     Uint8List data =
+  //         Base64Decoder().convert(reader.result.toString().split(",").last);
+  //     file = data;
+  //   }).onData((data) {
+  //     file = Base64Decoder().convert(reader.result.toString().split(",").last);
+  //     return file;
+  //   });
+  //   while (file == null) {
+  //     await new Future.delayed(const Duration(milliseconds: 1));
+  //     if (file != null) {
+  //       break;
+  //     }
+  //   }
+  //   return file;
+  // }
 
   Future<void> editActivityDetail(ActivityDetail detail) async {
     var token = jwt['token'];
@@ -1327,6 +1490,9 @@ class DataProvider extends ChangeNotifier {
         // Map<String, dynamic> responseData = jsonDecode(result.body);
         throw "error";
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       // return compute(parseActivityDetails, result.body);
     } catch (e) {
@@ -1354,6 +1520,38 @@ class DataProvider extends ChangeNotifier {
       );
       if (result.statusCode == 400) {
         throw "error";
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteActivityDetailByActivityId(int id) async {
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityDetailByActivity/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (result.statusCode == 400) {
+        throw "error";
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
     } catch (e) {
       rethrow;
@@ -1385,6 +1583,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       if (result.body == '[]') {
@@ -1429,6 +1630,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       if (result.body == '[]') {
         return [];
@@ -1468,6 +1672,9 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 400) {
         // Map<String, dynamic> responseData = jsonDecode(result.body);
         throw "error";
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       // return compute(parseActivityDetails, result.body);
