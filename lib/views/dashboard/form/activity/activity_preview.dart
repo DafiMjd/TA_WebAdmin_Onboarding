@@ -1,12 +1,9 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
-import 'package:webadmin_onboarding/providers/main_provider.dart';
-import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
-
-import 'package:device_preview/device_preview.dart';
 
 class ActivityPreview extends StatelessWidget {
   const ActivityPreview(
@@ -29,7 +26,7 @@ class ActivityPreview extends StatelessWidget {
           title: Text(activity.activity_name!)),
       body: Scrollbar(
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
         
         child: SingleChildScrollView(
       controller: scrollbarController,

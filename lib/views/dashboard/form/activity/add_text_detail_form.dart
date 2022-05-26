@@ -1,4 +1,5 @@
-import 'package:file_picker/file_picker.dart';
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -55,12 +56,10 @@ class _AddTextDetailFormState extends State<AddTextDetailForm> {
       content: Builder(
         builder: (context) {
           // Get available height and width of the build area of this widget. Make a choice depending on the size.
-          var height = MediaQuery.of(context).size.height / 2;
-          var width = MediaQuery.of(context).size.width / 2;
 
           return Container(
             // height: height,
-            width: width,
+            width: MediaQuery.of(context).size.width / 2,
             padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING, DEFAULT_PADDING,
                 DEFAULT_PADDING, DEFAULT_PADDING),
             child: Column(

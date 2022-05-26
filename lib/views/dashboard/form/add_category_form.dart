@@ -137,7 +137,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
     return Scrollbar(
 
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       child: SingleChildScrollView(
         child: Card(
           elevation: 5,

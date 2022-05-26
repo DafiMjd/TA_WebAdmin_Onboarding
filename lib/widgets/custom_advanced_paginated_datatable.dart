@@ -7,7 +7,6 @@ import 'dart:math' as math;
 import 'package:advanced_datatable/advanced_datatable_source.dart';
 import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 
 typedef GetWidgetCallBack = Widget Function();
@@ -589,7 +588,7 @@ class PaginatedDataTableState extends State<CustomAdvancedPaginatedDataTable> {
                   ),
                 ),
               Scrollbar(
-                isAlwaysShown: true,
+                thumbVisibility: true,
                 controller: scrollbarController,
                 child: SingleChildScrollView(
                   controller: scrollbarController,

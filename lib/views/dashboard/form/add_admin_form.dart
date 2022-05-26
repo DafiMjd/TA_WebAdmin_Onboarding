@@ -199,7 +199,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
 
     return Scrollbar(
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       child: SingleChildScrollView(
         controller: scrollbarController,
         child: Card(

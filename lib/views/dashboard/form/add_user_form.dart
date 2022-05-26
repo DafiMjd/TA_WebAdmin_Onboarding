@@ -195,7 +195,7 @@ class _AddUserFormState extends State<AddUserForm> {
     return Scrollbar(
 
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       child: SingleChildScrollView(
 
       controller: scrollbarController,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:universal_html/html.dart';
 
 class CheckboxAction extends StatefulWidget {
   const CheckboxAction({Key? key, required this.press}) : super(key: key);

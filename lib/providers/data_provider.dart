@@ -1,9 +1,6 @@
-// ignore_for_file: non_constant_identifier_names
-
-import 'dart:typed_data';
+// ignore_for_file: non_constant_identifier_names, curly_braces_in_flow_control_structures
 
 import 'package:flutter/foundation.dart';
-import 'package:universal_html/html.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/models/activity_owned.dart';
@@ -16,8 +13,6 @@ import 'package:webadmin_onboarding/utils/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:http_parser/http_parser.dart';
 
 class DataProvider extends ChangeNotifier {
   bool _isFetchingData = false;
@@ -64,7 +59,11 @@ class DataProvider extends ChangeNotifier {
         }
       case 'activity_list':
         {
-          return fetchActivities();
+          return fetchActivities('activity');
+        }
+      case 'home_activity_list':
+        {
+          return fetchActivities('home');
         }
       case 'category_list':
         {
@@ -112,7 +111,15 @@ class DataProvider extends ChangeNotifier {
       deleteActivityDetailByActivityId(int.parse(dataid));
       return deleteActivity(int.parse(dataid));
     }
-    return fetchActivities();
+    return fetchActivities('activity');
+  }
+
+  Future<List<dynamic>> _homeActivityAction(method, dataid) async {
+    if (method == 'delete') {
+      deleteActivityDetailByActivityId(int.parse(dataid));
+      return deleteHomeActivity(int.parse(dataid));
+    }
+    return fetchActivities('home');
   }
 
   Future<List<dynamic>> action(id, method, dataid) {
@@ -136,6 +143,10 @@ class DataProvider extends ChangeNotifier {
       case 'activity_list':
         {
           return _activityAction(method, dataid);
+        }
+      case 'home_activity_list':
+        {
+          return _homeActivityAction(method, dataid);
         }
 
       default:
@@ -551,39 +562,43 @@ class DataProvider extends ChangeNotifier {
   Future<List<User>> registerUser(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
     var token = jwt['token'];
-    String url = "$BASE_URL/api/Auth/register-user";
+
+    var url = Uri.parse("$BASE_URL/api/Auth/register-user");
 
     try {
-      var result = await http.post(Uri.parse(url),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "email": email,
-            "password": password,
-            "name": name,
-            "gender": gender,
-            "phone_number": phone,
-            "role_id": role_id,
-            "jobtitle_id": jobtitle_id,
-            "progress": 0,
-            "birthdate": "2000-12-05"
-          }));
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['name'] = name;
+      request.fields['gender'] = gender;
+      request.fields['phone_number'] = phone;
+      request.fields['role_id'] = role_id.toString();
+      request.fields['jobtitle_id'] = jobtitle_id.toString();
+      request.fields['progress'] = '0';
+      request.fields['birthdate'] = "2000-12-05";
 
-      if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw responseData['errorMessage'];
-      }
+      var result = await request.send();
+
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
-      return compute(parseUsers, result.body);
+
+      String response = await result.stream.bytesToString();
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseUsers, response);
     } catch (e) {
       rethrow;
     }
@@ -779,38 +794,41 @@ class DataProvider extends ChangeNotifier {
   Future<List<Admin>> registerAdmin(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
     var token = jwt['token'];
-    String url = "$BASE_URL/api/Auth/register-admin";
+    var url = Uri.parse("$BASE_URL/api/Auth/register-admin");
 
     try {
-      var result = await http.post(Uri.parse(url),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "email": email,
-            "password": password,
-            "admin_name": name,
-            "role_id": role_id,
-            "jobtitle_id": jobtitle_id,
-            "gender": gender,
-            "phone_number": phone,
-            "birthdate": "2000-12-05"
-          }));
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['admin_name'] = name;
+      request.fields['role_id'] = role_id.toString();
+      request.fields['jobtitle_id'] = jobtitle_id.toString();
+      request.fields['gender'] = gender;
+      request.fields['phone_number'] = phone;
+      request.fields['birthdate'] = "2000-12-05";
 
-      if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw responseData['errorMessage'];
-      }
+      var result = await request.send();
+
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
-      return compute(parseAdmins, result.body);
+
+      String response = await result.stream.bytesToString();
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseAdmins, response);
     } catch (e) {
       rethrow;
     }
@@ -1154,10 +1172,10 @@ class DataProvider extends ChangeNotifier {
     return parsed.map<Activity>((json) => Activity.fromJson(json)).toList();
   }
 
-  Future<List<Activity>> fetchActivities() async {
+  Future<List<Activity>> fetchActivities(String type) async {
     var token = jwt['token'];
 
-    String url = "$BASE_URL/api/Activities";
+    String url = "$BASE_URL/api/ActivitiesByType/$type";
 
     try {
       var result = await http.get(
@@ -1189,34 +1207,38 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Activity>> createActivity(Activity activity) async {
     var token = jwt['token'];
-    String url = "$BASE_URL/api/Activities";
+
+    var url = Uri.parse("$BASE_URL/api/Activities");
 
     try {
-      var result = await http.post(Uri.parse(url),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "activity_name": activity.activity_name,
-            "activity_description": activity.activity_description,
-            "category_id": activity.category!.id
-          }));
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['activity_name'] = activity.activity_name!;
+      request.fields['activity_description'] = activity.activity_description!;
+      request.fields['category_id'] = activity.category!.id.toString();
+      request.fields['type'] = activity.type;
 
-      if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw responseData['errorMessage'];
-      }
+      var result = await request.send();
+
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
 
-      return compute(parseActivities, result.body);
+      String response = await result.stream.bytesToString();
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, response);
     } catch (e) {
       rethrow;
     }
@@ -1255,28 +1277,24 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<Activity>> editActivity(Activity activity) async {
+  Future<List<Activity>> deleteHomeActivity(int id) async {
     var token = jwt['token'];
 
-    String url = "$BASE_URL/api/Activities";
+    String url = "$BASE_URL/api/ActivitiesDelete/$id";
 
     try {
-      var result = await http.put(Uri.parse(url),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "id": activity.id,
-            "activity_name": activity.activity_name,
-            "activity_description": activity.activity_description,
-            "category_id": activity.category!.id
-          }));
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
@@ -1287,6 +1305,46 @@ class DataProvider extends ChangeNotifier {
       }
 
       return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Activity>> editActivity(Activity activity) async {
+    var token = jwt['token'];
+
+    var url = Uri.parse("$BASE_URL/api/Activities");
+
+    try {
+      var request = http.MultipartRequest('PUT', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['id'] = activity.id.toString();
+      request.fields['activity_name'] = activity.activity_name!;
+      request.fields['activity_description'] = activity.activity_description!;
+      request.fields['category_id'] = activity.category!.id.toString();
+      request.fields['type'] = activity.type;
+
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      String response = await result.stream.bytesToString();
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, response);
     } catch (e) {
       rethrow;
     }
@@ -1355,49 +1413,7 @@ class DataProvider extends ChangeNotifier {
 
   Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
     var token = jwt['token'];
-    String url = "$BASE_URL/api/ActivityDetail";
-
-    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
-
-    try {
-      var result = await http.post(Uri.parse(url),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "activity_id": activity_id,
-            "detail_name": detail.detail_name,
-            "detail_desc": detail.detail_desc,
-            "detail_link": detail_link,
-            "detail_type": detail.detail_type,
-            "detail_urutan": detail.detail_urutan
-          }));
-
-      if (result.statusCode == 400) {
-        // Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw "error";
-      }
-      if (result.statusCode == 502 || result.statusCode == 500) {
-        throw "Server Down";
-      }
-
-      // return compute(parseActivityDetails, result.body);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> createActivityDetail2(ActivityDetail detail, activity_id) async {
-    var token = jwt['token'];
     var url = Uri.parse("$BASE_URL/api/ActivityDetail");
-
-    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -1412,6 +1428,46 @@ class DataProvider extends ChangeNotifier {
       request.fields['activity_id'] = activity_id.toString();
       request.fields['detail_name'] = detail.detail_name;
       request.fields['detail_desc'] = detail.detail_desc;
+      request.fields['detail_type'] = detail.detail_type;
+      request.fields['detail_urutan'] = detail.detail_urutan.toString();
+
+      if (detail.file != null) {
+        var multipartFile = http.MultipartFile.fromBytes(
+            'files', detail.file!.cast(),
+            filename: detail.detail_name);
+
+        request.files.add(multipartFile);
+      }
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editActivityDetail(ActivityDetail detail) async {
+    var token = jwt['token'];
+    var url = Uri.parse("$BASE_URL/api/ActivityDetail");
+
+    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
+
+    try {
+      var request = http.MultipartRequest('PUT', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['id'] = detail.id.toString();
+      request.fields['activity_id'] = detail.activity.id.toString();
+      request.fields['detail_name'] = detail.detail_name;
+      request.fields['detail_desc'] = detail.detail_desc;
       request.fields['detail_link'] = detail_link;
       request.fields['detail_type'] = detail.detail_type;
       request.fields['detail_urutan'] = detail.detail_urutan.toString();
@@ -1420,81 +1476,17 @@ class DataProvider extends ChangeNotifier {
         // print(detail.file!);
         // request.files.add(http.MultipartFile.fromBytes(
         //     'files', detail.file!));
-        request.files.add(await http.MultipartFile.fromPath(
-          'files',
-          '/Users/dafimj/Downloads/metode pelaksanaan - Alur.png',
-          contentType: MediaType('image', 'png'),
-        ));
+        // request.files.add(await http.MultipartFile.fromPath(
+        //   'files',
+        //   '/Users/dafimj/Downloads/metode pelaksanaan - Alur.png',
+        //   contentType: MediaType('image', 'png'),
+        // ));
       }
       var result = await request.send();
 
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
-      if (result.statusCode == 200) print('Uploaded!');
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  // Future<Uint8List> _getHtmlFileContent(File blob) async {
-  //   Uint8List? file;
-  //   final reader = FileReader();
-  //   reader.readAsDataUrl(blob.slice(0, blob.size, blob.type));
-  //   reader.onLoadEnd.listen((event) {
-  //     Uint8List data =
-  //         Base64Decoder().convert(reader.result.toString().split(",").last);
-  //     file = data;
-  //   }).onData((data) {
-  //     file = Base64Decoder().convert(reader.result.toString().split(",").last);
-  //     return file;
-  //   });
-  //   while (file == null) {
-  //     await new Future.delayed(const Duration(milliseconds: 1));
-  //     if (file != null) {
-  //       break;
-  //     }
-  //   }
-  //   return file;
-  // }
-
-  Future<void> editActivityDetail(ActivityDetail detail) async {
-    var token = jwt['token'];
-    String url = "$BASE_URL/api/ActivityDetail";
-
-    String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
-
-    try {
-      var result = await http.put(Uri.parse(url),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "id": detail.id,
-            "activity_id": detail.activity.id,
-            "detail_name": detail.detail_name,
-            "detail_desc": detail.detail_desc,
-            "detail_link": detail_link,
-            "detail_type": detail.detail_type,
-            "detail_urutan": detail.detail_urutan
-          }));
-
-      if (result.statusCode == 400) {
-        print("dafierror");
-        // Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw "error";
-      }
-      if (result.statusCode == 502 || result.statusCode == 500) {
-        throw "Server Down";
-      }
-
-      // return compute(parseActivityDetails, result.body);
     } catch (e) {
       rethrow;
     }

@@ -1,7 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
-import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/add_activity_form.dart';
@@ -9,7 +10,6 @@ import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_jobtitle_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
-import 'package:webadmin_onboarding/views/dashboard/table.dart';
 import 'package:webadmin_onboarding/views/dashboard/table2.dart';
 
 class MenuProvider extends ChangeNotifier {
@@ -112,7 +112,7 @@ class MenuProvider extends ChangeNotifier {
   set isFetchingData(val) {
     _isFetchingData = val;
     if (isFetchingData) {
-      dashboardContent = Container(
+      dashboardContent = SizedBox(
           width: 100, height: 100, child: const CircularProgressIndicator());
     } else {
       dashboardContent = Container();
@@ -153,7 +153,7 @@ class MenuProvider extends ChangeNotifier {
       data = dataTable;
       colnames = colnamesTable;
       if (isFetchingData) {
-        dashboardContent = Container(
+        dashboardContent = SizedBox(
             width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
         dashboardContent =
@@ -163,7 +163,7 @@ class MenuProvider extends ChangeNotifier {
       isTableShown = false;
       isFormShown = true;
       if (isFetchingData) {
-        dashboardContent = Container(
+        dashboardContent = SizedBox(
             width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
         dashboardContent = getForm(menuId, actionForm, dataForm);
@@ -205,7 +205,9 @@ class MenuProvider extends ChangeNotifier {
       } else if (id == "jobtitle_list") {
         return const AddJobtitleForm();
       } else if (id == "activity_list") {
-        return AddActivityForm();
+        return AddActivityForm(type: 'activity');
+      } else if (id == "home_activity_list") {
+        return AddActivityForm(type: 'home');
       }
       return Container();
     } else if (action == "edit") {
@@ -218,7 +220,9 @@ class MenuProvider extends ChangeNotifier {
       } else if (id == "jobtitle_list") {
         return AddJobtitleForm(jobtitle: data);
       } else if (id == "activity_list") {
-        return AddActivityForm(activity: data,);
+        return AddActivityForm(type: 'activity', activity: data,);
+      } else if (id == "home_activity_list") {
+        return AddActivityForm(type: 'home', activity: data,);
       }
       return Container();
     }

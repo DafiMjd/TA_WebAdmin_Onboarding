@@ -1,7 +1,5 @@
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_html/js.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.dart';
@@ -10,13 +8,9 @@ import 'package:webadmin_onboarding/providers/form/add_category_form_provider.da
 import 'package:webadmin_onboarding/providers/form/add_jobtitle_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_user_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
-import 'package:webadmin_onboarding/providers/main_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
-import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/activity/activity_preview.dart';
 import 'package:webadmin_onboarding/views/login_page.dart';
-import 'package:webadmin_onboarding/views/main_page.dart';
 
 void main() {
   runApp(const MyApp());

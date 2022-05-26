@@ -1,7 +1,8 @@
+// ignore_for_file: prefer_const_constructors, avoid_function_literals_in_foreach_calls
+
 import 'package:advanced_datatable/advanced_datatable_source.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/models/activity_owned.dart';
 import 'package:webadmin_onboarding/models/user.dart';
@@ -50,7 +51,7 @@ class MyTable2 extends StatelessWidget {
         context: context);
 
     return Scrollbar(
-      isAlwaysShown: true,
+      thumbVisibility: true,
       controller: scrollbarController,
       child: SingleChildScrollView(
         controller: scrollbarController,
@@ -122,300 +123,349 @@ class MyData extends AdvancedDataTableSource {
     final currentRowData = lastDetails!.rows[index];
 
     getSelectActions() => [
-      Tooltip(
-        message: "Select",
-        child: CheckboxAction(press: () {
-          assignProv.selectedEmail.contains(currentRowData.getData('email'))
-              ? assignProv.selectedEmail.remove(currentRowData.getData('email'))
-              : assignProv.selectedEmail.add(currentRowData.getData('email'));
-        }),
-      ),
-      IconButton(
-          onPressed: () {
-            if (assignProv.selectedEmail.isEmpty) {
-              print("empty");
-            } else {
-              assignProv.selectedEmail.forEach((element) {
-                print(element);
-              });
-              print("----------");
-            }
-          },
-          icon: Icon(Icons.e_mobiledata)),
-    ];
+          Tooltip(
+            message: "Select",
+            child: CheckboxAction(press: () {
+              assignProv.selectedEmail.contains(currentRowData.getData('email'))
+                  ? assignProv.selectedEmail
+                      .remove(currentRowData.getData('email'))
+                  : assignProv.selectedEmail
+                      .add(currentRowData.getData('email'));
+            }),
+          ),
+        ];
 
     getBasicActions() => [
-      Tooltip(
-          message: "Edit",
-          child: IconButton(
-            onPressed: () {
-              _action(index, "edit");
-            },
-            icon: const Icon(Icons.edit),
-          )),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Delete",
-          child: IconButton(
-              onPressed: (() {
-                // _action(index, "delete");
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Are You Sure?"),
-                        content: Text("Press Okay To Delete"),
-                        actions: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              },
-                              child: const Text("cancel")),
-                          TextButton(
-                              onPressed: () {
-                                _action(index, "delete");
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              },
-                              child: const Text("okay")),
-                        ],
-                      );
-                    });
-              }),
-              icon: const Icon(Icons.delete))),
-    ];
+          Tooltip(
+              message: "Edit",
+              child: IconButton(
+                onPressed: () {
+                  _action(index, "edit");
+                },
+                icon: const Icon(Icons.edit),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Delete",
+              child: IconButton(
+                  onPressed: (() {
+                    // _action(index, "delete");
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Are You Sure?"),
+                            content: Text("Press Okay To Delete"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("cancel")),
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                    _action(index, "delete");
+                                  },
+                                  child: const Text("okay")),
+                            ],
+                          );
+                        });
+                  }),
+                  icon: const Icon(Icons.delete))),
+        ];
 
     getActivityOwnedActions() => [
-      Tooltip(
-          message: "Detail",
-          child: IconButton(
-            onPressed: () {
-              menuId = 'activity_owned_by_user_list';
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text('List Activiy Owned By ' +
-                          datas[index].getData('Name')),
-                      content: Container(
-                          width: MediaQuery.of(context).size.width * 0.6,
-                          // height: MediaQuery.of(context).size.height * 0.7,
-                          child: (datas[index].activities_owned.isEmpty)
-                              ? Text("No Assigned Activities in This User")
-                              : MyTable2(
-                                  datas: datas[index].activities_owned,
-                                  colnames: [
-                                    'activity_name',
-                                    'status',
-                                    'start_date',
-                                    'end_date'
-                                  ],
-                                  menuId: menuId)),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              menuId = 'activity_owned_list';
-                              Navigator.of(context, rootNavigator: true).pop();
-                            },
-                            child: const Text("close")),
-                      ],
-                    );
-                  });
-            },
-            icon: const Icon(Icons.details_sharp),
-          )),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Edit",
-          child: IconButton(
-            onPressed: () {
-              _action(index, "edit");
-            },
-            icon: const Icon(Icons.edit),
-          )),
-      const SizedBox(
-        width: 5,
-      ),
-    ];
-
-    getActivityActions() => [
-      Tooltip(
-          message: "Preview",
-          child: IconButton(
-              onPressed: (() {
-                _action(index, "detail");
-              }),
-              icon: const Icon(Icons.remove_red_eye_sharp))),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Edit",
-          child: IconButton(
-            onPressed: () {
-              _action(index, "edit");
-            },
-            icon: const Icon(Icons.edit),
-          )),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Delete",
-          child: IconButton(
-              onPressed: (() {
-                // _action(index, "delete");
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Are You Sure?"),
-                        content: Text("Press Okay To Delete"),
-                        actions: [
-                          TextButton(
-                              onPressed: () {
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              },
-                              child: const Text("cancel")),
-                          TextButton(
-                              onPressed: () {
-                                _action(index, "delete");
-                                Navigator.of(context, rootNavigator: true)
-                                    .pop();
-                              },
-                              child: const Text("okay")),
-                        ],
-                      );
-                    });
-              }),
-              icon: const Icon(Icons.delete))),
-      const SizedBox(
-        width: 5,
-      ),
-      Tooltip(
-          message: "Assign",
-          child: IconButton(
-            onPressed: () async {
-              // menuProv.dashboardContent = CircularProgressIndicator();
-              try {
-                List<ActivityOwned> assignedUser =
-                    await _getAssignedUser(currentRowData.id);
-
-                List<User> unassignedUser =
-                    await _getUnassignedUser(assignedUser);
-
-                menuProv.isTableShown = false;
-                menuProv.isFormShown = true;
-                menuProv.menuName = 'Assign Activity ' +
-                    currentRowData.getData('activity_name');
-
-                (menuProv.isFetchingData)
-                    ? menuProv.dashboardContent = CircularProgressIndicator()
-                    : menuProv.dashboardContent = AssignActivity(
-                        assignedUser: assignedUser,
-                        unassignedUser: unassignedUser,
-                        activity: currentRowData,
-                      );
-                // : menuProv.dashboardContent = MyTable2(
-                //     datas: unassignedUser,
-                //     colnames: [
-                //       'email',
-                //       'name',
-                //     ],
-                //     menuId: 'unassigned_user',
-                //     maxRow: 4,
-                //   );
-
-                // : showDialog(
-                //     context: context,
-                //     builder: (context) {
-                //       return AssignActivity(
-                //           assignedUser: assignedUser,
-                //           unassignedUser: unassignedUser,
-                //           activity: datas[index]);
-                //     });
-              } catch (e) {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return ErrorAlertDialog(
-                          error: e.toString(), title: e.toString());
-                    });
-              }
-            },
-            icon: const Icon(Icons.send_rounded),
-          )),
-    ];
-
-
-    getUserActions() => [
-        Tooltip(
-            message: "Is Active",
-            child: IconButton(
-                onPressed: (() {
-                  _editActiveUser(index);
-                }),
-                icon: Icon((currentRowData.getData('active'))
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank))),
-        const SizedBox(
-          width: 5,
-        ),
-        Tooltip(
-            message: "Edit",
-            child: IconButton(
-              onPressed: () {
-                _action(index, "edit");
-              },
-              icon: const Icon(Icons.edit),
-            )),
-        const SizedBox(
-          width: 5,
-        ),
-        Tooltip(
-            message: "Delete",
-            child: IconButton(
-                onPressed: (() {
-                  // _action(index, "delete");
+          Tooltip(
+              message: "Detail",
+              child: IconButton(
+                onPressed: () {
+                  menuId = 'activity_owned_by_user_list';
                   showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: Text("Are You Sure?"),
-                          content: Text("Press Okay To Delete"),
+                          title: Text('List Activiy Owned By ' +
+                              datas[index].getData('Name')),
+                          content: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              // height: MediaQuery.of(context).size.height * 0.7,
+                              child: (datas[index].activities_owned.isEmpty)
+                                  ? Text("No Assigned Activities in This User")
+                                  : MyTable2(
+                                      datas: datas[index].activities_owned,
+                                      colnames: [
+                                        'activity_name',
+                                        'status',
+                                        'start_date',
+                                        'end_date'
+                                      ],
+                                      menuId: menuId)),
                           actions: [
                             TextButton(
                                 onPressed: () {
+                                  menuId = 'activity_owned_list';
                                   Navigator.of(context, rootNavigator: true)
                                       .pop();
                                 },
-                                child: const Text("cancel")),
-                            TextButton(
-                                onPressed: () {
-                                  _action(index, "delete");
-                                  Navigator.of(context, rootNavigator: true)
-                                      .pop();
-                                },
-                                child: const Text("okay")),
+                                child: const Text("close")),
                           ],
                         );
                       });
-                }),
-                icon: const Icon(Icons.delete))),
-      ];
-    
+                },
+                icon: const Icon(Icons.details_sharp),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Edit",
+              child: IconButton(
+                onPressed: () {
+                  _action(index, "edit");
+                },
+                icon: const Icon(Icons.edit),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+        ];
+
+    getActivityActions() => [
+          Tooltip(
+              message: "Preview",
+              child: IconButton(
+                  onPressed: (() {
+                    _action(index, "detail");
+                  }),
+                  icon: const Icon(Icons.remove_red_eye_sharp))),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Edit",
+              child: IconButton(
+                onPressed: () {
+                  _action(index, "edit");
+                },
+                icon: const Icon(Icons.edit),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Delete",
+              child: IconButton(
+                  onPressed: (() {
+                    // _action(index, "delete");
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Are You Sure?"),
+                            content: Text("Press Okay To Delete"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("cancel")),
+                              TextButton(
+                                  onPressed: () {
+                                    _action(index, "delete");
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("okay")),
+                            ],
+                          );
+                        });
+                  }),
+                  icon: const Icon(Icons.delete))),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Assign",
+              child: IconButton(
+                onPressed: () async {
+                  // menuProv.dashboardContent = CircularProgressIndicator();
+                  try {
+                    List<ActivityOwned> assignedUser =
+                        await _getAssignedUser(currentRowData.id);
+
+                    List<User> unassignedUser =
+                        await _getUnassignedUser(assignedUser);
+
+                    menuProv.isTableShown = false;
+                    menuProv.isFormShown = true;
+                    menuProv.menuName = 'Assign Activity ' +
+                        currentRowData.getData('activity_name');
+
+                    (menuProv.isFetchingData)
+                        ? menuProv.dashboardContent =
+                            CircularProgressIndicator()
+                        : menuProv.dashboardContent = AssignActivity(
+                            assignedUser: assignedUser,
+                            unassignedUser: unassignedUser,
+                            activity: currentRowData,
+                          );
+                    // : menuProv.dashboardContent = MyTable2(
+                    //     datas: unassignedUser,
+                    //     colnames: [
+                    //       'email',
+                    //       'name',
+                    //     ],
+                    //     menuId: 'unassigned_user',
+                    //     maxRow: 4,
+                    //   );
+
+                    // : showDialog(
+                    //     context: context,
+                    //     builder: (context) {
+                    //       return AssignActivity(
+                    //           assignedUser: assignedUser,
+                    //           unassignedUser: unassignedUser,
+                    //           activity: datas[index]);
+                    //     });
+                  } catch (e) {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return ErrorAlertDialog(
+                              error: e.toString(), title: e.toString());
+                        });
+                  }
+                },
+                icon: const Icon(Icons.send_rounded),
+              )),
+        ];
+
+    getHomeActivityActions() => [
+          Tooltip(
+              message: "Preview",
+              child: IconButton(
+                  onPressed: (() {
+                    _action(index, "detail");
+                  }),
+                  icon: const Icon(Icons.remove_red_eye_sharp))),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Edit",
+              child: IconButton(
+                onPressed: () {
+                  _action(index, "edit");
+                },
+                icon: const Icon(Icons.edit),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Delete",
+              child: IconButton(
+                  onPressed: (() {
+                    // _action(index, "delete");
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Are You Sure?"),
+                            content: Text("Press Okay To Delete"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("cancel")),
+                              TextButton(
+                                  onPressed: () {
+                                    _action(index, "delete");
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("okay")),
+                            ],
+                          );
+                        });
+                  }),
+                  icon: const Icon(Icons.delete))),
+          const SizedBox(
+            width: 5,
+          ),
+        ];
+
+    getUserActions() => [
+          Tooltip(
+              message: "Is Active",
+              child: IconButton(
+                  onPressed: (() {
+                    _editActiveUser(index);
+                  }),
+                  icon: Icon((currentRowData.getData('active'))
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank))),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Edit",
+              child: IconButton(
+                onPressed: () {
+                  _action(index, "edit");
+                },
+                icon: const Icon(Icons.edit),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Delete",
+              child: IconButton(
+                  onPressed: (() {
+                    // _action(index, "delete");
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Are You Sure?"),
+                            content: Text("Press Okay To Delete"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("cancel")),
+                              TextButton(
+                                  onPressed: () {
+                                    _action(index, "delete");
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("okay")),
+                            ],
+                          );
+                        });
+                  }),
+                  icon: const Icon(Icons.delete))),
+        ];
 
     getActions(menuId) {
       if (menuId == 'user_list' || menuId == 'admin_list') {
         return getUserActions();
       } else if (menuId == 'activity_list') {
         return getActivityActions();
+      } else if (menuId == 'home_activity_list') {
+        return getHomeActivityActions();
       } else if (menuId == 'activity_owned_list') {
         return getActivityOwnedActions();
       } else if (menuId == 'role_list' ||
@@ -476,7 +526,7 @@ class MyData extends AdvancedDataTableSource {
     try {
       data = await dataProv.action(menuProv.menuId, "delete",
           datas[index].getData(colnames[0]).toString());
-      
+
       menuProv.isFetchingData = false;
 
       menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
@@ -484,11 +534,11 @@ class MyData extends AdvancedDataTableSource {
     } catch (e) {
       err = e.toString();
       menuProv.isFetchingData = false;
-      // return showDialog(
-      //       context: context,
-      //       builder: (context) {
-      //         return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
-      //       });
+      showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
+          });
     }
 
     if (err != null) {
@@ -566,7 +616,7 @@ class MyData extends AdvancedDataTableSource {
                   borderRadius: BorderRadius.all(Radius.circular(10.0))),
               content: Builder(
                 builder: (context) {
-                  return Container(
+                  return SizedBox(
                     // height: height,
                     width: 390,
                     height: 840,
@@ -594,10 +644,15 @@ class MyData extends AdvancedDataTableSource {
     if (action == "delete") {
       _delete(index);
     } else if (action == "edit") {
-      menuProv.setDashboardContent(
-          "form", null, null, null, menuProv.menuId, action, datas[index]);
+      if (menuId == 'home_activity_list') {
+        menuProv.setDashboardContent(
+            "form", null, null, null, 'activity_list', action, datas[index]);
+      } else {
+        menuProv.setDashboardContent(
+            "form", null, null, null, menuProv.menuId, action, datas[index]);
+      }
     } else if (action == "detail") {
-      if (menuId == 'activity_list') {
+      if (menuId == 'activity_list' || menuId == 'home_activity_list') {
         showActDetails(index);
       } else if (menuId == 'activity_owned_list') {
         showActOwnedDetails(index);

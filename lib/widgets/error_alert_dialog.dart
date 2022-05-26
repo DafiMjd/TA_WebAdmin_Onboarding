@@ -17,7 +17,7 @@ class ErrorAlertDialog extends StatelessWidget {
     }
     return AlertDialog(
       title: Text(title),
-      content: Text("$error"),
+      content: Text(error),
       actions: [
         TextButton(
             onPressed: () =>

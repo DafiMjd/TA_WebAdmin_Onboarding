@@ -120,7 +120,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
 
     return Scrollbar(
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       child: SingleChildScrollView(
       controller: scrollbarController,
         child: Card(

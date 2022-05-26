@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -8,10 +10,8 @@ import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
-import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:webadmin_onboarding/utils/responsive.dart';
-import 'package:webadmin_onboarding/views/dashboard/form/activity/text_card.dart';
 import 'package:webadmin_onboarding/views/dashboard/table2.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
@@ -34,7 +34,7 @@ class AssignActivity extends StatelessWidget {
     ScrollController scrollbarController = ScrollController();
     return Scrollbar(
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       child: SingleChildScrollView(
         controller: scrollbarController,
         child: Column(
@@ -135,7 +135,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
   Widget build(BuildContext context) {
     return Scrollbar(
       controller: scrollbarController,
-      isAlwaysShown: true,
+      thumbVisibility: true,
       child: SingleChildScrollView(
         controller: scrollbarController,
         child: AlertDialog(
@@ -172,7 +172,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
                       }
                     }
                   },
-                  child: Text("Assign")),
+                  child: Text("Save")),
             ],
             content: (Responsive.isMobile(context))
                 ? Column(
@@ -244,7 +244,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     assignProv.isAssignButtonDisabled = true;
     for (final element in widget.selectedEmail) {
       try {
-        dataProv.assignActivity(element, widget.activity.id!, _startDateAndTime,
+        await dataProv.assignActivity(element, widget.activity.id!, _startDateAndTime,
             _endDateAndTime, widget.activity.category!.id);
       } catch (e) {
         showDialog(

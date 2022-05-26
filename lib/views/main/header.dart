@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
@@ -23,45 +25,31 @@ class Header extends StatelessWidget {
       height: 50,
       width: MediaQuery.of(context).size.width,
       child: Responsive.isDesktop(context)
-          ? Container(
-            alignment: Alignment.centerRight,
-            margin: const EdgeInsets.only(right: 15),
-            child: ElevatedButton(
-              style: TextButton.styleFrom(
-                backgroundColor: BROWN_GARUDA,
-                padding: EdgeInsets.symmetric(
-                  horizontal: DEFAULT_PADDING * 1.5,
-                  vertical: DEFAULT_PADDING /
-                      (Responsive.isMobile(context) ? 2 : 1),
-                ),
-              ),
-              onPressed: () {
-                menuProv.init();
-                authProvider.logout();
-              },
-              child: const Text(
-                "Sign Out",
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ? Row(
+            mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.menu,
-                    color: Colors.white,
+                Container(
+                  alignment: Alignment.centerRight,
+                  margin: const EdgeInsets.only(right: 15),
+                  child: ElevatedButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: BROWN_GARUDA,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: DEFAULT_PADDING * 1.5,
+                        vertical: DEFAULT_PADDING /
+                            (Responsive.isMobile(context) ? 2 : 1),
+                      ),
+                    ),
+                    onPressed: () {
+                      // menuProv.init();
+                      // authProvider.logout();
+                    },
+                    child: const Text(
+                      "Change Password",
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
-                  onPressed: context.read<MenuProvider>().controlMenu,
                 ),
-                 InkWell(
-                   onTap: () => menuProv.init(),
-                   child: Text(
-                    "Onboarding",
-                    style: TextStyle(color: Colors.white),
-                                 ),
-                 ),
                 Container(
                   alignment: Alignment.centerRight,
                   margin: const EdgeInsets.only(right: 15),
@@ -83,7 +71,74 @@ class Header extends StatelessWidget {
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
-                )
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.menu,
+                    color: Colors.white,
+                  ),
+                  onPressed: context.read<MenuProvider>().controlMenu,
+                ),
+                InkWell(
+                  onTap: () => menuProv.init(),
+                  child: Text(
+                    "Onboarding",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      alignment: Alignment.centerRight,
+                      margin: const EdgeInsets.only(right: 15),
+                      child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: BROWN_GARUDA,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: DEFAULT_PADDING * 1.5,
+                            vertical: DEFAULT_PADDING /
+                                (Responsive.isMobile(context) ? 2 : 1),
+                          ),
+                        ),
+                        onPressed: () {
+                          // menuProv.init();
+                          // authProvider.logout();
+                        },
+                        child: const Text(
+                          "Change Password",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      margin: const EdgeInsets.only(right: 15),
+                      child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: BROWN_GARUDA,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: DEFAULT_PADDING * 1.5,
+                            vertical: DEFAULT_PADDING /
+                                (Responsive.isMobile(context) ? 2 : 1),
+                          ),
+                        ),
+                        onPressed: () {
+                          menuProv.init();
+                          authProvider.logout();
+                        },
+                        child: const Text(
+                          "Sign Out",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
     );

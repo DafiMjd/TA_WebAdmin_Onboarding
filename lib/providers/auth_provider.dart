@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -30,7 +32,6 @@ class AuthProvider with ChangeNotifier {
 
 
     String role = jwtDecoded['role'];
-    print(role);
 
     return MainPage(role: role);
   }
@@ -46,8 +47,6 @@ class AuthProvider with ChangeNotifier {
 
       Map<String, dynamic> data = jsonDecode(str);
 
-      var payload =
-          json.decode(ascii.decode(base64.decode(base64.normalize(token[1]))));
       if (DateTime.now()
           .add(Duration(seconds: int.parse(data['expiresIn'])))
           .isAfter(DateTime.now())) {

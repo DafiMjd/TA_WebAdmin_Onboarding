@@ -1,5 +1,6 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:provider/provider.dart';
-import 'package:webadmin_onboarding/models/activity_owned.dart';
 import 'package:webadmin_onboarding/models/activity_owned_by_user.dart';
 import 'package:webadmin_onboarding/models/menu.dart';
 import 'package:webadmin_onboarding/models/user.dart';
@@ -57,7 +58,6 @@ class _SideMenuState extends State<SideMenu> {
 
     void _pressActivityOwnedMenu(Menu menu) async {
       List<ActivityOwnedByUser> datas = [];
-      List<User> users = [];
 
 
       menuProv.isFetchingData = true;

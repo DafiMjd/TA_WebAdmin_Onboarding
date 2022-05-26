@@ -2,9 +2,7 @@
 
 import 'dart:typed_data';
 
-import 'package:universal_html/html.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
-import 'package:webadmin_onboarding/models/file_data_model.dart';
 
 class ActivityDetail {
   int? id;
@@ -25,7 +23,6 @@ class ActivityDetail {
       required this.activity});
 
   factory ActivityDetail.fromJson(Map<String, dynamic> json) {
-    // print("\ndafimajid: $json");
     var newAct = ActivityDetail(
       id: json['id'],
       activity: json['activity_'],
