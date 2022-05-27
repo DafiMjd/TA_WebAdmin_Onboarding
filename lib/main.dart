@@ -8,6 +8,7 @@ import 'package:webadmin_onboarding/providers/form/add_category_form_provider.da
 import 'package:webadmin_onboarding/providers/form/add_jobtitle_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_user_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
+import 'package:webadmin_onboarding/providers/form/change_password_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/custom_colors.dart';
 import 'package:webadmin_onboarding/views/login_page.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AddJobtitleFormProvider()),
         ChangeNotifierProvider(create: (context) => AddActivityFormProvider()),
         ChangeNotifierProvider(create: (context) => AssignActivityProvider()),
+        ChangeNotifierProvider(create: (context) => ChangePasswordProvider()),
       ],
       builder: (context, child) => Consumer<AuthProvider>(
           builder: (context, auth, child) => MaterialApp(

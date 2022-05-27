@@ -5,11 +5,13 @@ import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
+import 'package:webadmin_onboarding/providers/form/change_password_provider.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/add_activity_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_admin_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_jobtitle_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/change_password_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/table2.dart';
 
 class MenuProvider extends ChangeNotifier {
@@ -208,6 +210,8 @@ class MenuProvider extends ChangeNotifier {
         return AddActivityForm(type: 'activity');
       } else if (id == "home_activity_list") {
         return AddActivityForm(type: 'home');
+      }else if (id == "change_password") {
+        return ChangePasswordForm();
       }
       return Container();
     } else if (action == "edit") {

@@ -468,10 +468,10 @@ class MyData extends AdvancedDataTableSource {
         return getHomeActivityActions();
       } else if (menuId == 'activity_owned_list') {
         return getActivityOwnedActions();
-      } else if (menuId == 'role_list' ||
-          menuId == 'jobtitle_list' ||
-          menuId == 'category_list') {
+      } else if (menuId == 'jobtitle_list' || menuId == 'category_list') {
         return getBasicActions();
+      } else if (menuId == 'role_list') {
+        return getNoAction();
       } else if (menuId == 'unassigned_user') {
         return getSelectActions();
       } else {

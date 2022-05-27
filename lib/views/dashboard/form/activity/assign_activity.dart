@@ -298,7 +298,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     menuProv.isFetchingData = true;
     try {
       List<User> users =
-          await dataProv.fetchUsersByRole(4); // 4 = id for role karyawan
+          await dataProv.fetchUsersByRole(4); // 4 = id for role peserta_onboarding
 
       datas = await _getActivityOwnedByUserData(users);
 

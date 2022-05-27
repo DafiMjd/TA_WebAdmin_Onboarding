@@ -156,6 +156,49 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  // Change Password
+  Future<void> changePassword(String curPass, String newPass) async {
+
+    var token = jwt['token'];
+    var email = jwt['email'];
+    // getAuthInfo();
+    String apiURL = "$BASE_URL/api/Admin/edit-password";
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "email": email,
+            "password": curPass,
+            "new_password": newPass,
+          }));
+
+          if (result.statusCode == 404) {
+        throw "Not Found";
+      }
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      Map<String, dynamic> responseData = jsonDecode(result.body);
+      if (result.statusCode == 400) {
+        throw responseData['errorMessage'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+  // =======
+
   List<String> getColumnNames(Map<String, dynamic> data) {
     return data.keys.toList();
   }

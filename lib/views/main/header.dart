@@ -26,7 +26,7 @@ class Header extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       child: Responsive.isDesktop(context)
           ? Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
                   alignment: Alignment.centerRight,
@@ -41,6 +41,8 @@ class Header extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
+                      menuProv.setDashboardContent("form", null, null, null,
+                          'change_password', "add", null);
                       // menuProv.init();
                       // authProvider.logout();
                     },
