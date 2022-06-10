@@ -3,55 +3,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:webadmin_onboarding/models/jobtitle.dart';
+import 'package:webadmin_onboarding/models/user.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
-import 'package:webadmin_onboarding/providers/form/add_jobtitle_form_provider.dart';
-import 'package:webadmin_onboarding/providers/form/change_password_provider.dart';
+import 'package:webadmin_onboarding/providers/form/change_password_user_provider.dart';
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
-class ChangePasswordForm extends StatefulWidget {
-  const ChangePasswordForm({Key? key}) : super(key: key);
+class ChangePasswordUserForm extends StatefulWidget {
+  const ChangePasswordUserForm({Key? key, required this.user}) : super(key: key);
+
+  final dynamic user;
 
   @override
-  State<ChangePasswordForm> createState() => _ChangePasswordFormState();
+  State<ChangePasswordUserForm> createState() => _ChangePasswordUserFormState();
 }
 
-class _ChangePasswordFormState extends State<ChangePasswordForm> {
+class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
   late DataProvider dataProv;
 
   ScrollController scrollbarController = ScrollController();
 
-  late final TextEditingController _curPassCtrl;
   late final TextEditingController _newPassCtrl;
-  late final TextEditingController _confirmPassCtrl;
 
-  late ChangePasswordProvider formProv;
+  late ChangePasswordUserProvider formProv;
   late AuthProvider authProv;
   late MenuProvider menuProv;
-
 
   @override
   void initState() {
     super.initState();
-    _curPassCtrl = TextEditingController();
     _newPassCtrl = TextEditingController();
-    _confirmPassCtrl = TextEditingController();
 
     dataProv = Provider.of<DataProvider>(context, listen: false);
     menuProv = Provider.of<MenuProvider>(context, listen: false);
     authProv = Provider.of<AuthProvider>(context, listen: false);
-    formProv = Provider.of<ChangePasswordProvider>(context, listen: false);
+    formProv = Provider.of<ChangePasswordUserProvider>(context, listen: false);
 
     formProv.isNewPassHidden = true;
-    formProv.isConfPassHidden = true;
-    formProv.isCurPassHidden = true;
-
-    formProv.isConfPassFieldEmpty = true;
-    formProv.isCurPassFieldEmpty = true;
     formProv.isNewPassFieldEmpty = true;
 
 
@@ -59,7 +49,7 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
 
   @override
   Widget build(BuildContext context) {
-    formProv = context.watch<ChangePasswordProvider>();
+    formProv = context.watch<ChangePasswordUserProvider>();
     authProv = context.watch<AuthProvider>();
 
     return Scrollbar(
@@ -85,23 +75,17 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                   Space.doubleSpace(),
                   // Jobtitle Name
                   // Current Password
-                  titleField("Current Password", formProv.isCurPassFieldEmpty),
+                  titleField("Email", false),
                   Space.space(),
                   TextFormField(
                       inputFormatters: <TextInputFormatter>[
                         LengthLimitingTextInputFormatter(200),
                       ],
-                      onChanged: (value) => formProv.isCurPassFieldEmpty =
-                          _curPassCtrl.text.isEmpty,
-                      obscureText: formProv.isCurPassHidden,
-                      controller: _curPassCtrl,
+                      enabled: false,
+                      initialValue: widget.user.email,
                       decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          suffix: InkWell(
-                              onTap: () => formProv.changeCurPassHidden(),
-                              child: Icon(formProv.isCurPassHidden
-                                  ? Icons.visibility_off
-                                  : Icons.visibility)))),
+                        border: OutlineInputBorder(),
+                      )),
                   Space.space(),
 
                   // Password
@@ -124,36 +108,6 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                                   : Icons.visibility)))),
                   Space.space(),
 
-                  // Confirm Password
-                  titleField("Confirm Password", formProv.isConfPassFieldEmpty),
-                  Space.space(),
-                  TextFormField(
-                      inputFormatters: <TextInputFormatter>[
-                        LengthLimitingTextInputFormatter(200),
-                      ],
-                      onChanged: (value) => formProv.isConfPassFieldEmpty =
-                          _confirmPassCtrl.text.isEmpty,
-                      obscureText: formProv.isConfPassHidden,
-                      controller: _confirmPassCtrl,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          suffix: InkWell(
-                              onTap: () => formProv.changeConfPassHidden(),
-                              child: Icon(formProv.isConfPassHidden
-                                  ? Icons.visibility_off
-                                  : Icons.visibility)))),
-                  Space.space(),
-                  Visibility(
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "* New passwords don't match",
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    visible: formProv.isPassDifferent,
-                  ),
-
                   Space.doubleSpace(),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -163,16 +117,8 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                     onPressed: (formProv.isSaveButtonDisabled)
                         ? () {}
                         : () async {
-                            if (_curPassCtrl.text.isNotEmpty &&
-                                _newPassCtrl.text.isNotEmpty &&
-                                _confirmPassCtrl.text.isNotEmpty) {
-                              // validate wheter new pass and conf pass same
-                              formProv.isPassDifferent =
-                                  _newPassCtrl.text != _confirmPassCtrl.text;
-                              if (!formProv.isPassDifferent) {
-                                await _changePassword(
-                                    _curPassCtrl.text, _newPassCtrl.text);
-                              }
+                            if (_newPassCtrl.text.isNotEmpty) {
+                              await _changePasswordUser(widget.user.email, _newPassCtrl.text, widget.user.role.role_platform);
                             }
                           },
                     child: formProv.isSaveButtonDisabled
@@ -190,17 +136,18 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
     );
   }
 
-  Future<void> _changePassword(String curPass, String newPass) async {
+  Future<void> _changePasswordUser(
+      String email, String newPass, String platform) async {
     formProv.isSaveButtonDisabled = true;
 
     try {
-      await dataProv.changePassword(curPass, newPass);
+      if (platform == 'Mobile') {
+        await dataProv.changePasswordUser(email, newPass);
+      }else if (platform == 'Website') {
+        await dataProv.changePasswordAdmin(email, newPass);
+      }
       // Navigator.pop(context);
       formProv.isSaveButtonDisabled = false;
-
-      menuProv.init();
-      authProv.logout();
-
     } catch (e) {
       formProv.isSaveButtonDisabled = false;
       return showDialog(

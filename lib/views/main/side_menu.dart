@@ -90,6 +90,10 @@ class _SideMenuState extends State<SideMenu> {
       List<dynamic> data;
       try {
         data = await dataProv.getDatatable(menu.id);
+        // if (data.isEmpty) {
+        //   menuProv.dashboardContent = Text('No Data');
+        //   return;
+        // }
         menuProv.isFetchingData = false;
         List<String> colnames = dataProv.colnames;
 

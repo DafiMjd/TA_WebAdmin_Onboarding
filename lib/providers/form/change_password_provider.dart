@@ -43,6 +43,9 @@ class ChangePasswordProvider extends ChangeNotifier {
   bool _isCurPassHidden = true;
 
   bool get isCurPassHidden => _isCurPassHidden;
+  set isCurPassHidden(val) {
+    _isCurPassHidden = true;
+  }
   void changeCurPassHidden() {
     _isCurPassHidden = !_isCurPassHidden;
     notifyListeners();
@@ -51,6 +54,9 @@ class ChangePasswordProvider extends ChangeNotifier {
   bool _isNewPassHidden = true;
 
   bool get isNewPassHidden => _isNewPassHidden;
+  set isNewPassHidden(val) {
+    _isNewPassHidden = true;
+  }
   void changeNewPassHidden() {
     _isNewPassHidden = !_isNewPassHidden;
     notifyListeners();
@@ -59,6 +65,9 @@ class ChangePasswordProvider extends ChangeNotifier {
   bool _isConfPassHidden = true;
 
   bool get isConfPassHidden => _isConfPassHidden;
+  set isConfPassHidden(val) {
+    _isConfPassHidden = true;
+  }
   void changeConfPassHidden() {
     _isConfPassHidden = !_isConfPassHidden;
     notifyListeners();

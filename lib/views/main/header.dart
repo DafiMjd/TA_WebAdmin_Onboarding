@@ -41,7 +41,7 @@ class Header extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      menuProv.setDashboardContent("form", null, null, null,
+                      menuProv.setDashboardContent("form", null, null, 'Change Passowrd',
                           'change_password', "add", null);
                       // menuProv.init();
                       // authProvider.logout();
@@ -108,6 +108,9 @@ class Header extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
+
+                      menuProv.setDashboardContent("form", null, null, 'Change Passowrd',
+                          'change_password', "add", null);
                           // menuProv.init();
                           // authProvider.logout();
                         },

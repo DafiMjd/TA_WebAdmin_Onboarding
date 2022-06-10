@@ -26,7 +26,8 @@ import 'dart:html' as html;
 import 'dart:js' as js;
 
 class AddActivityForm extends StatefulWidget {
-  AddActivityForm({Key? key, this.activity, required this.type}) : super(key: key);
+  AddActivityForm({Key? key, this.activity, required this.type})
+      : super(key: key);
 
   Activity? activity;
   String type;
@@ -404,7 +405,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                   }
                                   _editActivity(formProv.activity);
                                 } else {
-
                                   _addActivity(formProv.activity);
                                 }
                               }
@@ -678,7 +678,9 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
   void _removeActivityDetail(int index) async {
     setState(() {
-      deletedActDetailIds.add(formProv.actDetails[index].id!);
+      if (isEditing) {
+        deletedActDetailIds.add(formProv.actDetails[index].id!);
+      }
       formProv.actDetails.removeAt(index);
 
       reorderActivityDetailsUrutan();

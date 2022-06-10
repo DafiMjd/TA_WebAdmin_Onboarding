@@ -197,6 +197,85 @@ class DataProvider extends ChangeNotifier {
       rethrow;
     }
   }
+  
+  Future<void> changePasswordUser(String email, String newPass) async {
+
+    var token = jwt['token'];
+    // getAuthInfo();
+    String apiURL = "$BASE_URL/api/EditPasswordUserByAdmin/";
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "email": email,
+            "new_password": newPass,
+          }));
+
+          if (result.statusCode == 404) {
+        throw "Not Found";
+      }
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      Map<String, dynamic> responseData = jsonDecode(result.body);
+      if (result.statusCode == 400) {
+        throw responseData['errorMessage'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
+  Future<void> changePasswordAdmin(String email, String newPass) async {
+
+    var token = jwt['token'];
+    // getAuthInfo();
+    String apiURL = "$BASE_URL/api/EditPasswordAdminByAdmin/edit-password";
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "email": email,
+            "new_password": newPass,
+          }));
+
+          if (result.statusCode == 404) {
+        throw "Not Found";
+      }
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      Map<String, dynamic> responseData = jsonDecode(result.body);
+      if (result.statusCode == 400) {
+        throw responseData['errorMessage'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+  
   // =======
 
   List<String> getColumnNames(Map<String, dynamic> data) {

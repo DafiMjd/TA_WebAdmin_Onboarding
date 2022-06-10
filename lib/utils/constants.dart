@@ -8,7 +8,7 @@ const DEFAULT_PADDING = 16.0;
 // caption in text theme is theme for text in menu
 // bodytext2 in text theme is theme for text in dashboard
 
-const BASE_URL = "https://2c33-114-122-75-153.ngrok.io";
+const BASE_URL = "https://84ca-114-122-74-247.ngrok.io";
 
 final List<Menu> MENU_SUPER_ADMIN = [
   Menu(

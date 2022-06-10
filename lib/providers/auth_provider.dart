@@ -9,7 +9,7 @@ import 'package:webadmin_onboarding/utils/constants.dart';
 
 import 'dart:html' show window;
 
-import 'package:webadmin_onboarding/views/main_page.dart';
+import 'package:webadmin_onboarding/views/main/main_page.dart';
 
 class AuthProvider with ChangeNotifier {
   late Map<String, dynamic> jwtDecoded;

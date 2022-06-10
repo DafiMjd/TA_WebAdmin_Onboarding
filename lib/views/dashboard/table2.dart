@@ -417,12 +417,12 @@ class MyData extends AdvancedDataTableSource {
             width: 5,
           ),
           Tooltip(
-              message: "Edit",
+              message: "Edit Password",
               child: IconButton(
                 onPressed: () {
                   _action(index, "edit");
                 },
-                icon: const Icon(Icons.edit),
+                icon: const Icon(Icons.password),
               )),
           const SizedBox(
             width: 5,
@@ -647,7 +647,12 @@ class MyData extends AdvancedDataTableSource {
       if (menuId == 'home_activity_list') {
         menuProv.setDashboardContent(
             "form", null, null, null, 'activity_list', action, datas[index]);
-      } else {
+      } else if (menuId == 'user_list' || menuId == 'admin_list') {
+        menuProv.setDashboardContent(
+            "form", null, null, null, menuProv.menuId, action, datas[index]);
+
+      }
+      else {
         menuProv.setDashboardContent(
             "form", null, null, null, menuProv.menuId, action, datas[index]);
       }

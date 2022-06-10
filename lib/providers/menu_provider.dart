@@ -12,6 +12,7 @@ import 'package:webadmin_onboarding/views/dashboard/form/add_category_form.dart'
 import 'package:webadmin_onboarding/views/dashboard/form/add_jobtitle_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/add_user_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/change_password_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/change_pw_user_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/table2.dart';
 
 class MenuProvider extends ChangeNotifier {
@@ -168,6 +169,7 @@ class MenuProvider extends ChangeNotifier {
         dashboardContent = SizedBox(
             width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
+        print('sini1');
         dashboardContent = getForm(menuId, actionForm, dataForm);
       }
     }
@@ -197,6 +199,7 @@ class MenuProvider extends ChangeNotifier {
   }
 
   Widget getForm(id, action, dynamic data) {
+    print('sini3');
     if (action == "add") {
       if (id == "user_list") {
         return const AddUserForm();
@@ -216,9 +219,9 @@ class MenuProvider extends ChangeNotifier {
       return Container();
     } else if (action == "edit") {
       if (id == "user_list") {
-        return AddUserForm(user: data);
+        return ChangePasswordUserForm(user: data);
       } else if (id == "admin_list") {
-        return AddAdminForm(admin: data);
+        return ChangePasswordUserForm(user: data);
       } else if (id == "category_list") {
         return AddCategoryForm(category: data);
       } else if (id == "jobtitle_list") {
