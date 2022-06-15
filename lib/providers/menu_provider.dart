@@ -159,8 +159,15 @@ class MenuProvider extends ChangeNotifier {
         dashboardContent = SizedBox(
             width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
-        dashboardContent =
-            MyTable2(datas: dataTable, colnames: colnamesTable, menuId: menuId);
+        if (dataTable.isEmpty) {
+          dashboardContent = Text(
+            'No Data',
+            style: TextStyle(fontSize: 27),
+          );
+        } else {
+          dashboardContent = MyTable2(
+              datas: dataTable, colnames: colnamesTable, menuId: menuId);
+        }
       }
     } else if (type == "form") {
       isTableShown = false;
@@ -213,7 +220,7 @@ class MenuProvider extends ChangeNotifier {
         return AddActivityForm(type: 'activity');
       } else if (id == "home_activity_list") {
         return AddActivityForm(type: 'home');
-      }else if (id == "change_password") {
+      } else if (id == "change_password") {
         return ChangePasswordForm();
       }
       return Container();
@@ -227,9 +234,15 @@ class MenuProvider extends ChangeNotifier {
       } else if (id == "jobtitle_list") {
         return AddJobtitleForm(jobtitle: data);
       } else if (id == "activity_list") {
-        return AddActivityForm(type: 'activity', activity: data,);
+        return AddActivityForm(
+          type: 'activity',
+          activity: data,
+        );
       } else if (id == "home_activity_list") {
-        return AddActivityForm(type: 'home', activity: data,);
+        return AddActivityForm(
+          type: 'home',
+          activity: data,
+        );
       }
       return Container();
     }

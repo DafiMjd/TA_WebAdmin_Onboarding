@@ -51,12 +51,14 @@ class AssignActivity extends StatelessWidget {
             Space.space(),
             ElevatedButton(
                 onPressed: () {
-                  (assignProv.selectedEmail.isEmpty)
-                      ? selectedEmailEmptyError(context)
+                  (assignProv.selectedUsers.isEmpty)
+                      ? selectedUsersEmptyError(context)
                       : pickDateAndTime(context, assignProv);
                 },
                 child: Text(
-                  (assignProv.isAssignButtonDisabled) ? "Wait" : "Assign",
+                  (assignProv.isAssignButtonDisabled)
+                      ? "Wait"
+                      : "Pick Date & Time",
                 )),
           ],
         ),
@@ -70,13 +72,13 @@ class AssignActivity extends StatelessWidget {
         context: context,
         builder: (context) {
           return DateTimePicker(
-            selectedEmail: assignProv.selectedEmail,
+            selectedUsers: assignProv.selectedUsers,
             activity: activity,
           );
         });
   }
 
-  Future<dynamic> selectedEmailEmptyError(BuildContext context) {
+  Future<dynamic> selectedUsersEmptyError(BuildContext context) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -95,10 +97,10 @@ class AssignActivity extends StatelessWidget {
 
 class DateTimePicker extends StatefulWidget {
   const DateTimePicker(
-      {Key? key, required this.selectedEmail, required this.activity})
+      {Key? key, required this.selectedUsers, required this.activity})
       : super(key: key);
 
-  final List<String> selectedEmail;
+  final List<User> selectedUsers;
   final Activity activity;
 
   @override
@@ -172,7 +174,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
                       }
                     }
                   },
-                  child: Text("Save")),
+                  child: Text("Assign")),
             ],
             content: (Responsive.isMobile(context))
                 ? Column(
@@ -239,13 +241,16 @@ class _DateTimePickerState extends State<DateTimePicker> {
     );
   }
 
-  // List<String> emails, int activity_id, String start_date, String end_date
   void _assignActivity() async {
     assignProv.isAssignButtonDisabled = true;
-    for (final element in widget.selectedEmail) {
+    for (final element in widget.selectedUsers) {
       try {
-        await dataProv.assignActivity(element, widget.activity.id!, _startDateAndTime,
-            _endDateAndTime, widget.activity.category!.id);
+        await dataProv.assignActivity(element.email, widget.activity.id!,
+            _startDateAndTime, _endDateAndTime, widget.activity.category!.id);
+
+
+        _editUserAssignedAct(
+            element.email, element.assignedActivities + 1);
       } catch (e) {
         showDialog(
             context: context,
@@ -258,7 +263,22 @@ class _DateTimePickerState extends State<DateTimePicker> {
     Navigator.pop(context);
 
     assignProv.isAssignButtonDisabled = false;
-    // menuProv.setDashboardContent(type, dataTable, colnamesTable, menuTitle, menuId, actionForm, dataForm)
+  }
+
+  void _editUserAssignedAct(String email, int finishedAct) async {
+    dataProv.isFetchingData = true;
+
+    try {
+      await dataProv.editUserAssignedAct(email, finishedAct);
+      dataProv.isFetchingData = false;
+    } catch (e) {
+      dataProv.isFetchingData = false;
+      return showDialog(
+          context: context,
+          builder: (context) {
+            return ErrorAlertDialog(error: e.toString(), title: e.toString());
+          });
+    }
   }
 
   Future<ActivityOwnedByUser> _getActivityOwnedData(User user) async {
@@ -282,7 +302,6 @@ class _DateTimePickerState extends State<DateTimePicker> {
       try {
         ActivityOwnedByUser newData = await _getActivityOwnedData(element);
         datas.add(newData);
-        // datas.forEach((element) {print(element.activities[0].activity_name);});
       } catch (e) {
         rethrow;
       }
@@ -297,8 +316,8 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
     menuProv.isFetchingData = true;
     try {
-      List<User> users =
-          await dataProv.fetchUsersByRole(4); // 4 = id for role peserta_onboarding
+      List<User> users = await dataProv
+          .fetchUsersByRole(4); // 4 = id for role peserta_onboarding
 
       datas = await _getActivityOwnedByUserData(users);
 

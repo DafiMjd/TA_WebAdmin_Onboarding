@@ -21,10 +21,6 @@ import 'package:webadmin_onboarding/views/dashboard/form/activity/add_file_detai
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
-import 'dart:html' as html;
-
-import 'dart:js' as js;
-
 class AddActivityForm extends StatefulWidget {
   AddActivityForm({Key? key, this.activity, required this.type})
       : super(key: key);
@@ -327,7 +323,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                               if (_actDescCtrl.text.isEmpty ||
                                   _actNameCtrl.text.isEmpty ||
                                   formProv.isCategoryEmpty) {
-                                return formNotFilledDisable(context);
+                                return formDisable(context,
+                                    "Fill The Above Form To Perform This Action");
                               } else {
                                 if (formProv.actDetails.isEmpty) {
                                   return activityDetailEmpty(context);
@@ -386,13 +383,17 @@ class _AddActivityFormState extends State<AddActivityForm> {
                               if (_actDescCtrl.text.isEmpty ||
                                   _actNameCtrl.text.isEmpty ||
                                   formProv.isCategoryEmpty) {
-                                return formNotFilledDisable(context);
+                                return formDisable(context,
+                                    "Fill The Above Form To Perform This Action");
                               } else {
                                 if (formProv.actDetails.isEmpty) {
                                   return activityDetailEmpty(context);
                                 }
 
                                 reorderActivityDetailsUrutan();
+                                if (formProv.isFetchingData) {
+                                  return formDisable(context, "Loading");
+                                }
 
                                 if (isEditing) {
                                   if (deletedActDetailIds.isNotEmpty) {
@@ -452,7 +453,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
-                            return formNotFilledDisable(context);
+                            return formDisable(context,
+                                "Fill The Above Form To Perform This Action");
                           }
                         : () async {
                             return showDialog(
@@ -474,7 +476,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
-                            return formNotFilledDisable(context);
+                            return formDisable(context,
+                                "Fill The Above Form To Perform This Action");
                           }
                         : () async {
                             return showDialog(
@@ -496,7 +499,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
-                            return formNotFilledDisable(context);
+                            return formDisable(context,
+                                "Fill The Above Form To Perform This Action");
                           }
                         : () async {
                             return showDialog(
@@ -520,7 +524,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
-                            return formNotFilledDisable(context);
+                            return formDisable(context,
+                                "Fill The Above Form To Perform This Action");
                           }
                         : () async {
                             return showDialog(
@@ -544,7 +549,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
-                            return formNotFilledDisable(context);
+                            return formDisable(context,
+                                "Fill The Above Form To Perform This Action");
                           }
                         : () async {
                             return showDialog(
@@ -568,7 +574,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             _actNameCtrl.text.isEmpty ||
                             formProv.isCategoryEmpty)
                         ? () async {
-                            return formNotFilledDisable(context);
+                            return formDisable(context,
+                                "Fill The Above Form To Perform This Action");
                           }
                         : () async {
                             return showDialog(
@@ -720,13 +727,11 @@ class _AddActivityFormState extends State<AddActivityForm> {
     }
   }
 
-  Future<void> formNotFilledDisable(BuildContext context) {
+  Future<void> formDisable(BuildContext context, String message) {
     return showDialog(
         context: context,
         builder: (context) {
-          return ErrorAlertDialog(
-              title: "Disable",
-              error: "Fill The Above Form To Perform This Action");
+          return ErrorAlertDialog(title: "Disable", error: message);
         });
   }
 

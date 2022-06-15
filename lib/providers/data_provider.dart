@@ -158,7 +158,6 @@ class DataProvider extends ChangeNotifier {
 
   // Change Password
   Future<void> changePassword(String curPass, String newPass) async {
-
     var token = jwt['token'];
     var email = jwt['email'];
     // getAuthInfo();
@@ -181,7 +180,7 @@ class DataProvider extends ChangeNotifier {
             "new_password": newPass,
           }));
 
-          if (result.statusCode == 404) {
+      if (result.statusCode == 404) {
         throw "Not Found";
       }
 
@@ -197,9 +196,8 @@ class DataProvider extends ChangeNotifier {
       rethrow;
     }
   }
-  
-  Future<void> changePasswordUser(String email, String newPass) async {
 
+  Future<void> changePasswordUser(String email, String newPass) async {
     var token = jwt['token'];
     // getAuthInfo();
     String apiURL = "$BASE_URL/api/EditPasswordUserByAdmin/";
@@ -220,7 +218,7 @@ class DataProvider extends ChangeNotifier {
             "new_password": newPass,
           }));
 
-          if (result.statusCode == 404) {
+      if (result.statusCode == 404) {
         throw "Not Found";
       }
 
@@ -236,9 +234,8 @@ class DataProvider extends ChangeNotifier {
       rethrow;
     }
   }
-  
-  Future<void> changePasswordAdmin(String email, String newPass) async {
 
+  Future<void> changePasswordAdmin(String email, String newPass) async {
     var token = jwt['token'];
     // getAuthInfo();
     String apiURL = "$BASE_URL/api/EditPasswordAdminByAdmin/edit-password";
@@ -259,7 +256,7 @@ class DataProvider extends ChangeNotifier {
             "new_password": newPass,
           }));
 
-          if (result.statusCode == 404) {
+      if (result.statusCode == 404) {
         throw "Not Found";
       }
 
@@ -275,7 +272,7 @@ class DataProvider extends ChangeNotifier {
       rethrow;
     }
   }
-  
+
   // =======
 
   List<String> getColumnNames(Map<String, dynamic> data) {
@@ -345,6 +342,10 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseRoles, result.body);
     } catch (e) {
       rethrow;
@@ -383,6 +384,10 @@ class DataProvider extends ChangeNotifier {
       }
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
       }
       return compute(parseRoles, result.body);
     } catch (e) {
@@ -453,6 +458,10 @@ class DataProvider extends ChangeNotifier {
       }
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
       }
       return compute(parseJobtitles, result.body);
     } catch (e) {
@@ -599,6 +608,7 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
+
       return compute(parseUser, result.body);
     } catch (e) {
       rethrow;
@@ -636,6 +646,10 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -666,6 +680,10 @@ class DataProvider extends ChangeNotifier {
       }
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
       }
       return compute(parseUsers, result.body);
     } catch (e) {
@@ -862,6 +880,7 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
+
       return compute(parseAdmin, result.body);
     } catch (e) {
       rethrow;
@@ -898,6 +917,10 @@ class DataProvider extends ChangeNotifier {
       }
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
       }
       return compute(parseAdmins, result.body);
     } catch (e) {
@@ -1123,6 +1146,10 @@ class DataProvider extends ChangeNotifier {
       if (result.statusCode == 502 || result.statusCode == 500) {
         throw "Server Down";
       }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseActivityCategories, result.body);
     } catch (e) {
       rethrow;
@@ -1321,6 +1348,11 @@ class DataProvider extends ChangeNotifier {
         throw "Server Down";
       }
 
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
+
       return compute(parseActivities, result.body);
     } catch (e) {
       rethrow;
@@ -1505,6 +1537,7 @@ class DataProvider extends ChangeNotifier {
       }
 
       if (result.body == '[]') {
+        colnames = List<String>.empty();
         return [];
       }
 
@@ -1536,6 +1569,7 @@ class DataProvider extends ChangeNotifier {
   Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
     var token = jwt['token'];
     var url = Uri.parse("$BASE_URL/api/ActivityDetail");
+    print(activity_id);
 
     try {
       var request = http.MultipartRequest('POST', url);
@@ -1703,6 +1737,7 @@ class DataProvider extends ChangeNotifier {
       }
 
       if (result.body == '[]') {
+        colnames = List<String>.empty();
         return [];
       }
 
@@ -1749,6 +1784,7 @@ class DataProvider extends ChangeNotifier {
       }
 
       if (result.body == '[]') {
+        colnames = List<String>.empty();
         return [];
       }
 
@@ -1792,6 +1828,37 @@ class DataProvider extends ChangeNotifier {
       }
 
       // return compute(parseActivityDetails, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editUserAssignedAct(String email, int assignedAct) async {
+    String url = "$BASE_URL/api/User/assignedActivities";
+
+    var token = jwt['token'];
+
+    try {
+      var x = token;
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body:
+              jsonEncode({"email": email, "assignedActivities": assignedAct}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
     } catch (e) {
       rethrow;
     }

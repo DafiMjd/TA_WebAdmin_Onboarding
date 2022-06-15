@@ -100,7 +100,7 @@ class MyData extends AdvancedDataTableSource {
   final MenuProvider menuProv;
   final AssignActivityProvider assignProv;
   final BuildContext context;
-  List<String>? selectedEmail = [];
+  List<User>? selectedUsers = [];
 
   MyData(
       {required this.datas,
@@ -110,7 +110,7 @@ class MyData extends AdvancedDataTableSource {
       required this.menuProv,
       required this.context,
       required this.assignProv,
-      this.selectedEmail});
+      this.selectedUsers});
 
   @override
   bool get isRowCountApproximate => false;
@@ -126,11 +126,11 @@ class MyData extends AdvancedDataTableSource {
           Tooltip(
             message: "Select",
             child: CheckboxAction(press: () {
-              assignProv.selectedEmail.contains(currentRowData.getData('email'))
-                  ? assignProv.selectedEmail
-                      .remove(currentRowData.getData('email'))
-                  : assignProv.selectedEmail
-                      .add(currentRowData.getData('email'));
+              assignProv.selectedUsers.contains(currentRowData)
+                  ? assignProv.selectedUsers
+                      .remove(currentRowData)
+                  : assignProv.selectedUsers
+                      .add(currentRowData);
             }),
           ),
         ];
@@ -236,16 +236,16 @@ class MyData extends AdvancedDataTableSource {
         ];
 
     getActivityActions() => [
-          Tooltip(
-              message: "Preview",
-              child: IconButton(
-                  onPressed: (() {
-                    _action(index, "detail");
-                  }),
-                  icon: const Icon(Icons.remove_red_eye_sharp))),
-          const SizedBox(
-            width: 5,
-          ),
+          // Tooltip(
+          //     message: "Preview",
+          //     child: IconButton(
+          //         onPressed: (() {
+          //           _action(index, "detail");
+          //         }),
+          //         icon: const Icon(Icons.remove_red_eye_sharp))),
+          // const SizedBox(
+          //   width: 5,
+          // ),
           Tooltip(
               message: "Edit",
               child: IconButton(
@@ -709,8 +709,8 @@ class MyData extends AdvancedDataTableSource {
   Future<RemoteDataSourceDetails> getNextPage(
       NextPageRequest pageRequest) async {
     var x = datas.skip(pageRequest.offset).take(pageRequest.pageSize).toList();
-    if (assignProv.selectedEmail.isNotEmpty) {
-      assignProv.selectedEmail.clear();
+    if (assignProv.selectedUsers.isNotEmpty) {
+      assignProv.selectedUsers.clear();
     }
     return RemoteDataSourceDetails(datas.length, x);
   }

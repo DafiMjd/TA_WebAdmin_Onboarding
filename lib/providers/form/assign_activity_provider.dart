@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:webadmin_onboarding/models/user.dart';
 
 class AssignActivityProvider extends ChangeNotifier {
 
-  List<String> _selectedEmail = [];
-  List<String> get selectedEmail => _selectedEmail;
-  set selectedEmail(val) {
-    _selectedEmail = val;
+  List<User> _selectedUsers = [];
+  List<User> get selectedUsers => _selectedUsers;
+  set selectedUsers(val) {
+    _selectedUsers = val;
     notifyListeners();
   }
 

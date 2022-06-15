@@ -17,7 +17,7 @@ class AuthProvider with ChangeNotifier {
   late bool _isAuth = false;
   void _setIsAuth(bool val) {
     _isAuth = val;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void logout() {

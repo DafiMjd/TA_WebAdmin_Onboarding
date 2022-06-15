@@ -8,7 +8,7 @@ const DEFAULT_PADDING = 16.0;
 // caption in text theme is theme for text in menu
 // bodytext2 in text theme is theme for text in dashboard
 
-const BASE_URL = "https://84ca-114-122-74-247.ngrok.io";
+const BASE_URL = "https://a8c6-103-100-135-183.ngrok.io";
 
 final List<Menu> MENU_SUPER_ADMIN = [
   Menu(
@@ -16,7 +16,7 @@ final List<Menu> MENU_SUPER_ADMIN = [
       title: "Manage User",
       icon: Icons.account_circle,
       submenu: [
-        Menu(id: "user_list", title: "User List"),
+        Menu(id: "user_list", title: "User Mobile List"),
         Menu(id: "admin_list", title: "Admin List"),
         Menu(id: "role_list", title: "Role List"),
         Menu(id: "jobtitle_list", title: "Jobtitle List"),
@@ -39,7 +39,7 @@ final List<Menu> MENU_ADMIN = [
       title: "Manage User",
       icon: Icons.account_circle,
       submenu: [
-        Menu(id: "user_list", title: "User List"),
+        Menu(id: "user_list", title: "User Mobile List"),
         Menu(id: "role_list", title: "Role List"),
         Menu(id: "jobtitle_list", title: "Jobtitle List"),
       ]),
