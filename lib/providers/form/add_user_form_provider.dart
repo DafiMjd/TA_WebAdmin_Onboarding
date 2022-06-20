@@ -17,6 +17,8 @@ class AddUserFormProvider extends ChangeNotifier {
   bool _isGenderFieldEmpty = true;
   bool _isRoleFieldEmpty = true;
   bool _isJobtitleFieldEmpty = true;
+  bool _isPasswordValid = true;
+  String _pwValidation = '';
 
   bool get isEmailFieldEmpty => _isEmailFieldEmpty;
   bool get isPwFieldEmpty => _isPwFieldEmpty;
@@ -25,6 +27,8 @@ class AddUserFormProvider extends ChangeNotifier {
   bool get isGenderFieldEmpty => _isGenderFieldEmpty;
   bool get isRoleFieldEmpty => _isRoleFieldEmpty;
   bool get isJobtitleFieldEmpty => _isJobtitleFieldEmpty;
+  bool get isPasswordValid => _isPasswordValid;
+  String get pwValidation => _pwValidation;
 
   set isEmailFieldEmpty(bool val) {
     _isEmailFieldEmpty = val;
@@ -52,6 +56,14 @@ class AddUserFormProvider extends ChangeNotifier {
   }
   set isJobtitleFieldEmpty(bool val) {
     _isJobtitleFieldEmpty = val;
+    notifyListeners();
+  }
+  set isPasswordValid(bool val) {
+    _isPasswordValid = val;
+    notifyListeners();
+  }
+  set pwValidation(String val) {
+    _pwValidation = val;
     notifyListeners();
   }
   // ==========================

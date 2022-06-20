@@ -66,11 +66,12 @@ class MyTable2 extends StatelessWidget {
   }
 
   List<DataColumn> getDataColumns() {
-    List<DataColumn> columns = [const DataColumn(label: Text("Action"))];
+    List<DataColumn> columns = [];
     for (int i = 0; i < colnames.length; i++) {
       columns.add(
           DataColumn(label: Text(ColumnNameParse.parseColName(colnames[i]))));
     }
+    columns.add(DataColumn(label: Text("Action")));
     return columns;
   }
 
@@ -127,10 +128,8 @@ class MyData extends AdvancedDataTableSource {
             message: "Select",
             child: CheckboxAction(press: () {
               assignProv.selectedUsers.contains(currentRowData)
-                  ? assignProv.selectedUsers
-                      .remove(currentRowData)
-                  : assignProv.selectedUsers
-                      .add(currentRowData);
+                  ? assignProv.selectedUsers.remove(currentRowData)
+                  : assignProv.selectedUsers.add(currentRowData);
             }),
           ),
         ];
@@ -222,17 +221,17 @@ class MyData extends AdvancedDataTableSource {
           const SizedBox(
             width: 5,
           ),
-          Tooltip(
-              message: "Edit",
-              child: IconButton(
-                onPressed: () {
-                  _action(index, "edit");
-                },
-                icon: const Icon(Icons.edit),
-              )),
-          const SizedBox(
-            width: 5,
-          ),
+          // Tooltip(
+          //     message: "Edit",
+          //     child: IconButton(
+          //       onPressed: () {
+          //         _action(index, "edit");
+          //       },
+          //       icon: const Icon(Icons.edit),
+          //     )),
+          // const SizedBox(
+          //   width: 5,
+          // ),
         ];
 
     getActivityActions() => [
@@ -459,6 +458,8 @@ class MyData extends AdvancedDataTableSource {
                   icon: const Icon(Icons.delete))),
         ];
 
+    getNoAction() => [Text("No Action")];
+
     getActions(menuId) {
       if (menuId == 'user_list' || menuId == 'admin_list') {
         return getUserActions();
@@ -489,15 +490,13 @@ class MyData extends AdvancedDataTableSource {
           return TABLE_ODD; // Use default value for other states and odd rows.
         }),
         cells: [
+          for (int i = 0; i < colnames.length; i++)
+            DataCell(Text(currentRowData.getData(colnames[i]).toString())),
           DataCell(Row(
             children: getActions(menuId),
           )),
-          for (int i = 0; i < colnames.length; i++)
-            DataCell(Text(currentRowData.getData(colnames[i]).toString())),
         ]);
   }
-
-  getNoAction() => [Text("No Action")];
 
   Future<void> _editActiveUser(index) async {
     menuProv.isFetchingData = true;
@@ -650,9 +649,7 @@ class MyData extends AdvancedDataTableSource {
       } else if (menuId == 'user_list' || menuId == 'admin_list') {
         menuProv.setDashboardContent(
             "form", null, null, null, menuProv.menuId, action, datas[index]);
-
-      }
-      else {
+      } else {
         menuProv.setDashboardContent(
             "form", null, null, null, menuProv.menuId, action, datas[index]);
       }

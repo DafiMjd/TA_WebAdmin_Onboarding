@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
+import 'package:webadmin_onboarding/providers/base_provider.dart';
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_admin_form_provider.dart';
@@ -26,14 +27,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
-        ChangeNotifierProxyProvider<AuthProvider, MenuProvider>(
-            create: (context) => MenuProvider(),
-            update: (context, authProv, menuProv) {
-              if (menuProv != null) {
-                return menuProv..receiveJWT(authProv.jwtDecoded);
-              }
-              return MenuProvider();
-            }),
+        ChangeNotifierProvider(create: (context) => MenuProvider()),
         ChangeNotifierProxyProvider<AuthProvider, DataProvider>(
             create: (context) => DataProvider(),
             update: (context, authProv, dataProv) {
@@ -41,6 +35,14 @@ class MyApp extends StatelessWidget {
                 return dataProv..receiveJWT(authProv.jwtDecoded);
               }
               return DataProvider();
+            }),
+        ChangeNotifierProxyProvider<AuthProvider, BaseProvider>(
+            create: (context) => BaseProvider(),
+            update: (context, authProv, baseProv) {
+              if (baseProv != null) {
+                return baseProv..receiveJWT(authProv.jwtDecoded);
+              }
+              return BaseProvider();
             }),
         ChangeNotifierProvider(create: (context) => AddUserFormProvider()),
         ChangeNotifierProvider(create: (context) => AddAdminFormProvider()),

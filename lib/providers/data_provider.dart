@@ -9,26 +9,13 @@ import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
+import 'package:webadmin_onboarding/providers/base_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DataProvider extends ChangeNotifier {
-  bool _isFetchingData = false;
-  get isFetchingData => _isFetchingData;
-  set isFetchingData(val) {
-    _isFetchingData = val;
-    notifyListeners();
-  }
-
-  late Map<String, dynamic> _jwt;
-  get jwt => _jwt;
-
-  void receiveJWT(jwt) {
-    _jwt = jwt;
-    notifyListeners();
-  }
+class DataProvider extends BaseProvider {
 
   late List<dynamic> _data;
   get data => _data;
@@ -158,6 +145,11 @@ class DataProvider extends ChangeNotifier {
 
   // Change Password
   Future<void> changePassword(String curPass, String newPass) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     var email = jwt['email'];
     // getAuthInfo();
@@ -198,6 +190,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> changePasswordUser(String email, String newPass) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     // getAuthInfo();
     String apiURL = "$BASE_URL/api/EditPasswordUserByAdmin/";
@@ -236,6 +233,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> changePasswordAdmin(String email, String newPass) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     // getAuthInfo();
     String apiURL = "$BASE_URL/api/EditPasswordAdminByAdmin/edit-password";
@@ -281,6 +283,11 @@ class DataProvider extends ChangeNotifier {
 
   // Roles request
   Future<Role> fetchRoleByID(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Roles/$id";
@@ -318,6 +325,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Role>> fetchRoles() async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Roles";
@@ -361,6 +373,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Role>> fetchRolesByPlatform(String platform) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Roles/$platform";
@@ -398,6 +415,11 @@ class DataProvider extends ChangeNotifier {
 
   // Jobtitles request
   Future<Jobtitle> fetchJobtitleByID(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle/$id";
@@ -435,6 +457,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Jobtitle>> fetchJobtitles() async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle";
@@ -478,6 +505,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Jobtitle>> deleteJobtitle(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle/$id";
@@ -511,6 +543,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Jobtitle>> createJobtitle(
       String jobtitle_name, String jobtitle_description) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     String url = "$BASE_URL/api/Jobtitle";
 
@@ -546,6 +583,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Jobtitle>> editJobtitle(
       int id, String jobtitle_name, String jobtitle_description) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle";
@@ -584,6 +626,11 @@ class DataProvider extends ChangeNotifier {
 
   // Users request
   Future<User> fetchUserByEmail(int email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User/$email";
@@ -622,6 +669,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<User>> fetchUsers() async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User";
@@ -657,6 +709,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<User>> fetchUsersByRole(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/UsersByRole/$id";
@@ -701,6 +758,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<User>> registerUser(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     var url = Uri.parse("$BASE_URL/api/Auth/register-user");
@@ -745,6 +807,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<User>> deleteUser(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User/$email";
@@ -776,9 +843,49 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<User>> editUserActive(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User/active";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      return deleteUserToken(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> deleteUserToken(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/deleteToken";
 
     try {
       var result = await http.put(Uri.parse(url),
@@ -803,7 +910,8 @@ class DataProvider extends ChangeNotifier {
     } catch (e) {
       rethrow;
     }
-  }
+
+  } 
 
   Future<List<User>> editUser(
       String email,
@@ -856,6 +964,11 @@ class DataProvider extends ChangeNotifier {
 
   // Admin request
   Future<Admin> fetchAdminByEmail(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin/$email";
@@ -894,6 +1007,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Admin>> fetchAdmins() async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin";
@@ -938,6 +1056,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Admin>> registerAdmin(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     var url = Uri.parse("$BASE_URL/api/Auth/register-admin");
 
@@ -980,6 +1103,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Admin>> deleteAdmin(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin/$email";
@@ -1012,6 +1140,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Admin>> editAdmin(String email, String name, String phone,
       String gender, int role_id, int jobtitle_id, String birthdate) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin";
@@ -1052,9 +1185,49 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Admin>> editAdminActive(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin/active";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      return deleteAdminToken(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Admin>> deleteAdminToken(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/deleteToken";
 
     try {
       var result = await http.put(Uri.parse(url),
@@ -1079,12 +1252,18 @@ class DataProvider extends ChangeNotifier {
     } catch (e) {
       rethrow;
     }
+
   }
 
   // =================
 
   // ActivityCategory request
   Future<ActivityCategory> fetchActivityCategoryById(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory/$id";
@@ -1122,6 +1301,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> fetchActivityCategories() async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory";
@@ -1167,7 +1351,12 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> createActivityCategory(
-      String category_name, String category_description, int duration) async {
+      String category_name, String category_description) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     String url = "$BASE_URL/api/ActivityCategory";
 
@@ -1185,7 +1374,6 @@ class DataProvider extends ChangeNotifier {
           body: jsonEncode({
             "category_name": category_name,
             "category_description": category_description,
-            "duration": duration
           }));
 
       if (result.statusCode == 400) {
@@ -1202,6 +1390,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> deleteActivityCategory(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory/$id";
@@ -1234,7 +1427,12 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> editActivityCategory(int id,
-      String category_name, String category_description, int duration) async {
+      String category_name, String category_description) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory";
@@ -1254,7 +1452,6 @@ class DataProvider extends ChangeNotifier {
             "id": id,
             "category_name": category_name,
             "category_description": category_description,
-            "duration": duration
           }));
 
       if (result.statusCode == 400) {
@@ -1281,6 +1478,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<Activity> fetchActivityById(String id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Activities/$id";
@@ -1322,6 +1524,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Activity>> fetchActivities(String type) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivitiesByType/$type";
@@ -1360,6 +1567,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Activity>> createActivity(Activity activity) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     var url = Uri.parse("$BASE_URL/api/Activities");
@@ -1399,6 +1611,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Activity>> deleteActivity(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Activities/$id";
@@ -1432,6 +1649,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Activity>> deleteHomeActivity(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivitiesDelete/$id";
@@ -1465,6 +1687,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Activity>> editActivity(Activity activity) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     var url = Uri.parse("$BASE_URL/api/Activities");
@@ -1509,6 +1736,11 @@ class DataProvider extends ChangeNotifier {
   // Activity Detail Request
   Future<List<ActivityDetail>> fetchDetailByActivityId(
       Activity activity) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     var id = activity.id;
 
@@ -1567,6 +1799,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     var url = Uri.parse("$BASE_URL/api/ActivityDetail");
     print(activity_id);
@@ -1605,6 +1842,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> editActivityDetail(ActivityDetail detail) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     var url = Uri.parse("$BASE_URL/api/ActivityDetail");
 
@@ -1649,6 +1891,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> deleteActivityDetail(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityDetail/$id";
@@ -1678,6 +1925,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> deleteActivityDetailByActivityId(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityDetailByActivity/$id";
@@ -1710,6 +1962,11 @@ class DataProvider extends ChangeNotifier {
 
   // Activity Owned Request
   Future<List<ActivityOwned>> fetchActivityOwnedByEmail(String email) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivitiesOwned/$email";
@@ -1757,6 +2014,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityOwned>> fetchActivityOwnedByActivity(int id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivitiesOwnedByActivity/$id";
@@ -1796,6 +2058,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<void> assignActivity(String email, int activity_id, String start_date,
       String end_date, int category_id) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     var token = jwt['token'];
     String url = "$BASE_URL/api/ActivitiesOwned";
 
@@ -1834,6 +2101,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> editUserAssignedAct(String email, int assignedAct) async {
+    bool tokenValid = await checkToken();
+    if (!tokenValid) {
+      logout();
+      throw 'you have been logged out';
+    }
     String url = "$BASE_URL/api/User/assignedActivities";
 
     var token = jwt['token'];

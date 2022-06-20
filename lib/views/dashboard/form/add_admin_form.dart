@@ -51,6 +51,8 @@ class _AddAdminFormState extends State<AddAdminForm> {
     dataProv = Provider.of<DataProvider>(context, listen: false);
     formProv = Provider.of<AddAdminFormProvider>(context, listen: false);
 
+    formProv.isSaveButtonDisabled = false;
+
     if (widget.admin == null) {
       // means adding
       _emailCtrl = TextEditingController();
@@ -155,6 +157,7 @@ class _AddAdminFormState extends State<AddAdminForm> {
 
       formProv.isSaveButtonDisabled = false;
     }
+
     void _editAdmin(String email, String name, String phone, String gender,
         int role_id, int jobtitle_id) async {
       formProv.isSaveButtonDisabled = true;
@@ -196,7 +199,6 @@ class _AddAdminFormState extends State<AddAdminForm> {
       formProv.isSaveButtonDisabled = false;
     }
 
-
     return Scrollbar(
       controller: scrollbarController,
       thumbVisibility: true,
@@ -205,8 +207,11 @@ class _AddAdminFormState extends State<AddAdminForm> {
         child: Card(
           elevation: 5,
           child: Container(
-              padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-                  DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+              padding: const EdgeInsets.fromLTRB(
+                  DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3,
+                  DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3),
               width: MediaQuery.of(context).size.width * 0.6,
               child: Column(
                 children: [
@@ -219,17 +224,18 @@ class _AddAdminFormState extends State<AddAdminForm> {
                   titleField("Email", formProv.isEmailFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
-                  inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(200),
-                  ],
-                      onChanged: (value) =>
-                          formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
+                      inputFormatters: <TextInputFormatter>[
+                        LengthLimitingTextInputFormatter(200),
+                      ],
+                      onChanged: (value) {
+                        formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty;
+                      },
                       controller: _emailCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
                   Space.space(),
-    
+
                   // password
                   Visibility(
                       visible: widget.admin == null,
@@ -239,75 +245,92 @@ class _AddAdminFormState extends State<AddAdminForm> {
                   Visibility(
                     visible: widget.admin == null,
                     child: TextFormField(
-                  inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(200),
-                  ],
+                        inputFormatters: <TextInputFormatter>[
+                          LengthLimitingTextInputFormatter(30),
+                        ],
                         obscureText: true,
-                        onChanged: (value) =>
-                            formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
+                        onChanged: (value) {
+                          formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty;
+                          validatePw(value);
+                        },
                         controller: _pwCtrl,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         )),
                   ),
-                  Visibility(visible: widget.admin == null, child: Space.space()),
-    
+                  Visibility(
+                      visible: widget.admin == null, child: Space.space()),
+                  Visibility(
+                      visible: widget.admin == null,
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          formProv.pwValidation,
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red[400]),
+                        ),
+                      )),
+                  Visibility(
+                      visible: widget.admin == null, child: Space.space()),
+
                   // name
                   titleField("Name", formProv.isNameFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
-                  inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(100),
-                  ],
+                      inputFormatters: <TextInputFormatter>[
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       onChanged: (value) =>
                           formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
                       controller: _nameCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
-    
-                   Space.space(),
+
+                  Space.space(),
                   // phone number
                   titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
-                  inputFormatters: <TextInputFormatter>[
+                      inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    LengthLimitingTextInputFormatter(15),
-                  ],
+                        LengthLimitingTextInputFormatter(15),
+                      ],
                       onChanged: (value) => formProv.isPhoneNumFieldEmpty =
                           _phoneNumCtrl.text.isEmpty,
                       controller: _phoneNumCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
-                   Space.space(),
+                  Space.space(),
                   // Gender
                   titleField("Gender", formProv.isGenderFieldEmpty),
                   Space.halfSpace(),
-    
+
                   _genderDropdown(widget.admin == null),
-    
-                   Space.space(),
+
+                  Space.space(),
                   // Role
                   titleField("Role", formProv.isRoleFieldEmpty),
                   Space.halfSpace(),
                   (formProv.isFetchingData)
                       ? const CircularProgressIndicator()
                       : _roleDropdown(widget.admin == null),
-    
-                   Space.space(),
+
+                  Space.space(),
                   // Jobtitle
                   titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
                   Space.halfSpace(),
                   (formProv.isFetchingData)
                       ? const CircularProgressIndicator()
                       : _jobtitleDropdown(widget.admin == null),
-    
+
                   Space.doubleSpace(),
-    
+
                   Space.doubleSpace(),
-    
+
                   // save button
                   ElevatedButton(
                     onPressed: (formProv.isSaveButtonDisabled)
@@ -320,14 +343,17 @@ class _AddAdminFormState extends State<AddAdminForm> {
                                 !formProv.isRoleFieldEmpty &&
                                 !formProv.isJobtitleFieldEmpty) {
                               if (widget.admin == null) {
-                                _addAdmin(
-                                    _emailCtrl.text,
-                                    _pwCtrl.text,
-                                    _nameCtrl.text,
-                                    _phoneNumCtrl.text,
-                                    _selectedGenderVal,
-                                    int.parse(_selectedRoleId),
-                                    int.parse(_selectedJobtitleId));
+                                if (formProv.isPasswordValid &&
+                                    _pwCtrl.text.isNotEmpty) {
+                                  _addAdmin(
+                                      _emailCtrl.text,
+                                      _pwCtrl.text,
+                                      _nameCtrl.text,
+                                      _phoneNumCtrl.text,
+                                      _selectedGenderVal,
+                                      int.parse(_selectedRoleId),
+                                      int.parse(_selectedJobtitleId));
+                                }
                               } else {
                                 _editAdmin(
                                     _emailCtrl.text,
@@ -354,7 +380,37 @@ class _AddAdminFormState extends State<AddAdminForm> {
     );
   }
 
-  
+  validatePw(String pw) {
+    formProv.pwValidation = '';
+    StringBuffer pwValidation = new StringBuffer();
+    // RegExp regex =
+    //     RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    RegExp regexpCapital = RegExp(r'^(?=.*?[A-Z])');
+    RegExp regexpLower = RegExp(r'^(?=.*?[a-z])');
+    RegExp regexpNumber = RegExp(r'(?=.*?[0-9])');
+    if (pw.length < 8) {
+      pwValidation.write('Min 8 chars* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpCapital.hasMatch(pw)) {
+      pwValidation.write('Min 1 uppercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpLower.hasMatch(pw)) {
+      pwValidation.write('Min 1 lowercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpNumber.hasMatch(pw)) {
+      pwValidation.write('Min 1 number* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+
+    if (pwValidation.isEmpty) {
+      formProv.isPasswordValid = true;
+    } else {
+      formProv.isPasswordValid = false;
+    }
+  }
 
   Container titleField(title, isEmpty) => Container(
       alignment: Alignment.centerLeft,

@@ -10,7 +10,8 @@ import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class AddFileDetailForm extends StatefulWidget {
-  const AddFileDetailForm({Key? key, this.detail, required this.type}) : super(key: key);
+  const AddFileDetailForm({Key? key, this.detail, required this.type})
+      : super(key: key);
   @override
   _AddFileDetailFormState createState() => _AddFileDetailFormState();
 
@@ -23,6 +24,8 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
   PlatformFile? _file;
 
   bool _isLoading = false;
+
+  String error = '';
 
   late AddActivityFormProvider formProv;
 
@@ -110,6 +113,11 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
                   "Cancel",
                 ),
               ),
+              Space.space(),
+              Text(error,
+                  style: TextStyle(
+                    color: Colors.red,
+                  )),
             ],
           ),
         ),
@@ -118,7 +126,6 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
   }
 
   addActivityDetail() {
-
     final newIndex = formProv.actDetails.length;
 
     final item = ActivityDetail(
@@ -143,19 +150,22 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
 
   void _pickFiles(String type) async {
     late List<String> ext;
+    late double maxSize;
     switch (type) {
       case 'image':
         ext = ['png', 'jpg', 'jpeg'];
+        maxSize = 5;
         break;
       case 'video':
         ext = ['mp4'];
+        maxSize = 20;
         break;
       case 'document':
         ext = ['pdf'];
+        maxSize = 5;
         break;
       default:
         ext = ['pdf'];
-
         break;
     }
     _resetState();
@@ -167,7 +177,13 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
           allowedExtensions: ext);
 
       if (_res != null) {
-        _file = _res.files.first;
+        double sizeInMb = _res.files.first.size / (1024 * 1024);
+        if (sizeInMb > maxSize) {
+          error = 'Invalid Size';
+        } else {
+          error = '';
+          _file = _res.files.first;
+        }
       }
     } on PlatformException catch (e) {
       _logException('Unsupported operation' + e.toString());
@@ -196,6 +212,7 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
   }
 
   void _resetState() {
+    error = '';
     if (!mounted) {
       return;
     }
@@ -208,17 +225,17 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
   getExtField(type) {
     if (type == 'pdf') {
       return Text(
-        "(ext: pdf)",
+        "(ext: pdf | size: <= 5mb)",
         style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
       );
     } else if (type == 'image') {
       return Text(
-        "(ext: jpg/png)",
+        "(ext: jpg/png | size: <= 5mb)",
         style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
       );
     } else if (type == 'video') {
       return Text(
-        "(ext: png/jpg | size: <200mb)",
+        "(ext: png/jpg | size: <= 20mb)",
         style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
       );
     }

@@ -26,14 +26,6 @@ class MenuProvider extends ChangeNotifier {
     }
   }
 
-  late Map<String, dynamic> _jwt;
-  get jwt => _jwt;
-
-  void receiveJWT(jwt) {
-    _jwt = jwt;
-    notifyListeners();
-  }
-
   late List<User> _users;
   late List<Admin> _admins;
   late List<Role> _roles;
@@ -176,7 +168,6 @@ class MenuProvider extends ChangeNotifier {
         dashboardContent = SizedBox(
             width: 100, height: 100, child: const CircularProgressIndicator());
       } else {
-        print('sini1');
         dashboardContent = getForm(menuId, actionForm, dataForm);
       }
     }
@@ -206,7 +197,6 @@ class MenuProvider extends ChangeNotifier {
   }
 
   Widget getForm(id, action, dynamic data) {
-    print('sini3');
     if (action == "add") {
       if (id == "user_list") {
         return const AddUserForm();

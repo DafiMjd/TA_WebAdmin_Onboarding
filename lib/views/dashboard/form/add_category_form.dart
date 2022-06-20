@@ -29,7 +29,6 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
 
   late final TextEditingController _catNameCtrl;
   late final TextEditingController _catDescCtrl;
-  late final TextEditingController _durationCtrl;
 
   ScrollController scrollbarController = ScrollController();
 
@@ -44,12 +43,10 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       // means adding
       _catNameCtrl = TextEditingController();
       _catDescCtrl = TextEditingController();
-      _durationCtrl = TextEditingController();
 
 
       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
     } else {
       // means editing
       _catNameCtrl =
@@ -59,10 +56,6 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       _catDescCtrl =
           TextEditingController(text: widget.category!.category_description);
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-
-      _durationCtrl =
-          TextEditingController(text: widget.category!.duration.toString());
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
     }
   }
 
@@ -73,12 +66,12 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
     formProv = context.watch<AddCategoryFormProvider>();
 
     void _addCategory(
-        String category_name, String category_description, int duration) async {
+        String category_name, String category_description) async {
       formProv.isSaveButtonDisabled = true;
 
       try {
         var data = await dataProv.createActivityCategory(
-            category_name, category_description, duration);
+            category_name, category_description);
         List<String> colnames = dataProv.colnames;
 
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
@@ -95,21 +88,19 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
 
       _catDescCtrl.text = "";
       _catNameCtrl.text = "";
-      _durationCtrl.text = "";
       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
 
       formProv.isSaveButtonDisabled = false;
     }
 
     void _editCategory(int id, String category_name,
-        String category_description, int duration) async {
+        String category_description) async {
       formProv.isSaveButtonDisabled = true;
 
       try {
         var data = await dataProv.editActivityCategory(
-            id, category_name, category_description, duration);
+            id, category_name, category_description);
         List<String> colnames = dataProv.colnames;
 
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
@@ -126,10 +117,8 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       }
       _catDescCtrl.text = "";
       _catNameCtrl.text = "";
-      _durationCtrl.text = "";
       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
 
       formProv.isSaveButtonDisabled = false;
     }
@@ -181,24 +170,6 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                         border: OutlineInputBorder(),
                       )),
                    Space.space(),
-      
-                  // Duration
-                  titleField("Duration in Days", formProv.isDurationEmpty),
-                  Space.doubleSpace(),
-                  TextFormField(
-                      onChanged: (value) =>
-                          formProv.isDurationEmpty = _durationCtrl.text.isEmpty,
-                      controller: _durationCtrl,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    LengthLimitingTextInputFormatter(10),
-                      ],
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      )),
-                   Space.space(),
-      
                   // save button
                   ElevatedButton(
                     onPressed: (formProv.isSaveButtonDisabled)
@@ -206,24 +177,20 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
                         : () {
                             if (_catNameCtrl.text.isNotEmpty &&
                                 _catDescCtrl.text.isNotEmpty &&
-                                _durationCtrl.text.isNotEmpty &&
                                 !formProv.isCategoryNameEmpty &&
-                                !formProv.isCategoryDescEmpty &&
-                                !formProv.isDurationEmpty) {
+                                !formProv.isCategoryDescEmpty) {
                               if (widget.category == null) {
                                 // means adding
                                 _addCategory(
                                   _catNameCtrl.text,
                                   _catDescCtrl.text,
-                                  int.parse(_durationCtrl.text),
                                 );
                               } else {
                                 // means editing
                                 _editCategory(
                                     widget.category!.id,
                                   _catNameCtrl.text,
-                                  _catDescCtrl.text,
-                                  int.parse(_durationCtrl.text),);
+                                  _catDescCtrl.text);
                               }
                             }
                           },

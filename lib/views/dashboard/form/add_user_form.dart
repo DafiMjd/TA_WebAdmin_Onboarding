@@ -41,9 +41,8 @@ class _AddUserFormState extends State<AddUserForm> {
   late final TextEditingController _pwCtrl;
   late final TextEditingController _nameCtrl;
   late final TextEditingController _phoneNumCtrl;
-  
-  ScrollController scrollbarController = ScrollController();
 
+  ScrollController scrollbarController = ScrollController();
 
   @override
   void initState() {
@@ -51,6 +50,8 @@ class _AddUserFormState extends State<AddUserForm> {
     dataProv = Provider.of<DataProvider>(context, listen: false);
     formProv = Provider.of<AddUserFormProvider>(context, listen: false);
     _loadDropDownData();
+
+    formProv.isSaveButtonDisabled = false;
 
     if (widget.user == null) {
       // means adding
@@ -125,6 +126,7 @@ class _AddUserFormState extends State<AddUserForm> {
 
         formProv.isSaveButtonDisabled = false;
       } catch (e) {
+        formProv.isSaveButtonDisabled = false;
         return showDialog(
             context: context,
             builder: (context) {
@@ -193,17 +195,18 @@ class _AddUserFormState extends State<AddUserForm> {
     }
 
     return Scrollbar(
-
       controller: scrollbarController,
       thumbVisibility: true,
       child: SingleChildScrollView(
-
-      controller: scrollbarController,
+        controller: scrollbarController,
         child: Card(
           elevation: 5,
           child: Container(
-              padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-                  DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+              padding: const EdgeInsets.fromLTRB(
+                  DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3,
+                  DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3),
               width: MediaQuery.of(context).size.width * 0.6,
               child: Column(
                 children: [
@@ -216,17 +219,17 @@ class _AddUserFormState extends State<AddUserForm> {
                   titleField("Email", formProv.isEmailFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
-                  inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(200),
-                  ],
+                      inputFormatters: <TextInputFormatter>[
+                        LengthLimitingTextInputFormatter(200),
+                      ],
                       onChanged: (value) =>
                           formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty,
                       controller: _emailCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
-                   Space.space(),
-    
+                  Space.space(),
+
                   // password
                   Visibility(
                       visible: widget.user == null,
@@ -236,74 +239,91 @@ class _AddUserFormState extends State<AddUserForm> {
                   Visibility(
                     visible: widget.user == null,
                     child: TextFormField(
-                  inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(200),
-                  ],
+                        inputFormatters: <TextInputFormatter>[
+                          LengthLimitingTextInputFormatter(200),
+                        ],
                         obscureText: true,
-                        onChanged: (value) =>
-                            formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty,
+                        onChanged: (value) {
+                          formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty;
+                          validatePw(value);
+                        },
                         controller: _pwCtrl,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         )),
                   ),
-                  Visibility(visible: widget.user == null, child:  Space.space()),
-    
+                  Visibility(
+                      visible: widget.user == null, child: Space.space()),
+                  Visibility(
+                      visible: widget.user == null,
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          formProv.pwValidation,
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red[400]),
+                        ),
+                      )),
+                  Visibility(
+                      visible: widget.user == null, child: Space.space()),
+
                   // name
                   titleField("Name", formProv.isNameFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
-                  inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(100),
-                  ],
+                      inputFormatters: <TextInputFormatter>[
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       onChanged: (value) =>
                           formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
                       controller: _nameCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
-                   Space.space(),
-    
+                  Space.space(),
+
                   // phone number
                   titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
-                  inputFormatters: <TextInputFormatter>[
+                      inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    LengthLimitingTextInputFormatter(15),
-                  ],
+                        LengthLimitingTextInputFormatter(15),
+                      ],
                       onChanged: (value) => formProv.isPhoneNumFieldEmpty =
                           _phoneNumCtrl.text.isEmpty,
                       controller: _phoneNumCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                       )),
-                   Space.space(),
-    
+                  Space.space(),
+
                   // Gender
                   titleField("Gender", formProv.isGenderFieldEmpty),
                   Space.halfSpace(),
-    
+
                   _genderDropdown(widget.user == null),
-    
-                   Space.space(),
+
+                  Space.space(),
                   // Role
                   titleField("Role", formProv.isRoleFieldEmpty),
                   Space.halfSpace(),
                   (formProv.isFetchingData)
                       ? const CircularProgressIndicator()
                       : _roleDropdown(widget.user == null),
-    
-                   Space.space(),
+
+                  Space.space(),
                   // Jobtitle
                   titleField("Jobtitle", formProv.isJobtitleFieldEmpty),
                   Space.halfSpace(),
                   (formProv.isFetchingData)
                       ? const CircularProgressIndicator()
                       : _jobtitleDropdown(widget.user == null),
-    
+
                   Space.doubleSpace(),
-    
+
                   // save button
                   ElevatedButton(
                     onPressed: (formProv.isSaveButtonDisabled)
@@ -316,14 +336,17 @@ class _AddUserFormState extends State<AddUserForm> {
                                 !formProv.isRoleFieldEmpty &&
                                 !formProv.isJobtitleFieldEmpty) {
                               if (widget.user == null) {
-                                _addUser(
-                                    _emailCtrl.text,
-                                    _pwCtrl.text,
-                                    _nameCtrl.text,
-                                    _phoneNumCtrl.text,
-                                    _selectedGenderVal,
-                                    int.parse(_selectedRoleId),
-                                    int.parse(_selectedJobtitleId));
+                                if (formProv.isPasswordValid &&
+                                    _pwCtrl.text.isNotEmpty) {
+                                  _addUser(
+                                      _emailCtrl.text,
+                                      _pwCtrl.text,
+                                      _nameCtrl.text,
+                                      _phoneNumCtrl.text,
+                                      _selectedGenderVal,
+                                      int.parse(_selectedRoleId),
+                                      int.parse(_selectedJobtitleId));
+                                }
                               } else {
                                 _editUser(
                                     _emailCtrl.text,
@@ -348,6 +371,38 @@ class _AddUserFormState extends State<AddUserForm> {
         ),
       ),
     );
+  }
+
+  validatePw(String pw) {
+    formProv.pwValidation = '';
+    StringBuffer pwValidation = new StringBuffer();
+    // RegExp regex =
+    //     RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    RegExp regexpCapital = RegExp(r'^(?=.*?[A-Z])');
+    RegExp regexpLower = RegExp(r'^(?=.*?[a-z])');
+    RegExp regexpNumber = RegExp(r'(?=.*?[0-9])');
+    if (pw.length < 8) {
+      pwValidation.write('Min 8 chars* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpCapital.hasMatch(pw)) {
+      pwValidation.write('Min 1 uppercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpLower.hasMatch(pw)) {
+      pwValidation.write('Min 1 lowercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpNumber.hasMatch(pw)) {
+      pwValidation.write('Min 1 number* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+
+    if (pwValidation.isEmpty) {
+      formProv.isPasswordValid = true;
+    } else {
+      formProv.isPasswordValid = false;
+    }
   }
 
   Container titleField(title, isEmpty) => Container(
