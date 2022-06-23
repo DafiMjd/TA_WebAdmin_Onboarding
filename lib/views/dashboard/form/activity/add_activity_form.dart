@@ -15,6 +15,7 @@ import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/activity_preview.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/add_text_detail_form.dart';
+import 'package:webadmin_onboarding/views/dashboard/form/activity/add_video_detail_form.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/widgets/detail_card.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/widgets/form_builder_tile.dart';
 import 'package:webadmin_onboarding/views/dashboard/form/activity/add_file_detail_form.dart';
@@ -225,7 +226,10 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                               'video' ||
                                           formProv.actDetails[index]
                                                   .detail_type ==
-                                              'image')
+                                              'image'||
+                                          formProv.actDetails[index]
+                                                  .detail_type ==
+                                              'video_link')
                                       ? Container()
                                       : IconButton(
                                           onPressed: () async {
@@ -581,9 +585,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                             return showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return AddFileDetailForm(
-                                    type: 'video',
-                                  );
+                                  return AddVideoDetailForm();
                                 });
                           },
                     child: FormBuilderTile(
@@ -685,7 +687,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
   void _removeActivityDetail(int index) async {
     setState(() {
-      if (isEditing) {
+      // if editing && act detail already on DB delete actdetila from db
+      if (isEditing && formProv.actDetails[index].id != null) {
         deletedActDetailIds.add(formProv.actDetails[index].id!);
       }
       formProv.actDetails.removeAt(index);

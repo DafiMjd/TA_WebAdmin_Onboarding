@@ -9,17 +9,15 @@ import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.da
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
-class AddFileDetailForm extends StatefulWidget {
-  const AddFileDetailForm({Key? key, this.detail, required this.type})
-      : super(key: key);
+class AddVideoDetailForm extends StatefulWidget {
+  const AddVideoDetailForm({Key? key, this.detail}) : super(key: key);
   @override
-  _AddFileDetailFormState createState() => _AddFileDetailFormState();
+  _AddVideoDetailFormState createState() => _AddVideoDetailFormState();
 
   final ActivityDetail? detail;
-  final String type;
 }
 
-class _AddFileDetailFormState extends State<AddFileDetailForm> {
+class _AddVideoDetailFormState extends State<AddVideoDetailForm> {
   final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   PlatformFile? _file;
 
@@ -29,9 +27,13 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
 
   late AddActivityFormProvider formProv;
 
+  var _linkCtrl = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+    formProv = Provider.of<AddActivityFormProvider>(context, listen:  false);
+    formProv.isVideoLinkEmpty = true;
   }
 
   @override
@@ -40,11 +42,14 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
     return AlertDialog(
       title: Row(
         children: [
-          getTitleField(widget.type),
+          titleField("Upload Video", 20),
           SizedBox(
             width: 10,
           ),
-          getExtField(widget.type),
+          Text(
+            "(ext: mp4 | size: <= 20mb)",
+            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
+          ),
         ],
       ),
       shape: RoundedRectangleBorder(
@@ -58,11 +63,28 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-                  Space.space(),
+              Visibility(
+                  visible: _file == null,
+                  child: titleField('Link video from youtube', 16)),
+              Visibility(visible: _file == null, child: Space.space()),
               Visibility(
                 visible: _file == null,
+                child: TextFormField(
+                    inputFormatters: <TextInputFormatter>[
+                      LengthLimitingTextInputFormatter(100),
+                    ],
+                    onChanged: (value) =>
+                        formProv.isVideoLinkEmpty = _linkCtrl.text.isEmpty,
+                    controller: _linkCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    )),
+              ),
+              Space.space(),
+              Visibility(
+                visible: (_file == null && formProv.isVideoLinkEmpty),
                 child: ElevatedButton(
-                  onPressed: () => _pickFiles(widget.type),
+                  onPressed: () => _pickFiles(),
                   child: Text('Pick file'),
                 ),
               ),
@@ -95,7 +117,7 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
               ),
               Space.space(),
               Visibility(
-                visible: _file != null,
+                visible: (_file != null || !formProv.isVideoLinkEmpty),
                 child: ElevatedButton(
                   onPressed: () {
                     addActivityDetail();
@@ -129,15 +151,25 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
   addActivityDetail() {
     final newIndex = formProv.actDetails.length;
 
-    final item = ActivityDetail(
-      detail_name: _file!.name,
-      detail_urutan: newIndex,
-      detail_type: widget.type,
-      detail_desc: _file!.name,
-      activity: formProv.activity,
-      // file: _bytesData,
-      file: _file!.bytes,
-    );
+    late var item;
+    if (_file == null) {
+      item = ActivityDetail(
+          detail_name: _linkCtrl.text,
+          detail_urutan: newIndex,
+          detail_type: 'video_link',
+          detail_desc: _linkCtrl.text,
+          activity: formProv.activity);
+    } else {
+      item = ActivityDetail(
+        detail_name: _file!.name,
+        detail_urutan: newIndex,
+        detail_type: 'video',
+        detail_desc: _file!.name,
+        activity: formProv.activity,
+        // file: _bytesData,
+        file: _file!.bytes,
+      );
+    }
 
     List<ActivityDetail> newList = formProv.actDetails;
     if (newList.isEmpty) {
@@ -149,33 +181,14 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
     formProv.actDetails = newList;
   }
 
-  void _pickFiles(String type) async {
-    late List<String> ext;
-    late double maxSize;
-    switch (type) {
-      case 'image':
-        ext = ['png', 'jpg', 'jpeg'];
-        maxSize = 5;
-        break;
-      case 'video':
-        ext = ['mp4'];
-        maxSize = 20;
-        break;
-      case 'document':
-        ext = ['pdf'];
-        maxSize = 5;
-        break;
-      default:
-        ext = ['pdf'];
-        break;
-    }
+  void _pickFiles() async {
+    double maxSize = 20;
     _resetState();
     try {
-      var _res = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowMultiple: false,
-          // onFileLoading: (FilePickerStatus status) => print(status),
-          allowedExtensions: ext);
+      var _res = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowMultiple: false,
+              // onFileLoading: (FilePickerStatus status) => print(status),
+              allowedExtensions: ['mp4']);
 
       if (_res != null) {
         double sizeInMb = _res.files.first.size / (1024 * 1024);
@@ -221,37 +234,6 @@ class _AddFileDetailFormState extends State<AddFileDetailForm> {
       _isLoading = true;
       _file = null;
     });
-  }
-
-  getExtField(type) {
-    if (type == 'pdf') {
-      return Text(
-        "(ext: pdf | size: <= 5mb)",
-        style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
-      );
-    } else if (type == 'image') {
-      return Text(
-        "(ext: jpg/png | size: <= 5mb)",
-        style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
-      );
-    } else if (type == 'video') {
-      return Text(
-        "(ext: mp4 | size: <= 20mb)",
-        style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
-      );
-    }
-  }
-
-  Container getTitleField(type) {
-    if (type == 'pdf') {
-      return titleField("Upload Document", 20);
-    } else if (type == 'image') {
-      return titleField("Upload Image", 20);
-    } else if (type == 'video') {
-      return titleField("Upload Video", 20);
-    }
-
-    return titleField("Add Text", 20);
   }
 
   Container titleField(title, textSize) => Container(

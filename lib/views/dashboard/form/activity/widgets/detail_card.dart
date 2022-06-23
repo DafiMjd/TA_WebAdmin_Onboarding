@@ -48,7 +48,7 @@ class DetailCard extends StatelessWidget {
       return Icons.check_box_outlined;
     } else if (detail_type == 'image') {
       return Icons.image_sharp;
-    } else if (detail_type == 'video') {
+    } else if (detail_type == 'video' || detail_type == 'video_link') {
       return Icons.video_collection_outlined;
     } else if (detail_type == 'pdf') {
       return Icons.picture_as_pdf_sharp;
