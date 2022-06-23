@@ -87,6 +87,7 @@ class ChangePasswordProvider extends ChangeNotifier {
   get isFetchingData => _isFetchingData;
   set isFetchingData(val) {
     _isFetchingData = val;
+    notifyListeners();
   }
 
 }

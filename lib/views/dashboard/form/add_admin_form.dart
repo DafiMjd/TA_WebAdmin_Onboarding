@@ -276,7 +276,8 @@ class _AddAdminFormState extends State<AddAdminForm> {
                       visible: widget.admin == null, child: Space.space()),
 
                   // name
-                  titleField("Name", formProv.isNameFieldEmpty),
+                  Consumer<AddAdminFormProvider>(builder: ((context, value, child) => titleField("Name", value.isNameFieldEmpty))),
+                  // titleField("Name", formProv.isNameFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
                       inputFormatters: <TextInputFormatter>[
@@ -291,7 +292,8 @@ class _AddAdminFormState extends State<AddAdminForm> {
 
                   Space.space(),
                   // phone number
-                  titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
+                  Consumer<AddAdminFormProvider>(builder: ((context, value, child) => titleField("Phone Number", value.isPhoneNumFieldEmpty))),
+                  // titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
                       inputFormatters: <TextInputFormatter>[
