@@ -40,11 +40,11 @@ class AddAdminFormProvider extends ChangeNotifier {
   }
   set isNameFieldEmpty(bool val) {
     _isNameFieldEmpty = val;
-    notifyListeners();
+    // notifyListeners();
   }
   set isPhoneNumFieldEmpty(bool val) {
     _isPhoneNumFieldEmpty = val;
-    notifyListeners();
+    // notifyListeners();
   }
   set isGenderFieldEmpty(bool val) {
     _isGenderFieldEmpty = val;

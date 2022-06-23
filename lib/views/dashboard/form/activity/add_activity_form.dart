@@ -63,8 +63,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
     dataProv = Provider.of<DataProvider>(context, listen: false);
     formProv = Provider.of<AddActivityFormProvider>(context, listen: false);
 
-    _loadDropDownData();
-
     if (widget.activity == null) {
       // means adding
       _actNameCtrl = TextEditingController();
@@ -97,6 +95,8 @@ class _AddActivityFormState extends State<AddActivityForm> {
 
       isEditing = true;
     }
+
+    _loadDropDownData();
   }
 
   void _loadActDetails() async {

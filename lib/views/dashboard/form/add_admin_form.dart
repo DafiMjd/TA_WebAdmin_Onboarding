@@ -228,7 +228,9 @@ class _AddAdminFormState extends State<AddAdminForm> {
                         LengthLimitingTextInputFormatter(200),
                       ],
                       onChanged: (value) {
-                        formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty;
+                        setState(() {
+                          formProv.isEmailFieldEmpty = _emailCtrl.text.isEmpty;
+                        });
                       },
                       controller: _emailCtrl,
                       decoration: const InputDecoration(
@@ -250,8 +252,10 @@ class _AddAdminFormState extends State<AddAdminForm> {
                         ],
                         obscureText: true,
                         onChanged: (value) {
-                          formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty;
-                          validatePw(value);
+                          setState(() {
+                            formProv.isPwFieldEmpty = _pwCtrl.text.isEmpty;
+                            validatePw(value);
+                          });
                         },
                         controller: _pwCtrl,
                         decoration: const InputDecoration(
@@ -276,15 +280,18 @@ class _AddAdminFormState extends State<AddAdminForm> {
                       visible: widget.admin == null, child: Space.space()),
 
                   // name
-                  Consumer<AddAdminFormProvider>(builder: ((context, value, child) => titleField("Name", value.isNameFieldEmpty))),
+                  Consumer<AddAdminFormProvider>(
+                      builder: ((context, value, child) =>
+                          titleField("Name", value.isNameFieldEmpty))),
                   // titleField("Name", formProv.isNameFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
                       inputFormatters: <TextInputFormatter>[
                         LengthLimitingTextInputFormatter(100),
                       ],
-                      onChanged: (value) =>
-                          formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty,
+                      onChanged: (value) => setState(() {
+                            formProv.isNameFieldEmpty = _nameCtrl.text.isEmpty;
+                          }),
                       controller: _nameCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -292,7 +299,9 @@ class _AddAdminFormState extends State<AddAdminForm> {
 
                   Space.space(),
                   // phone number
-                  Consumer<AddAdminFormProvider>(builder: ((context, value, child) => titleField("Phone Number", value.isPhoneNumFieldEmpty))),
+                  Consumer<AddAdminFormProvider>(
+                      builder: ((context, value, child) => titleField(
+                          "Phone Number", value.isPhoneNumFieldEmpty))),
                   // titleField("Phone Number", formProv.isPhoneNumFieldEmpty),
                   Space.halfSpace(),
                   TextFormField(
@@ -300,8 +309,10 @@ class _AddAdminFormState extends State<AddAdminForm> {
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                         LengthLimitingTextInputFormatter(15),
                       ],
-                      onChanged: (value) => formProv.isPhoneNumFieldEmpty =
-                          _phoneNumCtrl.text.isEmpty,
+                      onChanged: (value) => setState(() {
+                            formProv.isPhoneNumFieldEmpty =
+                                _phoneNumCtrl.text.isEmpty;
+                          }),
                       controller: _phoneNumCtrl,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
