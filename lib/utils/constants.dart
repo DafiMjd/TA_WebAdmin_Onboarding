@@ -13,7 +13,7 @@ const BASE_URL = "https://6744-103-209-131-66.ngrok.io";
 final List<Menu> MENU_SUPER_ADMIN = [
   Menu(
       id: "manage_user",
-      title: "Manage User",
+      title: "Manage Usersssss",
       icon: Icons.account_circle,
       submenu: [
         Menu(id: "user_list", title: "User Mobile List"),
@@ -36,7 +36,7 @@ final List<Menu> MENU_SUPER_ADMIN = [
 final List<Menu> MENU_ADMIN = [
   Menu(
       id: "manage_user",
-      title: "Manage User",
+      title: "Manage Usersssss",
       icon: Icons.account_circle,
       submenu: [
         Menu(id: "user_list", title: "User Mobile List"),
