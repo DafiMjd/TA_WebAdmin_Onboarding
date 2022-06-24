@@ -1,33 +1,21 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, curly_braces_in_flow_control_structures
 
 import 'package:flutter/foundation.dart';
 import 'package:webadmin_onboarding/models/activity.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
+import 'package:webadmin_onboarding/models/activity_owned.dart';
 import 'package:webadmin_onboarding/models/admin.dart';
 import 'package:webadmin_onboarding/models/category.dart';
 import 'package:webadmin_onboarding/models/jobtitle.dart';
 import 'package:webadmin_onboarding/models/role.dart';
 import 'package:webadmin_onboarding/models/user.dart';
+import 'package:webadmin_onboarding/providers/base_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DataProvider extends ChangeNotifier {
-  bool _isFetchingData = false;
-  get isFetchingData => _isFetchingData;
-  set isFetchingData(val) {
-    _isFetchingData = val;
-    notifyListeners();
-  }
-
-  late Map<String, dynamic> _jwt;
-  get jwt => _jwt;
-
-  void receiveJWT(jwt) {
-    _jwt = jwt;
-    notifyListeners();
-  }
+class DataProvider extends BaseProvider {
 
   late List<dynamic> _data;
   get data => _data;
@@ -58,12 +46,20 @@ class DataProvider extends ChangeNotifier {
         }
       case 'activity_list':
         {
-          return fetchActivities();
+          return fetchActivities('activity');
+        }
+      case 'home_activity_list':
+        {
+          return fetchActivities('home');
         }
       case 'category_list':
         {
           return fetchActivityCategories();
         }
+      // case 'activity_owned_list':
+      //   {
+      //     // return fetchActivityOwnedByEmail();
+      //   }
 
       default:
         {
@@ -74,12 +70,16 @@ class DataProvider extends ChangeNotifier {
 
   // method to do update and delete
   Future<List<dynamic>> _userAction(method, dataid) async {
-    if (method == 'delete') return deleteUser(dataid);
+    if (method == 'delete')
+      return deleteUser(dataid);
+    else if (method == 'edit_active') return editUserActive(dataid);
     return fetchUsers();
   }
 
   Future<List<dynamic>> _adminAction(method, dataid) async {
-    if (method == 'delete') return deleteAdmin(dataid);
+    if (method == 'delete')
+      return deleteAdmin(dataid);
+    else if (method == 'edit_active') return editAdminActive(dataid);
     return fetchAdmins();
   }
 
@@ -94,8 +94,19 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<dynamic>> _activityAction(method, dataid) async {
-    if (method == 'delete') return deleteActivity(int.parse(dataid));
-    return fetchActivities();
+    if (method == 'delete') {
+      deleteActivityDetailByActivityId(int.parse(dataid));
+      return deleteActivity(int.parse(dataid));
+    }
+    return fetchActivities('activity');
+  }
+
+  Future<List<dynamic>> _homeActivityAction(method, dataid) async {
+    if (method == 'delete') {
+      deleteActivityDetailByActivityId(int.parse(dataid));
+      return deleteHomeActivity(int.parse(dataid));
+    }
+    return fetchActivities('home');
   }
 
   Future<List<dynamic>> action(id, method, dataid) {
@@ -120,6 +131,10 @@ class DataProvider extends ChangeNotifier {
         {
           return _activityAction(method, dataid);
         }
+      case 'home_activity_list':
+        {
+          return _homeActivityAction(method, dataid);
+        }
 
       default:
         {
@@ -128,12 +143,151 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  // Change Password
+  Future<void> changePassword(String curPass, String newPass) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+    var email = jwt['email'];
+    // getAuthInfo();
+    String apiURL = "$BASE_URL/api/Admin/edit-password";
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "email": email,
+            "password": curPass,
+            "new_password": newPass,
+          }));
+
+      if (result.statusCode == 404) {
+        throw "Not Found";
+      }
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      Map<String, dynamic> responseData = jsonDecode(result.body);
+      if (result.statusCode == 400) {
+        throw responseData['errorMessage'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> changePasswordUser(String email, String newPass) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+    // getAuthInfo();
+    String apiURL = "$BASE_URL/api/EditPasswordUserByAdmin/";
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "email": email,
+            "new_password": newPass,
+          }));
+
+      if (result.statusCode == 404) {
+        throw "Not Found";
+      }
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      Map<String, dynamic> responseData = jsonDecode(result.body);
+      if (result.statusCode == 400) {
+        throw responseData['errorMessage'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> changePasswordAdmin(String email, String newPass) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+    // getAuthInfo();
+    String apiURL = "$BASE_URL/api/EditPasswordAdminByAdmin/edit-password";
+
+    try {
+      var result = await http.put(Uri.parse(apiURL),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            "email": email,
+            "new_password": newPass,
+          }));
+
+      if (result.statusCode == 404) {
+        throw "Not Found";
+      }
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      Map<String, dynamic> responseData = jsonDecode(result.body);
+      if (result.statusCode == 400) {
+        throw responseData['errorMessage'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // =======
+
   List<String> getColumnNames(Map<String, dynamic> data) {
     return data.keys.toList();
   }
 
   // Roles request
   Future<Role> fetchRoleByID(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Roles/$id";
@@ -155,6 +309,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseRole, result.body);
     } catch (e) {
       rethrow;
@@ -168,6 +325,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Role>> fetchRoles() async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Roles";
@@ -189,6 +351,13 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseRoles, result.body);
     } catch (e) {
       rethrow;
@@ -204,6 +373,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Role>> fetchRolesByPlatform(String platform) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Roles/$platform";
@@ -225,6 +399,13 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseRoles, result.body);
     } catch (e) {
       rethrow;
@@ -234,6 +415,11 @@ class DataProvider extends ChangeNotifier {
 
   // Jobtitles request
   Future<Jobtitle> fetchJobtitleByID(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle/$id";
@@ -255,6 +441,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseJobtitle, result.body);
     } catch (e) {
       rethrow;
@@ -268,6 +457,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Jobtitle>> fetchJobtitles() async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle";
@@ -289,6 +483,13 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
@@ -304,6 +505,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Jobtitle>> deleteJobtitle(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle/$id";
@@ -326,6 +532,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseJobtitles, result.body);
     } catch (e) {
       rethrow;
@@ -334,11 +543,16 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Jobtitle>> createJobtitle(
       String jobtitle_name, String jobtitle_description) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Jobtitle";
+    String url = "$BASE_URL/api/Jobtitle";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -350,12 +564,15 @@ class DataProvider extends ChangeNotifier {
           },
           body: jsonEncode({
             "jobtitle_name": jobtitle_name,
-            "jobtitle_description": jobtitle_description,
+            "jobtitle_description": jobtitle_description
           }));
 
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseJobtitles, result.body);
@@ -366,6 +583,11 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Jobtitle>> editJobtitle(
       int id, String jobtitle_name, String jobtitle_description) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Jobtitle";
@@ -384,11 +606,14 @@ class DataProvider extends ChangeNotifier {
           body: jsonEncode({
             "id": id,
             "jobtitle_name": jobtitle_name,
-            "jobtitle_description": jobtitle_description,
+            "jobtitle_description": jobtitle_description
           }));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseJobtitles, result.body);
@@ -401,6 +626,11 @@ class DataProvider extends ChangeNotifier {
 
   // Users request
   Future<User> fetchUserByEmail(int email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User/$email";
@@ -422,6 +652,10 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
       return compute(parseUser, result.body);
     } catch (e) {
       rethrow;
@@ -435,6 +669,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<User>> fetchUsers() async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User";
@@ -456,6 +695,53 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
+      return compute(parseUsers, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> fetchUsersByRole(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/UsersByRole/$id";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
@@ -472,43 +758,60 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<User>> registerUser(String email, String password, String name,
       String phone, String gender, int role_id, int jobtitle_id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Auth/register-user";
+
+    var url = Uri.parse("$BASE_URL/api/Auth/register-user");
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "email": email,
-            "password": password,
-            "name": name,
-            "gender": gender,
-            "phone_number": phone,
-            "role_id": role_id,
-            "jobtitle_id": jobtitle_id,
-            "progress": 0,
-            "birthdate": "2000-12-05"
-          }));
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['name'] = name;
+      request.fields['gender'] = gender;
+      request.fields['phone_number'] = phone;
+      request.fields['role_id'] = role_id.toString();
+      request.fields['jobtitle_id'] = jobtitle_id.toString();
+      request.fields['progress'] = '0';
+      request.fields['birthdate'] = "2000-12-05";
+
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      String response = await result.stream.bytesToString();
 
       if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
+        Map<String, dynamic> responseData = jsonDecode(response);
         throw responseData['errorMessage'];
       }
-      return compute(parseUsers, result.body);
+
+      return compute(parseUsers, response);
     } catch (e) {
       rethrow;
     }
   }
 
   Future<List<User>> deleteUser(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/User/$email";
@@ -530,11 +833,85 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseUsers, result.body);
     } catch (e) {
       rethrow;
     }
   }
+
+  Future<List<User>> editUserActive(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/User/active";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      return deleteUserToken(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> deleteUserToken(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/deleteToken";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      return compute(parseUsers, result.body);
+    } catch (e) {
+      rethrow;
+    }
+
+  } 
 
   Future<List<User>> editUser(
       String email,
@@ -568,11 +945,14 @@ class DataProvider extends ChangeNotifier {
             "role_id": role_id,
             "jobtitle_id": jobtitle_id,
             "progress": progres,
-            "birthdate": birthdate,
+            "birthdate": birthdate
           }));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseUsers, result.body);
     } catch (e) {
@@ -584,6 +964,11 @@ class DataProvider extends ChangeNotifier {
 
   // Admin request
   Future<Admin> fetchAdminByEmail(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin/$email";
@@ -605,6 +990,10 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
       return compute(parseAdmin, result.body);
     } catch (e) {
       rethrow;
@@ -618,6 +1007,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<Admin>> fetchAdmins() async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin";
@@ -639,6 +1033,13 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;
@@ -653,40 +1054,60 @@ class DataProvider extends ChangeNotifier {
     return parsed.map<Admin>((json) => Admin.fromJson(json)).toList();
   }
 
-  Future<List<Admin>> registerAdmin(
-      String email, String password, String name, int role_id) async {
+  Future<List<Admin>> registerAdmin(String email, String password, String name,
+      String phone, String gender, int role_id, int jobtitle_id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Auth/register-admin";
+    var url = Uri.parse("$BASE_URL/api/Auth/register-admin");
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "email": email,
-            "password": password,
-            "admin_name": name,
-            "role_id": role_id,
-          }));
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['admin_name'] = name;
+      request.fields['role_id'] = role_id.toString();
+      request.fields['jobtitle_id'] = jobtitle_id.toString();
+      request.fields['gender'] = gender;
+      request.fields['phone_number'] = phone;
+      request.fields['birthdate'] = "2000-12-05";
+
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      String response = await result.stream.bytesToString();
 
       if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
+        Map<String, dynamic> responseData = jsonDecode(response);
         throw responseData['errorMessage'];
       }
-      return compute(parseAdmins, result.body);
+
+      return compute(parseAdmins, response);
     } catch (e) {
       rethrow;
     }
   }
 
   Future<List<Admin>> deleteAdmin(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin/$email";
@@ -708,14 +1129,22 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseAdmins, result.body);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<List<Admin>> editAdmin(
-      String email, String password, String name, int role_id) async {
+  Future<List<Admin>> editAdmin(String email, String name, String phone,
+      String gender, int role_id, int jobtitle_id, String birthdate) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Admin";
@@ -733,13 +1162,20 @@ class DataProvider extends ChangeNotifier {
           },
           body: jsonEncode({
             "email": email,
-            "password": password,
             "admin_name": name,
+            "gender": gender,
+            "phone_number": phone,
             "role_id": role_id,
+            "jobtitle_id": jobtitle_id,
+            "progress": 0,
+            "birthdate": birthdate
           }));
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseAdmins, result.body);
@@ -748,10 +1184,86 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<Admin>> editAdminActive(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/Admin/active";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      return deleteAdminToken(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Admin>> deleteAdminToken(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/deleteToken";
+
+    try {
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({"email": email}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      return compute(parseAdmins, result.body);
+    } catch (e) {
+      rethrow;
+    }
+
+  }
+
   // =================
 
   // ActivityCategory request
   Future<ActivityCategory> fetchActivityCategoryById(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory/$id";
@@ -773,6 +1285,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
       return compute(parseActivityCategory, result.body);
     } catch (e) {
       rethrow;
@@ -786,6 +1301,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> fetchActivityCategories() async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory";
@@ -807,6 +1327,13 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
       return compute(parseActivityCategories, result.body);
     } catch (e) {
       rethrow;
@@ -824,12 +1351,17 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> createActivityCategory(
-      String category_name, String category_description, int duration) async {
+      String category_name, String category_description) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/ActivityCategory";
+    String url = "$BASE_URL/api/ActivityCategory";
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -842,12 +1374,14 @@ class DataProvider extends ChangeNotifier {
           body: jsonEncode({
             "category_name": category_name,
             "category_description": category_description,
-            "duration": duration,
           }));
 
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
       return compute(parseActivityCategories, result.body);
     } catch (e) {
@@ -856,6 +1390,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> deleteActivityCategory(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory/$id";
@@ -877,6 +1416,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivityCategories, result.body);
     } catch (e) {
@@ -885,7 +1427,12 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<List<ActivityCategory>> editActivityCategory(int id,
-      String category_name, String category_description, int duration) async {
+      String category_name, String category_description) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/ActivityCategory";
@@ -905,12 +1452,14 @@ class DataProvider extends ChangeNotifier {
             "id": id,
             "category_name": category_name,
             "category_description": category_description,
-            "duration": duration,
           }));
 
       if (result.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
       }
 
       return compute(parseActivityCategories, result.body);
@@ -929,6 +1478,11 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<Activity> fetchActivityById(String id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Activities/$id";
@@ -951,6 +1505,9 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivity, result.body);
     } catch (e) {
@@ -966,10 +1523,15 @@ class DataProvider extends ChangeNotifier {
     return parsed.map<Activity>((json) => Activity.fromJson(json)).toList();
   }
 
-  Future<List<Activity>> fetchActivities() async {
+  Future<List<Activity>> fetchActivities(String type) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
-    String url = "$BASE_URL/api/Activities";
+    String url = "$BASE_URL/api/ActivitiesByType/$type";
 
     try {
       var result = await http.get(
@@ -989,37 +1551,13 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
-      return compute(parseActivities, result.body);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<Activity>> createActivity(Activity activity) async {
-    var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/Activities";
-
-    try {
-      var result = await http.post(Uri.parse(apiURL),
-          headers: {
-            "Access-Control-Allow-Origin":
-                "*", // Required for CORS support to work
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Expose-Headers": "Authorization, authenticated",
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode({
-            "activity_name": activity.activity_name,
-            "activity_description": activity.activity_description,
-            "category_id": activity.category!.id,
-          }));
-
-      if (result.statusCode == 400) {
-        Map<String, dynamic> responseData = jsonDecode(result.body);
-        throw responseData['errorMessage'];
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
       }
 
       return compute(parseActivities, result.body);
@@ -1028,7 +1566,56 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
+  Future<List<Activity>> createActivity(Activity activity) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    var url = Uri.parse("$BASE_URL/api/Activities");
+
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['activity_name'] = activity.activity_name!;
+      request.fields['activity_description'] = activity.activity_description!;
+      request.fields['category_id'] = activity.category!.id.toString();
+      request.fields['type'] = activity.type;
+
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      String response = await result.stream.bytesToString();
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<List<Activity>> deleteActivity(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
 
     String url = "$BASE_URL/api/Activities/$id";
@@ -1051,8 +1638,94 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Activity>> deleteHomeActivity(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivitiesDelete/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      return compute(parseActivities, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Activity>> editActivity(Activity activity) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    var url = Uri.parse("$BASE_URL/api/Activities");
+
+    try {
+      var request = http.MultipartRequest('PUT', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['id'] = activity.id.toString();
+      request.fields['activity_name'] = activity.activity_name!;
+      request.fields['activity_description'] = activity.activity_description!;
+      request.fields['category_id'] = activity.category!.id.toString();
+      request.fields['type'] = activity.type;
+
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      String response = await result.stream.bytesToString();
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(response);
+        throw responseData['errorMessage'];
+      }
+
+      return compute(parseActivities, response);
     } catch (e) {
       rethrow;
     }
@@ -1061,8 +1734,15 @@ class DataProvider extends ChangeNotifier {
   //===========
 
   // Activity Detail Request
-  Future<List<ActivityDetail>> fetchDetailByActivityId(id) async {
+  Future<List<ActivityDetail>> fetchDetailByActivityId(
+      Activity activity) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
+    var id = activity.id;
 
     String url = "$BASE_URL/api/ActivityDetail/$id";
 
@@ -1084,27 +1764,32 @@ class DataProvider extends ChangeNotifier {
         Map<String, dynamic> responseData = jsonDecode(result.body);
         throw responseData['errorMessage'];
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
-      return compute(parseActivityDetails, result.body);
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
+
+      List<Map<String, dynamic>> parsed =
+          jsonDecode(result.body).cast<Map<String, dynamic>>();
+      // colnames = getColumnNames(parsed[0]);
+      for (int i = 0; i < parsed.length; i++) {
+        parsed[i]['activity_'] = activity;
+      }
+
+      return compute(parseActivityDetails, parsed);
     } catch (e) {
       rethrow;
     }
   }
 
-  List<ActivityDetail> parseActivityDetails(String responseBody) {
-    if (responseBody == '[]') {
-      return [];
-    } else {
-      // print(responseBody);
-      List<Map<String, dynamic>> parsed =
-          jsonDecode(responseBody).cast<Map<String, dynamic>>();
-      colnames = getColumnNames(parsed[0]);
-      print("dafi: " + parsed.toString());
-
-      return parsed
-          .map<ActivityDetail>((json) => ActivityDetail.fromJson(json))
-          .toList();
-    }
+  List<ActivityDetail> parseActivityDetails(List<Map<String, dynamic>> parsed) {
+    return parsed
+        .map<ActivityDetail>((json) => ActivityDetail.fromJson(json))
+        .toList();
   }
 
   ActivityDetail parseActivityDetail(String responseBody) {
@@ -1114,14 +1799,275 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> createActivityDetail(ActivityDetail detail, activity_id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
     var token = jwt['token'];
-    String apiURL = "$BASE_URL/api/ActivityDetail";
+    var url = Uri.parse("$BASE_URL/api/ActivityDetail");
+    print(activity_id);
 
+    try {
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['activity_id'] = activity_id.toString();
+      request.fields['detail_name'] = detail.detail_name;
+      request.fields['detail_desc'] = detail.detail_desc;
+      request.fields['detail_type'] = detail.detail_type;
+      request.fields['detail_urutan'] = detail.detail_urutan.toString();
+
+      if (detail.file != null) {
+        var multipartFile = http.MultipartFile.fromBytes(
+            'files', detail.file!.cast(),
+            filename: detail.detail_name);
+
+        request.files.add(multipartFile);
+      }
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editActivityDetail(ActivityDetail detail) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+    var url = Uri.parse("$BASE_URL/api/ActivityDetail");
 
     String detail_link = detail.detail_link == null ? "" : detail.detail_link!;
 
     try {
-      var result = await http.post(Uri.parse(apiURL),
+      var request = http.MultipartRequest('PUT', url);
+      request.headers.addAll({
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "Authorization, authenticated",
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      });
+      request.fields['id'] = detail.id.toString();
+      request.fields['activity_id'] = detail.activity.id.toString();
+      request.fields['detail_name'] = detail.detail_name;
+      request.fields['detail_desc'] = detail.detail_desc;
+      request.fields['detail_link'] = detail_link;
+      request.fields['detail_type'] = detail.detail_type;
+      request.fields['detail_urutan'] = detail.detail_urutan.toString();
+
+      if (detail.file != null) {
+        // print(detail.file!);
+        // request.files.add(http.MultipartFile.fromBytes(
+        //     'files', detail.file!));
+        // request.files.add(await http.MultipartFile.fromPath(
+        //   'files',
+        //   '/Users/dafimj/Downloads/metode pelaksanaan - Alur.png',
+        //   contentType: MediaType('image', 'png'),
+        // ));
+      }
+      var result = await request.send();
+
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteActivityDetail(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityDetail/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (result.statusCode == 400) {
+        throw "error";
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteActivityDetailByActivityId(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivityDetailByActivity/$id";
+
+    try {
+      var result = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (result.statusCode == 400) {
+        throw "error";
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  //===========
+
+  // Activity Owned Request
+  Future<List<ActivityOwned>> fetchActivityOwnedByEmail(String email) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivitiesOwned/$email";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
+
+      return compute(parseActivitiesOwned, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  List<ActivityOwned> parseActivitiesOwned(String responseBody) {
+    colnames = ['User', 'Activities'];
+    List<Map<String, dynamic>> parsed =
+        jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    return parsed
+        .map<ActivityOwned>((json) => ActivityOwned.fromJson(json))
+        .toList();
+  }
+
+  Future<List<ActivityOwned>> fetchActivityOwnedByActivity(int id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+
+    String url = "$BASE_URL/api/ActivitiesOwnedByActivity/$id";
+
+    try {
+      var result = await http.get(
+        Uri.parse(url),
+        headers: {
+          "Access-Control-Allow-Origin":
+              "*", // Required for CORS support to work
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Expose-Headers": "Authorization, authenticated",
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
+
+      if (result.body == '[]') {
+        colnames = List<String>.empty();
+        return [];
+      }
+
+      return compute(parseActivitiesOwned, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> assignActivity(String email, int activity_id, String start_date,
+      String end_date, int category_id) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    var token = jwt['token'];
+    String url = "$BASE_URL/api/ActivitiesOwned";
+
+    try {
+      var result = await http.post(Uri.parse(url),
           headers: {
             "Access-Control-Allow-Origin":
                 "*", // Required for CORS support to work
@@ -1132,21 +2078,59 @@ class DataProvider extends ChangeNotifier {
             'Authorization': 'Bearer $token',
           },
           body: jsonEncode({
+            "user_email": email,
             "activity_id": activity_id,
-            "detail_name": detail.detail_name,
-            "detail_desc": detail.detail_desc,
-            "detail_link": detail_link,
-            "detail_type": detail.detail_type,
-            "detail_urutan": detail.detail_urutan,
+            "start_date": start_date,
+            "end_date": end_date,
+            "status": "assigned",
+            "category_id": category_id
           }));
 
       if (result.statusCode == 400) {
-        print("masuk");
         // Map<String, dynamic> responseData = jsonDecode(result.body);
         throw "error";
       }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
 
       // return compute(parseActivityDetails, result.body);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editUserAssignedAct(String email, int assignedAct) async {
+    bool tokenValid = await checkToken();
+    // if (!tokenValid) {
+   //    logout();
+      // throw 'you have been logged out';
+    // }
+    String url = "$BASE_URL/api/User/assignedActivities";
+
+    var token = jwt['token'];
+
+    try {
+      var x = token;
+      var result = await http.put(Uri.parse(url),
+          headers: {
+            "Access-Control-Allow-Origin":
+                "*", // Required for CORS support to work
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Expose-Headers": "Authorization, authenticated",
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+          body:
+              jsonEncode({"email": email, "assignedActivities": assignedAct}));
+      if (result.statusCode == 400) {
+        Map<String, dynamic> responseData = jsonDecode(result.body);
+        throw responseData['errorMessage'];
+      }
+      if (result.statusCode == 502 || result.statusCode == 500) {
+        throw "Server Down";
+      }
     } catch (e) {
       rethrow;
     }

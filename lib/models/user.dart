@@ -5,6 +5,8 @@ import 'package:webadmin_onboarding/models/role.dart';
 
 class User {
   double progress;
+  int finishedActivities, assignedActivities;
+  bool active;
 
   String email, name, gender, phone_number;
   String birtdate;
@@ -19,7 +21,10 @@ class User {
       required this.progress,
       required this.birtdate,
       required this.role,
-      required this.jobtitle,});
+      required this.jobtitle,
+      required this.finishedActivities,
+      required this.assignedActivities,
+      required this.active});
 
   factory User.fromJson(Map<String, dynamic> json) {
     // final DateFormat formatter = DateFormat('yyyy-MM-dd');
@@ -34,7 +39,10 @@ class User {
         progress: json['progress'],
         role: Role.fromJson(json['role_']),
         jobtitle: Jobtitle.fromJson(json['jobtitle_']),
-        birtdate: json['birthdate']);
+        birtdate: json['birthdate'],
+        finishedActivities: json['finishedActivities'],
+        assignedActivities: json['assignedActivities'],
+        active: json['active']);
   }
 
   dynamic getData(String identifier) {
@@ -54,6 +62,12 @@ class User {
       return role.role_name;
     } else if (identifier == 'jobtitle_') {
       return jobtitle.jobtitle_name;
+    } else if (identifier == 'finishedActivities') {
+      return finishedActivities;
+    } else if (identifier == 'assignedActivities') {
+      return assignedActivities;
+    } else if (identifier == 'active') {
+      return active;
     } else {
       return "not found";
     }

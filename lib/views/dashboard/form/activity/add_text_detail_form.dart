@@ -1,24 +1,27 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/models/activity_detail.dart';
 import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
-import 'package:webadmin_onboarding/widgets/half_space.dart';
+import 'package:webadmin_onboarding/widgets/space.dart';
 
-class AddActivityDetailForm extends StatefulWidget {
-  const AddActivityDetailForm({Key? key, this.detail, required this.type})
+class AddTextDetailForm extends StatefulWidget {
+  const AddTextDetailForm({Key? key, this.detail, required this.type})
       : super(key: key);
 
   final ActivityDetail? detail;
   final String type;
 
   @override
-  State<AddActivityDetailForm> createState() => _AddActivityDetailFormState();
+  State<AddTextDetailForm> createState() => _AddTextDetailFormState();
 }
 
-class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
+class _AddTextDetailFormState extends State<AddTextDetailForm> {
   late final TextEditingController _ctrl;
+  late AddActivityFormProvider formProv;
 
   @override
   void initState() {
@@ -40,36 +43,12 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
 
   @override
   Widget build(BuildContext context) {
-    AddActivityFormProvider formProv = context.watch<AddActivityFormProvider>();
+    formProv = context.watch<AddActivityFormProvider>();
 
-    addActivityDetail(desc) {
-      final newIndex = formProv.actDetails.length;
+    return textDialog();
+  }
 
-      final item = ActivityDetail(
-          detail_name: widget.type + newIndex.toString(),
-          detail_urutan: newIndex,
-          detail_type: widget.type,
-          detail_desc: desc,
-          activity: formProv.activity);
-
-      List<ActivityDetail> newList = formProv.actDetails;
-      if (newList.isEmpty) {
-        newList = [item];
-      } else {
-        newList.add(item);
-      }
-
-      formProv.actDetails = newList;
-
-    }
-
-    editActivityDetail(desc) {
-      List<ActivityDetail> newList = formProv.actDetails;
-      newList[widget.detail!.detail_urutan].detail_desc = desc;
-
-      formProv.actDetails = newList;
-    }
-
+  textDialog() {
     return AlertDialog(
       title: getTitleField(formProv.isActDetailEmpty, widget.type),
       shape: RoundedRectangleBorder(
@@ -77,19 +56,20 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
       content: Builder(
         builder: (context) {
           // Get available height and width of the build area of this widget. Make a choice depending on the size.
-          var height = MediaQuery.of(context).size.height / 2;
-          var width = MediaQuery.of(context).size.width / 2;
 
           return Container(
             // height: height,
-            width: width,
+            width: MediaQuery.of(context).size.width / 2,
             padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING, DEFAULT_PADDING,
                 DEFAULT_PADDING, DEFAULT_PADDING),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const HalfSpace(),
+                Space.halfSpace(),
                 TextFormField(
+                    inputFormatters: <TextInputFormatter>[
+                      LengthLimitingTextInputFormatter(500),
+                    ],
                     maxLines: 7,
                     onChanged: (value) {
                       formProv.isActDetailEmpty = _ctrl.text.isEmpty;
@@ -99,7 +79,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                       border: OutlineInputBorder(),
                     )),
 
-                const DoubleSpace(),
+                Space.doubleSpace(),
 
                 // save button
                 ElevatedButton(
@@ -122,7 +102,7 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
                         : const Text(
                             "Save Changes",
                           )),
-                HalfSpace(),
+                Space.halfSpace(),
                 // cancel button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.black45),
@@ -140,11 +120,40 @@ class _AddActivityDetailFormState extends State<AddActivityDetailForm> {
     );
   }
 
+  addActivityDetail(desc) {
+    final newIndex = formProv.actDetails.length;
+
+    final item = ActivityDetail(
+        detail_name: widget.type + newIndex.toString(),
+        detail_urutan: newIndex,
+        detail_type: widget.type,
+        detail_desc: desc,
+        activity: formProv.activity);
+
+    List<ActivityDetail> newList = formProv.actDetails;
+    if (newList.isEmpty) {
+      newList = [item];
+    } else {
+      newList.add(item);
+    }
+
+    formProv.actDetails = newList;
+  }
+
+  editActivityDetail(desc) {
+    List<ActivityDetail> newList = formProv.actDetails;
+    newList[widget.detail!.detail_urutan].detail_desc = desc;
+
+    formProv.actDetails = newList;
+  }
+
   Container getTitleField(isEmpty, type) {
     if (type == 'text') {
       return titleField("Add Text", isEmpty, 20);
     } else if (type == 'to_do') {
       return titleField("Add To Do List", isEmpty, 20);
+    } else if (type == 'header') {
+      return titleField("Add Header", isEmpty, 20);
     }
 
     return titleField("Add Text", isEmpty, 20);

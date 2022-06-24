@@ -10,7 +10,6 @@ import 'package:webadmin_onboarding/providers/form/add_category_form_provider.da
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/error_alert_dialog.dart';
-import 'package:webadmin_onboarding/widgets/double_space.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 
@@ -30,7 +29,9 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
 
   late final TextEditingController _catNameCtrl;
   late final TextEditingController _catDescCtrl;
-  late final TextEditingController _durationCtrl;
+
+  ScrollController scrollbarController = ScrollController();
+
 
   @override
   void initState() {
@@ -42,12 +43,10 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       // means adding
       _catNameCtrl = TextEditingController();
       _catDescCtrl = TextEditingController();
-      _durationCtrl = TextEditingController();
 
 
       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
     } else {
       // means editing
       _catNameCtrl =
@@ -57,10 +56,6 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       _catDescCtrl =
           TextEditingController(text: widget.category!.category_description);
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-
-      _durationCtrl =
-          TextEditingController(text: widget.category!.duration.toString());
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
     }
   }
 
@@ -71,12 +66,12 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
     formProv = context.watch<AddCategoryFormProvider>();
 
     void _addCategory(
-        String category_name, String category_description, int duration) async {
+        String category_name, String category_description) async {
       formProv.isSaveButtonDisabled = true;
 
       try {
         var data = await dataProv.createActivityCategory(
-            category_name, category_description, duration);
+            category_name, category_description);
         List<String> colnames = dataProv.colnames;
 
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
@@ -93,21 +88,19 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
 
       _catDescCtrl.text = "";
       _catNameCtrl.text = "";
-      _durationCtrl.text = "";
       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
 
       formProv.isSaveButtonDisabled = false;
     }
 
     void _editCategory(int id, String category_name,
-        String category_description, int duration) async {
+        String category_description) async {
       formProv.isSaveButtonDisabled = true;
 
       try {
         var data = await dataProv.editActivityCategory(
-            id, category_name, category_description, duration);
+            id, category_name, category_description);
         List<String> colnames = dataProv.colnames;
 
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
@@ -124,117 +117,98 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
       }
       _catDescCtrl.text = "";
       _catNameCtrl.text = "";
-      _durationCtrl.text = "";
       formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty;
       formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty;
-      formProv.isDurationEmpty = _durationCtrl.text.isEmpty;
 
       formProv.isSaveButtonDisabled = false;
     }
 
-    return SingleChildScrollView(
-      child: Card(
-        elevation: 5,
-        child: Container(
-            padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
-                DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
-            width: MediaQuery.of(context).size.width * 0.6,
-            child: Column(
-              children: [
-                const Text(
-                  "Add Activity Category",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-                ),
-                const DoubleSpace(),
-                // Category Name
-                titleField("Category Name", formProv.isCategoryNameEmpty),
-                const DoubleSpace(),
-                TextFormField(
-                    onChanged: (value) =>
-                        formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
-                    controller: _catNameCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                const Space(),
-    
-                // Catgeory Description
-                titleField("Catgeory Description", formProv.isCategoryDescEmpty),
-                const DoubleSpace(),
-                TextFormField(
-                    onChanged: (value) =>
-                        formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
-                    controller: _catDescCtrl,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                const Space(),
-    
-                // Duration
-                titleField("Duration in Days", formProv.isDurationEmpty),
-                const DoubleSpace(),
-                TextFormField(
-                    onChanged: (value) =>
-                        formProv.isDurationEmpty = _durationCtrl.text.isEmpty,
-                    controller: _durationCtrl,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    )),
-                const Space(),
-    
-                // save button
-                ElevatedButton(
-                  onPressed: (formProv.isSaveButtonDisabled)
-                      ? () {}
-                      : () {
-                          if (_catNameCtrl.text.isNotEmpty &&
-                              _catDescCtrl.text.isNotEmpty &&
-                              _durationCtrl.text.isNotEmpty &&
-                              !formProv.isCategoryNameEmpty &&
-                              !formProv.isCategoryDescEmpty &&
-                              !formProv.isDurationEmpty) {
-                            if (widget.category == null) {
-                              // means adding
-                              _addCategory(
-                                _catNameCtrl.text,
-                                _catDescCtrl.text,
-                                int.parse(_durationCtrl.text),
-                              );
-                            } else {
-                              // means editing
-                              _editCategory(
-                                  widget.category!.id,
-                                _catNameCtrl.text,
-                                _catDescCtrl.text,
-                                int.parse(_durationCtrl.text),);
+    return Scrollbar(
+
+      controller: scrollbarController,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        child: Card(
+          elevation: 5,
+          child: Container(
+              padding: const EdgeInsets.fromLTRB(DEFAULT_PADDING * 8,
+                  DEFAULT_PADDING * 3, DEFAULT_PADDING * 8, DEFAULT_PADDING * 3),
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Column(
+                children: [
+                  const Text(
+                    "Add Activity Category",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                  ),
+                  Space.doubleSpace(),
+                  // Category Name
+                  titleField("Category Name", formProv.isCategoryNameEmpty),
+                  Space.doubleSpace(),
+                  TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(100),
+                  ],
+                      onChanged: (value) =>
+                          formProv.isCategoryNameEmpty = _catNameCtrl.text.isEmpty,
+                      controller: _catNameCtrl,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      )),
+                   Space.space(),
+      
+                  // Catgeory Description
+                  titleField("Catgeory Description", formProv.isCategoryDescEmpty),
+                  Space.doubleSpace(),
+                  TextFormField(
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(100),
+                  ],
+                      onChanged: (value) =>
+                          formProv.isCategoryDescEmpty = _catDescCtrl.text.isEmpty,
+                      controller: _catDescCtrl,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      )),
+                   Space.space(),
+                  // save button
+                  ElevatedButton(
+                    onPressed: (formProv.isSaveButtonDisabled)
+                        ? () {}
+                        : () {
+                            if (_catNameCtrl.text.isNotEmpty &&
+                                _catDescCtrl.text.isNotEmpty &&
+                                !formProv.isCategoryNameEmpty &&
+                                !formProv.isCategoryDescEmpty) {
+                              if (widget.category == null) {
+                                // means adding
+                                _addCategory(
+                                  _catNameCtrl.text,
+                                  _catDescCtrl.text,
+                                );
+                              } else {
+                                // means editing
+                                _editCategory(
+                                    widget.category!.id,
+                                  _catNameCtrl.text,
+                                  _catDescCtrl.text);
+                              }
                             }
-                          }
-                        },
-                  child: formProv.isSaveButtonDisabled
-                      ? const Text(
-                          "Wait",
-                        )
-                      : const Text(
-                          "Save",
-                        ),
-                )
-              ],
-            )),
+                          },
+                    child: formProv.isSaveButtonDisabled
+                        ? const Text(
+                            "Wait",
+                          )
+                        : const Text(
+                            "Save",
+                          ),
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }
 
-  TextFormField textField(controller) {
-    return TextFormField(
-        controller: controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-        ));
-  }
 
   Container titleField(title, isEmpty) => Container(
       alignment: Alignment.centerLeft,

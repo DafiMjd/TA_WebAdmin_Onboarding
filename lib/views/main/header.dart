@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webadmin_onboarding/providers/auth_provider.dart';
@@ -23,30 +25,56 @@ class Header extends StatelessWidget {
       height: 50,
       width: MediaQuery.of(context).size.width,
       child: Responsive.isDesktop(context)
-          ? InkWell(
-              onTap: () {},
-              child: Container(
-                alignment: Alignment.centerRight,
-                margin: const EdgeInsets.only(right: 15),
-                child: ElevatedButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: BROWN_GARUDA,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: DEFAULT_PADDING * 1.5,
-                      vertical: DEFAULT_PADDING /
-                          (Responsive.isMobile(context) ? 2 : 1),
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  alignment: Alignment.centerRight,
+                  margin: const EdgeInsets.only(right: 15),
+                  child: ElevatedButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: BROWN_GARUDA,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: DEFAULT_PADDING * 1.5,
+                        vertical: DEFAULT_PADDING /
+                            (Responsive.isMobile(context) ? 2 : 1),
+                      ),
+                    ),
+                    onPressed: () {
+                      menuProv.setDashboardContent("form", null, null, 'Change Passowrd',
+                          'change_password', "add", null);
+                      // menuProv.init();
+                      // authProvider.logout();
+                    },
+                    child: const Text(
+                      "Change Password",
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                  onPressed: () {
-                    menuProv.init();
-                    authProvider.logout();
-                  },
-                  child: const Text(
-                    "Sign Out",
-                    style: TextStyle(fontSize: 16),
+                ),
+                Container(
+                  alignment: Alignment.centerRight,
+                  margin: const EdgeInsets.only(right: 15),
+                  child: ElevatedButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: BROWN_GARUDA,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: DEFAULT_PADDING * 1.5,
+                        vertical: DEFAULT_PADDING /
+                            (Responsive.isMobile(context) ? 2 : 1),
+                      ),
+                    ),
+                    onPressed: () {
+                      menuProv.init();
+                      authProvider.logout();
+                    },
+                    child: const Text(
+                      "Sign Out",
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
+              ],
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,34 +86,64 @@ class Header extends StatelessWidget {
                   ),
                   onPressed: context.read<MenuProvider>().controlMenu,
                 ),
-                const Text(
-                  "Onboarding",
-                  style: TextStyle(color: Colors.white),
-                ),
                 InkWell(
-                  onTap: () {},
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    margin: const EdgeInsets.only(right: 15),
-                    child: ElevatedButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: BROWN_GARUDA,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: DEFAULT_PADDING * 1.5,
-                          vertical: DEFAULT_PADDING /
-                              (Responsive.isMobile(context) ? 2 : 1),
+                  onTap: () => menuProv.init(),
+                  child: Text(
+                    "Onboarding",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      alignment: Alignment.centerRight,
+                      margin: const EdgeInsets.only(right: 15),
+                      child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: BROWN_GARUDA,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: DEFAULT_PADDING * 1.5,
+                            vertical: DEFAULT_PADDING /
+                                (Responsive.isMobile(context) ? 2 : 1),
+                          ),
+                        ),
+                        onPressed: () {
+
+                      menuProv.setDashboardContent("form", null, null, 'Change Passowrd',
+                          'change_password', "add", null);
+                          // menuProv.init();
+                          // authProvider.logout();
+                        },
+                        child: const Text(
+                          "Change Password",
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
-                      onPressed: () {
-                        authProvider.logout();
-                      },
-                      child: const Text(
-                        "Sign Out",
-                        style: TextStyle(fontSize: 16),
+                    ),
+                    Container(
+                      alignment: Alignment.centerRight,
+                      margin: const EdgeInsets.only(right: 15),
+                      child: ElevatedButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: BROWN_GARUDA,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: DEFAULT_PADDING * 1.5,
+                            vertical: DEFAULT_PADDING /
+                                (Responsive.isMobile(context) ? 2 : 1),
+                          ),
+                        ),
+                        onPressed: () {
+                          menuProv.init();
+                          authProvider.logout();
+                        },
+                        child: const Text(
+                          "Sign Out",
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ),
-                  ),
-                )
+                  ],
+                ),
               ],
             ),
     );
@@ -118,8 +176,7 @@ class ProfileCard extends StatelessWidget {
           ),
           if (!Responsive.isMobile(context))
             const Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: DEFAULT_PADDING / 2),
+              padding: EdgeInsets.symmetric(horizontal: DEFAULT_PADDING / 2),
               child: Text("Angelina Jolie"),
             ),
           const Icon(Icons.keyboard_arrow_down),

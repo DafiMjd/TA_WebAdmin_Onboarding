@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:typed_data';
+
 import 'package:webadmin_onboarding/models/activity.dart';
 
 class ActivityDetail {
@@ -8,6 +10,7 @@ class ActivityDetail {
   String detail_name, detail_desc, detail_type;
   String? detail_link;
   Activity activity;
+  Uint8List? file;
 
   ActivityDetail(
       {this.id,
@@ -15,19 +18,21 @@ class ActivityDetail {
       required this.detail_name,
       required this.detail_desc,
       this.detail_link,
+      this.file,
       required this.detail_type,
       required this.activity});
 
   factory ActivityDetail.fromJson(Map<String, dynamic> json) {
-    return ActivityDetail(
+    var newAct = ActivityDetail(
       id: json['id'],
-      activity: Activity.fromJson(json['activity_']),
+      activity: json['activity_'],
       detail_name: json['detail_name'],
       detail_desc: json['detail_desc'],
       detail_link: json['detail_link'],
       detail_type: json['detail_type'],
       detail_urutan: json['detail_urutan'],
     );
+    return newAct;
   }
 
   dynamic getData(String identifier) {
@@ -53,7 +58,7 @@ class ActivityDetail {
   @override
   String toString() {
     return "id: " + id.toString() + 
-    "\nact name: " + activity.activity_name! + 
+    "\nact name: " + activity.id.toString() + 
     "\nact name: " + detail_name + 
     "\ndesc: " + detail_desc + 
     "\ntype: " + detail_type + 

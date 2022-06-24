@@ -12,11 +12,9 @@ class AddCategoryFormProvider extends ChangeNotifier {
 
   bool _isCategoryNameEmpty = true;
   bool _isCategoryDescEmpty = true;
-  bool _isDurationEmpty = true;
 
   bool get isCategoryNameEmpty => _isCategoryNameEmpty;
   bool get isCategoryDescEmpty => _isCategoryDescEmpty;
-  bool get isDurationEmpty => _isDurationEmpty;
 
   set isCategoryNameEmpty(bool val) {
     _isCategoryNameEmpty = val;
@@ -24,10 +22,6 @@ class AddCategoryFormProvider extends ChangeNotifier {
   }
   set isCategoryDescEmpty(bool val) {
     _isCategoryDescEmpty = val;
-    notifyListeners();
-  }
-  set isDurationEmpty(bool val) {
-    _isDurationEmpty = val;
     notifyListeners();
   }
   // ==========================

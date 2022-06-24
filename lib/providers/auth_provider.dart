@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -7,7 +9,7 @@ import 'package:webadmin_onboarding/utils/constants.dart';
 
 import 'dart:html' show window;
 
-import 'package:webadmin_onboarding/views/main_page.dart';
+import 'package:webadmin_onboarding/views/main/main_page.dart';
 
 class AuthProvider with ChangeNotifier {
   late Map<String, dynamic> jwtDecoded;
@@ -15,7 +17,7 @@ class AuthProvider with ChangeNotifier {
   late bool _isAuth = false;
   void _setIsAuth(bool val) {
     _isAuth = val;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void logout() {
@@ -28,7 +30,10 @@ class AuthProvider with ChangeNotifier {
     var jwt = window.localStorage["csrf"];
     jwtDecoded = jsonDecode(jwt!);
 
-    return const MainPage();
+
+    String role = jwtDecoded['role'];
+
+    return MainPage(role: role);
   }
 
   bool getIsAuth() {
@@ -42,8 +47,6 @@ class AuthProvider with ChangeNotifier {
 
       Map<String, dynamic> data = jsonDecode(str);
 
-      var payload =
-          json.decode(ascii.decode(base64.decode(base64.normalize(token[1]))));
       if (DateTime.now()
           .add(Duration(seconds: int.parse(data['expiresIn'])))
           .isAfter(DateTime.now())) {
@@ -62,7 +65,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> auth(String email, String password) async {
-    String apiURL = "$BASE_URL/api/Auth/login-super-admin";
+    String apiURL = "$BASE_URL/api/Auth/loginAdmin";
 
     try {
       var apiResult = await http.post(Uri.parse(apiURL),
@@ -84,6 +87,11 @@ class AuthProvider with ChangeNotifier {
       if (apiResult.statusCode == 400) {
         Map<String, dynamic> responseData = jsonDecode(apiResult.body);
         throw responseData['errorMessage'];
+      }
+
+
+      if (apiResult.statusCode == 502 || apiResult.statusCode == 500) {
+        throw "Server Down";
       }
 
       isLoginButtonDisabled = false;

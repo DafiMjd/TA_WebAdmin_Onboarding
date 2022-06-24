@@ -43,6 +43,13 @@ class AddActivityFormProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isVideoLinkEmpty = true;
+  bool get isVideoLinkEmpty => _isVideoLinkEmpty;
+  set isVideoLinkEmpty(bool val) {
+    _isVideoLinkEmpty = val;
+    notifyListeners();
+  }
+
   // ==========================
 
   // button disable after save
