@@ -10,6 +10,7 @@ import 'package:webadmin_onboarding/models/category.dart';
 
 import 'package:webadmin_onboarding/providers/data_provider.dart';
 import 'package:webadmin_onboarding/providers/form/add_activity_form_provider.dart';
+import 'package:webadmin_onboarding/providers/form/assign_activity_provider.dart';
 
 import 'package:webadmin_onboarding/providers/menu_provider.dart';
 import 'package:webadmin_onboarding/utils/constants.dart';
@@ -225,7 +226,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
                                               'video' ||
                                           formProv.actDetails[index]
                                                   .detail_type ==
-                                              'image'||
+                                              'image' ||
                                           formProv.actDetails[index]
                                                   .detail_type ==
                                               'video_link')
@@ -299,6 +300,7 @@ class _AddActivityFormState extends State<AddActivityForm> {
   }
 
   Widget actionBuilder(BuildContext context) {
+    formProv = context.watch<AddActivityFormProvider>();
     return Center(
       child: Container(
           margin: const EdgeInsets.all(30),
@@ -382,41 +384,52 @@ class _AddActivityFormState extends State<AddActivityForm> {
                           Space.halfSpace(),
                           // save button
                           InkWell(
-                            onTap: () async {
-                              if (_actDescCtrl.text.isEmpty ||
-                                  _actNameCtrl.text.isEmpty ||
-                                  formProv.isCategoryEmpty) {
-                                return formDisable(context,
-                                    "Fill The Above Form To Perform This Action");
-                              } else {
-                                if (formProv.actDetails.isEmpty) {
-                                  return activityDetailEmpty(context);
-                                }
+                            onTap: (formProv.isSaveButtonDisabled)
+                                ? () {}
+                                : () async {
+                                    if (_actDescCtrl.text.isEmpty ||
+                                        _actNameCtrl.text.isEmpty ||
+                                        formProv.isCategoryEmpty) {
+                                      return formDisable(context,
+                                          "Fill The Above Form To Perform This Action");
+                                    } else {
+                                      formProv.isSaveButtonDisabled = true;
+                                      if (formProv.actDetails.isEmpty) {
+                                        formProv.isSaveButtonDisabled = false;
+                                        return activityDetailEmpty(context);
+                                      }
 
-                                reorderActivityDetailsUrutan();
-                                if (formProv.isFetchingData) {
-                                  return formDisable(context, "Loading");
-                                }
+                                      reorderActivityDetailsUrutan();
+                                      if (formProv.isFetchingData) {
+                                        formProv.isSaveButtonDisabled = false;
+                                        return formDisable(context, "Loading");
+                                      }
 
-                                if (isEditing) {
-                                  if (deletedActDetailIds.isNotEmpty) {
-                                    for (int i = 0;
-                                        i < deletedActDetailIds.length;
-                                        i++) {
-                                      _removeActivityDetailFromDb(
-                                          deletedActDetailIds[i]);
+                                      if (isEditing) {
+                                        if (deletedActDetailIds.isNotEmpty) {
+                                          for (int i = 0;
+                                              i < deletedActDetailIds.length;
+                                              i++) {
+                                            _removeActivityDetailFromDb(
+                                                deletedActDetailIds[i]);
+                                          }
+                                        }
+                                        _editActivity(formProv.activity);
+                                      } else {
+                                        _addActivity(formProv.activity);
+                                      }
+                                      formProv.isSaveButtonDisabled = false;
                                     }
-                                  }
-                                  _editActivity(formProv.activity);
-                                } else {
-                                  _addActivity(formProv.activity);
-                                }
-                              }
-                            },
-                            child: FormBuilderTile(
-                                icon: Icons.save_alt_rounded,
-                                title: "Save",
-                                subtitle: "Save New Activity"),
+                                  },
+                            child: (formProv.isSaveButtonDisabled)
+                                ? FormBuilderTile(
+                                    icon: Icons.timelapse_sharp,
+                                    title: "Wait",
+                                    subtitle: "Uploading")
+                                : FormBuilderTile(
+                                    icon: Icons.save_alt_outlined,
+                                    title: "Save",
+                                    subtitle: "Save New Activity"),
                           ),
                         ],
                       )),
@@ -425,7 +438,6 @@ class _AddActivityFormState extends State<AddActivityForm> {
     );
   }
 
-  
   Widget formBuilder(BuildContext context) {
     return Center(
       child: Container(
@@ -603,23 +615,19 @@ class _AddActivityFormState extends State<AddActivityForm> {
   }
 
   void _editActivity(Activity activity) async {
-    formProv.isSaveButtonDisabled = true;
     try {
       List<Activity> data = await dataProv.editActivity(activity);
       _editActivityDetail(data, formProv.actDetails);
       // List<String> colnames = dataProv.colnames;
       // menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
       //     menuProv.menuId, null, null);
-      formProv.isSaveButtonDisabled = false;
     } catch (e) {
-      formProv.isSaveButtonDisabled = false;
       return showDialog(
           context: context,
           builder: (context) {
             return ErrorAlertDialog(title: "Http Error", error: e.toString());
           });
     }
-    formProv.isSaveButtonDisabled = false;
   }
 
   void _editActivityDetail(
@@ -649,20 +657,16 @@ class _AddActivityFormState extends State<AddActivityForm> {
   }
 
   void _addActivity(Activity activity) async {
-    formProv.isSaveButtonDisabled = true;
     try {
       List<Activity> data = await dataProv.createActivity(activity);
       _addActivityDetail(data, formProv.actDetails);
-      formProv.isSaveButtonDisabled = false;
     } catch (e) {
-      formProv.isSaveButtonDisabled = false;
       return showDialog(
           context: context,
           builder: (context) {
             return ErrorAlertDialog(title: "Http Error", error: e.toString());
           });
     }
-    formProv.isSaveButtonDisabled = false;
   }
 
   void _addActivityDetail(

@@ -12,7 +12,8 @@ import 'package:webadmin_onboarding/utils/constants.dart';
 import 'package:webadmin_onboarding/widgets/space.dart';
 
 class ChangePasswordUserForm extends StatefulWidget {
-  const ChangePasswordUserForm({Key? key, required this.user}) : super(key: key);
+  const ChangePasswordUserForm({Key? key, required this.user})
+      : super(key: key);
 
   final dynamic user;
 
@@ -43,8 +44,6 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
 
     formProv.isNewPassHidden = true;
     formProv.isNewPassFieldEmpty = true;
-
-
   }
 
   @override
@@ -73,8 +72,6 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
                   ),
                   Space.doubleSpace(),
-                  // Jobtitle Name
-                  // Current Password
                   titleField("Email", false),
                   Space.space(),
                   TextFormField(
@@ -93,10 +90,14 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
                   Space.space(),
                   TextFormField(
                       inputFormatters: <TextInputFormatter>[
-                        LengthLimitingTextInputFormatter(200),
+                        LengthLimitingTextInputFormatter(30),
                       ],
-                      onChanged: (value) => formProv.isNewPassFieldEmpty =
-                          _newPassCtrl.text.isEmpty,
+                      onChanged: (value) {
+                        setState(() {
+                          formProv.isNewPassFieldEmpty = _newPassCtrl.text.isEmpty;
+                          validatePw(value);
+                        });
+                      },
                       obscureText: formProv.isNewPassHidden,
                       controller: _newPassCtrl,
                       decoration: InputDecoration(
@@ -107,6 +108,16 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
                                   ? Icons.visibility_off
                                   : Icons.visibility)))),
                   Space.space(),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      formProv.pwValidation,
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[400]),
+                    ),
+                  ),
 
                   Space.doubleSpace(),
                   ElevatedButton(
@@ -117,8 +128,11 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
                     onPressed: (formProv.isSaveButtonDisabled)
                         ? () {}
                         : () async {
-                            if (_newPassCtrl.text.isNotEmpty) {
-                              await _changePasswordUser(widget.user.email, _newPassCtrl.text, widget.user.role.role_platform);
+                            if (formProv.isPasswordValid && _newPassCtrl.text.isNotEmpty) {
+                              await _changePasswordUser(
+                                  widget.user.email,
+                                  _newPassCtrl.text,
+                                  widget.user.role.role_platform);
                             }
                           },
                     child: formProv.isSaveButtonDisabled
@@ -136,6 +150,38 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
     );
   }
 
+  validatePw(String pw) {
+    formProv.pwValidation = '';
+    StringBuffer pwValidation = new StringBuffer();
+    // RegExp regex =
+    //     RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    RegExp regexpCapital = RegExp(r'^(?=.*?[A-Z])');
+    RegExp regexpLower = RegExp(r'^(?=.*?[a-z])');
+    RegExp regexpNumber = RegExp(r'(?=.*?[0-9])');
+    if (pw.length < 8) {
+      pwValidation.write('Min 8 chars* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpCapital.hasMatch(pw)) {
+      pwValidation.write('Min 1 uppercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpLower.hasMatch(pw)) {
+      pwValidation.write('Min 1 lowercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpNumber.hasMatch(pw)) {
+      pwValidation.write('Min 1 number* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+
+    if (pwValidation.isEmpty) {
+      formProv.isPasswordValid = true;
+    } else {
+      formProv.isPasswordValid = false;
+    }
+  }
+
   Future<void> _changePasswordUser(
       String email, String newPass, String platform) async {
     formProv.isSaveButtonDisabled = true;
@@ -143,7 +189,7 @@ class _ChangePasswordUserFormState extends State<ChangePasswordUserForm> {
     try {
       if (platform == 'Mobile') {
         await dataProv.changePasswordUser(email, newPass);
-      }else if (platform == 'Website') {
+      } else if (platform == 'Website') {
         await dataProv.changePasswordAdmin(email, newPass);
       }
       // Navigator.pop(context);

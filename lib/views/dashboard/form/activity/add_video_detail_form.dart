@@ -32,7 +32,7 @@ class _AddVideoDetailFormState extends State<AddVideoDetailForm> {
   @override
   void initState() {
     super.initState();
-    formProv = Provider.of<AddActivityFormProvider>(context, listen:  false);
+    formProv = Provider.of<AddActivityFormProvider>(context, listen: false);
     formProv.isVideoLinkEmpty = true;
   }
 
@@ -80,6 +80,16 @@ class _AddVideoDetailFormState extends State<AddVideoDetailForm> {
                       border: OutlineInputBorder(),
                     )),
               ),
+              Space.space(),
+              Visibility(
+                  visible: (_file == null && formProv.isVideoLinkEmpty),
+                  child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'or',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 14),
+                      ))),
               Space.space(),
               Visibility(
                 visible: (_file == null && formProv.isVideoLinkEmpty),

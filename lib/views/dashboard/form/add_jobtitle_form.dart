@@ -64,6 +64,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
     formProv = context.watch<AddJobtitleFormProvider>();
 
     void _addJobtitle(String jobtitle_name, String jobtitle_description) async {
+      formProv.isSaveButtonDisabled = true;
 
       try {
         var data =
@@ -75,6 +76,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
 
         formProv.isSaveButtonDisabled = false;
       } catch (e) {
+        formProv.isSaveButtonDisabled = false;
         return showDialog(
             context: context,
             builder: (context) {
@@ -102,8 +104,9 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
         menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
             menuProv.menuId, null, null);
 
-        formProv.isSaveButtonDisabled = true;
+        formProv.isSaveButtonDisabled = false;
       } catch (e) {
+        formProv.isSaveButtonDisabled = false;
         return showDialog(
             context: context,
             builder: (context) {
@@ -191,7 +194,7 @@ class _AddJobtitleFormState extends State<AddJobtitleForm> {
                               }
                             }
                           },
-                    child: formProv.isSaveButtonDisabled
+                    child: (formProv.isSaveButtonDisabled)
                         ? const Text(
                             "Wait",
                           )

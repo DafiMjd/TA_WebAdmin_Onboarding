@@ -162,7 +162,9 @@ class _DateTimePickerState extends State<DateTimePicker> {
                       DateTime end = DateTime.parse(_endDateAndTime);
                       if (start.isBefore(end)) {
                         error = '';
-                        _assignActivity();
+                        if (!assignProv.isAssignButtonDisabled) {
+                          _assignActivity();
+                        }
                       } else {
                         if (error !=
                             'Start DateAndTime Must Be Before End Date And Time') {
@@ -174,7 +176,9 @@ class _DateTimePickerState extends State<DateTimePicker> {
                       }
                     }
                   },
-                  child: Text("Assign")),
+                  child: (assignProv.isAssignButtonDisabled)
+                      ? Text('Wait')
+                      : Text("Assign")),
             ],
             content: (Responsive.isMobile(context))
                 ? Column(
@@ -248,9 +252,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
         await dataProv.assignActivity(element.email, widget.activity.id!,
             _startDateAndTime, _endDateAndTime, widget.activity.category!.id);
 
-
-        _editUserAssignedAct(
-            element.email, element.assignedActivities + 1);
+        _editUserAssignedAct(element.email, element.assignedActivities + 1);
       } catch (e) {
         showDialog(
             context: context,

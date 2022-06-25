@@ -518,7 +518,7 @@ class MyData extends AdvancedDataTableSource {
     }
   }
 
-  Future<void> _delete(index) async {
+  Future<dynamic> _delete(index) async {
     var err = null;
     menuProv.isFetchingData = true;
     List<dynamic> data;
@@ -531,20 +531,14 @@ class MyData extends AdvancedDataTableSource {
       menuProv.setDashboardContent("table", data, colnames, menuProv.menuName,
           menuProv.menuId, null, null);
     } catch (e) {
-      err = e.toString();
       menuProv.isFetchingData = false;
-      showDialog(
+
+      menuProv.setDashboardContent("table", datas, colnames, menuProv.menuName,
+          menuProv.menuId, null, null);
+      return showDialog(
           context: context,
           builder: (context) {
             return ErrorAlertDialog(title: "HTTP Error", error: e.toString());
-          });
-    }
-
-    if (err != null) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return ErrorAlertDialog(title: "HTTP Error", error: err);
           });
     }
   }

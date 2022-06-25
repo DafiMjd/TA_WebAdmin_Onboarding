@@ -33,7 +33,6 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
   late AuthProvider authProv;
   late MenuProvider menuProv;
 
-
   @override
   void initState() {
     super.initState();
@@ -53,8 +52,6 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
     formProv.isConfPassFieldEmpty = true;
     formProv.isCurPassFieldEmpty = true;
     formProv.isNewPassFieldEmpty = true;
-
-
   }
 
   @override
@@ -109,10 +106,15 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                   Space.space(),
                   TextFormField(
                       inputFormatters: <TextInputFormatter>[
-                        LengthLimitingTextInputFormatter(200),
+                        LengthLimitingTextInputFormatter(30),
                       ],
-                      onChanged: (value) => formProv.isNewPassFieldEmpty =
-                          _newPassCtrl.text.isEmpty,
+                      onChanged: (value) {
+                        setState(() {
+                          formProv.isNewPassFieldEmpty =
+                              _newPassCtrl.text.isEmpty;
+                          validatePw(value);
+                        });
+                      },
                       obscureText: formProv.isNewPassHidden,
                       controller: _newPassCtrl,
                       decoration: InputDecoration(
@@ -122,6 +124,18 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                               child: Icon(formProv.isNewPassHidden
                                   ? Icons.visibility_off
                                   : Icons.visibility)))),
+                  Space.space(),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      formProv.pwValidation,
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red[400]),
+                    ),
+                  ),
+
                   Space.space(),
 
                   // Confirm Password
@@ -163,7 +177,8 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
                     onPressed: (formProv.isSaveButtonDisabled)
                         ? () {}
                         : () async {
-                            if (_curPassCtrl.text.isNotEmpty &&
+                            if (formProv.isPasswordValid &&
+                                _curPassCtrl.text.isNotEmpty &&
                                 _newPassCtrl.text.isNotEmpty &&
                                 _confirmPassCtrl.text.isNotEmpty) {
                               // validate wheter new pass and conf pass same
@@ -190,6 +205,38 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
     );
   }
 
+  validatePw(String pw) {
+    formProv.pwValidation = '';
+    StringBuffer pwValidation = new StringBuffer();
+    // RegExp regex =
+    //     RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    RegExp regexpCapital = RegExp(r'^(?=.*?[A-Z])');
+    RegExp regexpLower = RegExp(r'^(?=.*?[a-z])');
+    RegExp regexpNumber = RegExp(r'(?=.*?[0-9])');
+    if (pw.length < 8) {
+      pwValidation.write('Min 8 chars* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpCapital.hasMatch(pw)) {
+      pwValidation.write('Min 1 uppercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpLower.hasMatch(pw)) {
+      pwValidation.write('Min 1 lowercase char* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+    if (!regexpNumber.hasMatch(pw)) {
+      pwValidation.write('Min 1 number* | ');
+      formProv.pwValidation = pwValidation.toString();
+    }
+
+    if (pwValidation.isEmpty) {
+      formProv.isPasswordValid = true;
+    } else {
+      formProv.isPasswordValid = false;
+    }
+  }
+
   Future<void> _changePassword(String curPass, String newPass) async {
     formProv.isSaveButtonDisabled = true;
 
@@ -200,7 +247,6 @@ class _ChangePasswordFormState extends State<ChangePasswordForm> {
 
       menuProv.init();
       authProv.logout();
-
     } catch (e) {
       formProv.isSaveButtonDisabled = false;
       return showDialog(

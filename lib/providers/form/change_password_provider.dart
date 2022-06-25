@@ -46,6 +46,7 @@ class ChangePasswordProvider extends ChangeNotifier {
   set isCurPassHidden(val) {
     _isCurPassHidden = true;
   }
+
   void changeCurPassHidden() {
     _isCurPassHidden = !_isCurPassHidden;
     notifyListeners();
@@ -57,6 +58,7 @@ class ChangePasswordProvider extends ChangeNotifier {
   set isNewPassHidden(val) {
     _isNewPassHidden = true;
   }
+
   void changeNewPassHidden() {
     _isNewPassHidden = !_isNewPassHidden;
     notifyListeners();
@@ -68,6 +70,7 @@ class ChangePasswordProvider extends ChangeNotifier {
   set isConfPassHidden(val) {
     _isConfPassHidden = true;
   }
+
   void changeConfPassHidden() {
     _isConfPassHidden = !_isConfPassHidden;
     notifyListeners();
@@ -82,7 +85,6 @@ class ChangePasswordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   bool _isFetchingData = false;
   get isFetchingData => _isFetchingData;
   set isFetchingData(val) {
@@ -90,4 +92,18 @@ class ChangePasswordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _pwValidation = '';
+  String get pwValidation => _pwValidation;
+  set pwValidation(String val) {
+    _pwValidation = val;
+    notifyListeners();
+  }
+
+  bool _isPasswordValid = true;
+  bool get isPasswordValid => _isPasswordValid;
+
+  set isPasswordValid(bool val) {
+    _isPasswordValid = val;
+    notifyListeners();
+  }
 }
