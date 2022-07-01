@@ -266,7 +266,14 @@ class MyData extends AdvancedDataTableSource {
                         builder: (context) {
                           return AlertDialog(
                             title: Text("Are You Sure?"),
-                            content: Text("Press Okay To Delete"),
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("Activities owned by user will also be deleted"),
+                                Text("Press Okay To Delete", style: TextStyle(fontSize: 14),)
+                              ],
+                            ),
                             actions: [
                               TextButton(
                                   onPressed: () {
@@ -436,6 +443,73 @@ class MyData extends AdvancedDataTableSource {
                         builder: (context) {
                           return AlertDialog(
                             title: Text("Are You Sure?"),
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                    "This user's activities will also be deleted"),
+                                Text(
+                                  "Press Okay To Delete",
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("cancel")),
+                              TextButton(
+                                  onPressed: () {
+                                    _action(index, "delete");
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop();
+                                  },
+                                  child: const Text("okay")),
+                            ],
+                          );
+                        });
+                  }),
+                  icon: const Icon(Icons.delete))),
+        ];
+
+    getAdminActions() => [
+          Tooltip(
+              message: "Is Active",
+              child: IconButton(
+                  onPressed: (() {
+                    _editActiveUser(index);
+                  }),
+                  icon: Icon((currentRowData.getData('active'))
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank))),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Edit Password",
+              child: IconButton(
+                onPressed: () {
+                  _action(index, "edit");
+                },
+                icon: const Icon(Icons.password),
+              )),
+          const SizedBox(
+            width: 5,
+          ),
+          Tooltip(
+              message: "Delete",
+              child: IconButton(
+                  onPressed: (() {
+                    // _action(index, "delete");
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text("Are You Sure?"),
                             content: Text("Press Okay To Delete"),
                             actions: [
                               TextButton(
@@ -461,10 +535,12 @@ class MyData extends AdvancedDataTableSource {
     getNoAction() => [Text("No Action")];
 
     getActions(menuId) {
-      if (menuId == 'user_list' || menuId == 'admin_list') {
+      if (menuId == 'user_list') {
         return getUserActions();
       } else if (menuId == 'activity_list') {
         return getActivityActions();
+      } else if (menuId == 'admin_list') {
+        return getAdminActions();
       } else if (menuId == 'home_activity_list') {
         return getHomeActivityActions();
       } else if (menuId == 'activity_owned_list') {
